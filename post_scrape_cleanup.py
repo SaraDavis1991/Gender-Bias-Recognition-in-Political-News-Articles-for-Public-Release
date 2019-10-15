@@ -7,8 +7,8 @@ import operator
 data = {}
 url_index = {} 
 json_already_added = []
-input_file_path = ".\\Data\\candidate\\nyt_donald_trump.csv"
-output_file_path = '.\\Data\\candidate\\nyt_donald_trump.revised.json'
+input_file_path = ".\\Data\\candidate\\nyt_alexandria_ocasio-cortez.csv"
+output_file_path = '.\\Data\\candidate\\nyt_alexandria_ocasio-cortez.revised.json'
 
 def create_json(file):
     ''' Creates the json representation of the data
@@ -46,9 +46,9 @@ def create_json(file):
             article["date"] = row[7]
             article["labels"] = {                  
                 "author_gender" : "",
-                "target_gender" : "Male",
-                "target_affiliation" : "Right", 
-                "target_name" : "Donald_Trump"
+                "target_gender" : "Female",
+                "target_affiliation" : "Far_Left", 
+                "target_name" : "Alexandria_Ocasio-Cortez"
             }
 
             data["articles"].append(article)
