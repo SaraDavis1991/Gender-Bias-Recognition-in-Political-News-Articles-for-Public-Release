@@ -1,5 +1,5 @@
 
-class Article(object):
+class Article():
     ''' This provides a definition for json articles '''
 
     def __init__(self, title, url, subtitle, author, content, date, label):
@@ -9,9 +9,9 @@ class Article(object):
         self.Author = author
         self.Content = content 
         self.Date = date
-        self.Label = label 
+        self.Label : Label = label
 
-class Label(object):
+class Label():
     ''' This provides a definition for json labels '''
 
     def __init__(self, author_gender, target_gender, target_affiliation, target_name):
