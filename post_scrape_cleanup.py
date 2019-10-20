@@ -3,12 +3,12 @@ import json
 import os.path
 from os import path
 import operator 
+import LabelConstants
 
 data = {}
-url_index = {} 
+url_to_article_mapping = {} 
 json_already_added = []
-input_file_path = ".\\Data\\candidate\\nyt_alexandria_ocasio-cortez.csv"
-output_file_path = '.\\Data\\candidate\\nyt_alexandria_ocasio-cortez.revised.json'
+input_file_path = ".\\Data\\candidate\\usa_today\\bernie_sanders_usatoday.csv"
 
 def create_json(file):
     ''' Creates the json representation of the data
@@ -22,33 +22,40 @@ def create_json(file):
     #sort the rows by the scraper id to have the data in order   
     reader = sorted(reader, key=lambda row: int(row[0].replace('-', '')))
 
+    title_index = 6
+    subtitle_index = 7 
+    author_index = 8
+    date_index = 9
+    url_index = 5
+    content_index = 10
+
     for row in reader:
         article = {}
-        url = row[3]
+        url = row[url_index]
         #remove any artifacts that came from video links (so pages had both videos and articles linked on the same page)
         if ("video" in url):
             continue
 
         #there's duplicate records that are pulled and need to be combined into one      
-        if (url in url_index):
-            content = row[8]
-            original_article_index = url_index[url]
+        if (url in url_to_article_mapping):
+            content = row[content_index]
+            original_article_index = url_to_article_mapping[url]
             data["articles"][original_article_index]["content"] += " " + content
         else:    
             #setup data structures
-            url_index[row[3]] = index
+            url_to_article_mapping[row[url_index]] = index
 
-            article["title"] = row[4]
-            article["url"] = row[3]
-            article["subtitle"] = row[5]
-            article["author"] = row[6]
-            article["content"] = row[8] 
-            article["date"] = row[7]
+            article["title"] = row[title_index]
+            article["url"] = row[url_index]
+            article["subtitle"] = row[subtitle_index]
+            article["author"] = row[author_index]
+            article["content"] = row[content_index] 
+            article["date"] = row[date_index]
             article["labels"] = {                  
                 "author_gender" : "",
-                "target_gender" : "Female",
-                "target_affiliation" : "Far_Left", 
-                "target_name" : "Alexandria_Ocasio-Cortez"
+                "target_gender" : LabelConstants.Male,
+                "target_affiliation" : LabelConstants.FarLeft, 
+                "target_name" : LabelConstants.BernieSanders    
             }
 
             data["articles"].append(article)
@@ -58,6 +65,8 @@ def create_json(file):
 #open .csv and .json if it has already been created
 #using latin1 since I originally created the file in python 2 
 with open(input_file_path, 'r', encoding="UTF-8-sig") as file:   
+    output_file_path = input_file_path.split('.')[1]
+    output_file_path = ".\\" + output_file_path + '.revised.json'
     if (not path.exists(output_file_path)):
         create_json(file)
         
