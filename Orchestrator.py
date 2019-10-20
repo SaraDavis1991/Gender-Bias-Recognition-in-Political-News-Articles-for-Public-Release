@@ -3,5 +3,4 @@ from DataContracts import Article
 import ApplicationConstants
 
 reader = DataReader()
-sarah_data = reader.Load(ApplicationConstants.sarah)
-a = 5
+sources = reader.Load(ApplicationConstants.all_articles)

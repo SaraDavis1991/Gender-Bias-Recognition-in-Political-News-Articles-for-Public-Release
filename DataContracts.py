@@ -1,3 +1,4 @@
+from typing import List
 
 class Article():
     ''' This provides a definition for json articles '''
@@ -19,3 +20,9 @@ class Label():
         self.TargetGender = target_gender
         self.TargetAffiliation = target_affiliation
         self.TargetName = target_name
+
+class Source():
+    ''' This provides a definiton for the json sources '''
+
+    def __init__(self, articles):
+        self.Articles : List[Article] = articles

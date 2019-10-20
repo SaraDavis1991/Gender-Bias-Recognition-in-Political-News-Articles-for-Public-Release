@@ -8,7 +8,7 @@ import LabelConstants
 data = {}
 url_to_article_mapping = {} 
 json_already_added = []
-input_file_path = ".\\Data\\candidate\\usa_today\\bernie_sanders_usatoday.csv"
+input_file_path = ".\\Data\\candidate\\new_york_times\\nyt_alexandria_ocasio-cortez.csv"
 
 def create_json(file):
     ''' Creates the json representation of the data
@@ -22,12 +22,12 @@ def create_json(file):
     #sort the rows by the scraper id to have the data in order   
     reader = sorted(reader, key=lambda row: int(row[0].replace('-', '')))
 
-    title_index = 6
-    subtitle_index = 7 
-    author_index = 8
-    date_index = 9
-    url_index = 5
-    content_index = 10
+    title_index = 4
+    subtitle_index = 5 
+    author_index = 6
+    date_index = 7
+    url_index = 3
+    content_index = 2
 
     for row in reader:
         article = {}
