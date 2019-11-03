@@ -5,6 +5,10 @@ from DataContracts import Source
 from collections import namedtuple
 from typing import List
 
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.tag import pos_tag
+
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
     def object_decoder(self, obj): 
@@ -20,4 +24,9 @@ class DataReader():
         with open(filePath, 'r') as read_file:
             data = json.load(read_file, object_hook=self.object_decoder)
         return data
+
+    def preprocess_pos(self, data):
+        tokens = nltk.word_tokenize(data)
+        tagged_pos = nltk.pos_tag(tokens)
+        return tagged_pos
     

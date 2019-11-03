@@ -4,3 +4,4 @@ import ApplicationConstants
 
 reader = DataReader()
 sources = reader.Load(ApplicationConstants.all_articles)
+
