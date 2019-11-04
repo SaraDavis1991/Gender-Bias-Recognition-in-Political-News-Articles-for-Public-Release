@@ -5,7 +5,6 @@ from DataContracts import Source
 from collections import namedtuple
 from typing import List
 
-
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
     def object_decoder(self, obj): 

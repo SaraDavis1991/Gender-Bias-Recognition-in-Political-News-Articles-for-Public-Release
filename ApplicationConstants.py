@@ -1,6 +1,6 @@
 #Application Constants
 
-all_articles = ".\\Data\\articles.json"
+all_articles = ".//Data//articles.json"
 
 #leaning constants
 FarLeft = "Far_Left"

@@ -8,9 +8,10 @@ class Orchestrator():
     def __init__(self):
         self.Reader = DataReader()
         self.Preprocessor = Preprocessor()
-
+        self.Sources = None 
+        
     def read_data(self):       
-        sources = self.Reader.Load(ApplicationConstants.all_articles)
+        self.Sources = self.Reader.Load(ApplicationConstants.all_articles)
 
         #need to pull nyt when fixed
         breitbart = sources[ApplicationConstants.Breitbart].Articles
@@ -20,17 +21,17 @@ class Orchestrator():
 
         return fox + usa + breitbart + huffpost # + nyt
 
+    def clean_all(self, data):
+        contents = []
+        for article in data:
+            content = article.Content
+            cleaned_content = orchestrator.Preprocessor.Clean(content)
+            contents.append(cleaned_content)
+
+
 orchestrator = Orchestrator()
 data = orchestrator.read_data() 
+cleaned = orchestrator.clean_all(data)
 
-contents = []
-for article in data:
-    content = article.Content
-    cleaned_content = orchestrator.Preprocessor.Remove_pos(content)
-    contents.append(cleaned_content)
-
-    print(content)
-    print('\n\n///////////////////////////////////////\n\n')
-    print(cleaned_content)
 
 print (contents)
