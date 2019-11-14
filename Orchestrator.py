@@ -14,10 +14,10 @@ class Orchestrator():
         self.Sources = self.Reader.Load(ApplicationConstants.all_articles)
 
         #need to pull nyt when fixed
-        breitbart = sources[ApplicationConstants.Breitbart].Articles
-        fox = sources[ApplicationConstants.Fox].Articles 
-        usa = sources[ApplicationConstants.usa_today].Articles
-        huffpost = sources[ApplicationConstants.HuffPost].Articles
+        breitbart = self.Sources[ApplicationConstants.Breitbart].Articles
+        fox = self.Sources[ApplicationConstants.Fox].Articles 
+        usa = self.Sources[ApplicationConstants.usa_today].Articles
+        huffpost = self.Sources[ApplicationConstants.HuffPost].Articles
 
         return fox + usa + breitbart + huffpost # + nyt
 
@@ -28,10 +28,19 @@ class Orchestrator():
             cleaned_content = orchestrator.Preprocessor.Clean(content)
             contents.append(cleaned_content)
 
+            print ("\n\n")
+            print (content)
+
+            print ("\n\n\n\n")
+
+            print(cleaned_content)
+
+        return contents
+
 
 orchestrator = Orchestrator()
 data = orchestrator.read_data() 
-cleaned = orchestrator.clean_all(data)
+contents = orchestrator.clean_all(data)
 
 
 print (contents)

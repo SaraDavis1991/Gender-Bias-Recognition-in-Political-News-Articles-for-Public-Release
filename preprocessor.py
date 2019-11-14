@@ -5,36 +5,54 @@ from nltk.corpus import stopwords
 from nltk.tag import pos_tag
 import unicodedata
 import string 
+import re
+from pycontractions import Contractions
+import gensim.downloader as api
 
 class Preprocessor():
+
+    def __init__(self):
+
+        self.cont = Contractions(api_key='glove-twitter-25')
+        self.cont.load_models()
 
     def Clean(self, data : str, names_to_remove = None):
         ''' Removes POS that are NNP, PRP, or PRP$, and removes all stop words  '''
 
         #normalize the data, removing punctuation 
-        data = unicodedata.normalize('NFKC', data)
-        data = data.translate(str.maketrans('', '', string.punctuation))
+        data =  unicodedata.normalize('NFKC', data)
+        punctuation_to_remove = re.sub("([!.?])", "", string.punctuation)
 
-        #remove stop words
-        tokens = nltk.word_tokenize(data)
-        stop_words = set(stopwords.words('english'))
-        filtered_tokens = [w for w in tokens if not w in stop_words and len(w) > 1] 
+        #remove numbers
+        data = re.sub('\d+', '', data)
+
+        #expand contractions 
+        data = self.cont._expand_text_precise(data)[0]
 
         #get parts of speech
-        tagged_pos = nltk.pos_tag(filtered_tokens)
-        filtered_pos = list(filter(lambda word_tag: word_tag[1] == 'NNP' or word_tag[1] == 'PRP' or word_tag[1] == 'PRP$', tagged_pos))
+        tokens = nltk.word_tokenize(data)
+        tagged_pos = nltk.pos_tag(tokens)
+        filtered_pos = list(filter(lambda word_tag: word_tag[1] != 'NNP' and word_tag[1] != 'PRP' and word_tag[1] != 'PRP$', tagged_pos))
+
+        #remove stop words
+        punctuation_to_remove = re.sub("([!.?])", "", string.punctuation)     
+        stop_words = set(stopwords.words('english'))
+        filtered_tokens = [] # [w for word, _ in filtered_pos if not len(w) > 1] # not w in stop_words or not w in punctuation_to_remove or 
 
         #remove unwanted pos
         for (word, _) in filtered_pos:         
-            if (word in filtered_tokens):
-                filtered_tokens.remove(word) 
+            if (not word in stop_words and not word in punctuation_to_remove):
+                filtered_pos.append(word)
 
-        #remove keywords 
-        if (names_to_remove != None):
-            for name in names_to_remove:
-                if (name in filtered_tokens):
-                    filtered_tokens.remove(name)  
+        #remove extraneous punctuation 
+
+        #re-expand back into string
+        combined = ' '.join(filtered_pos)
              
+
+        #whitespaces
+        processed_data = combined.strip()
+
         
-        return ' '.join(filtered_tokens)
+        return processed_data
     
