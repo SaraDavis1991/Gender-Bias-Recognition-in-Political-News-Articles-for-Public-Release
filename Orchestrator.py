@@ -1,4 +1,5 @@
 from DataReader import DataReader
+
 from preprocessor import Preprocessor
 from DataContracts import Article
 import ApplicationConstants
@@ -28,13 +29,6 @@ class Orchestrator():
             cleaned_content = orchestrator.Preprocessor.Clean(content)
             contents.append(cleaned_content)
 
-            print ("\n\n")
-            print (content)
-
-            print ("\n\n\n\n")
-
-            print(cleaned_content)
-
         return contents
 
 
@@ -44,3 +38,4 @@ contents = orchestrator.clean_all(data)
 
 
 print (contents)
+
