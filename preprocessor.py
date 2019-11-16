@@ -6,7 +6,7 @@ from nltk.tag import pos_tag
 import unicodedata
 import string 
 import re
-from pycontractions import Contractions
+#from pycontractions import Contractions
 import gensim.downloader as api
 import StopWords
 

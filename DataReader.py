@@ -9,7 +9,8 @@ import ApplicationConstants
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
 
-    def object_decoder(self, obj): 
+    def object_decoder(sel
+    qf, obj): 
         if 'author' in obj:
             return Article(obj['title'], obj['url'], obj['subtitle'], obj['author'], obj['content'], obj['date'], obj['labels'])
         elif 'author_gender' in obj:
@@ -24,6 +25,8 @@ class DataReader():
         return data
 
     def Load_Splits(self, filePath):
+
+        splits = {}
 
         #read the freaking json
         with open(filePath, 'r') as read_file:
@@ -43,5 +46,9 @@ class DataReader():
             male_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Male, source))
 
             #gather all female sources 
-        
+            female_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Female, source))
+
+            #get 4 random of each category 
+            
+
         return ["a"]
