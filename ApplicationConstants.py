@@ -32,3 +32,7 @@ usa_today = "usa_today"
 Fox = "fox"
 HuffPost = "huffpost"
 
+#split constants
+Train = "train"
+Validation = "val"
+Test = "test"

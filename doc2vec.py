@@ -2,7 +2,7 @@
 import ApplicationConstants
 from DataReader import DataReader
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-
+import multiprocessing
 
 #print(Orchestrator.sources['breitbart'].Articles[58].Label.TargetName, Orchestrator.sources['breitbart'].Articles[88].Label.TargetName, Orchestrator.sources['breitbart'].Articles[37].Label.TargetName, Orchestrator.sources['breitbart'].Articles[29].Label.TargetName)
 '''
@@ -20,9 +20,9 @@ class doc():
 	def __init__(self):
 		print("butt")
 	
-	def Embed(self, data, label: str):
-		tagged = data.apply(lambda r: TaggedDocument(words = data, tags = labels), axis -1)
-		model = Doc2Vec(size = 300, alpha = 0.001, min_alpha = 0.00025, min_count = 2, dm = 0, negative = 5, hs = 0, sample = 0, workers = cores) #dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
+	def Embed(self, cleaned_with_labels):
+		tagged = data.apply(lambda r: TaggedDocument(words = cleaned_with_labels[0], tags = cleaned_with_labels[1]), axis= -1)
+		model = Doc2Vec(size = 300, alpha = 0.001, min_alpha = 0.00025, min_count = 2, dm = 0, negative = 5, hs = 0, sample = 0, workers = multiprocessing.cpu_count()) #dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
 		model.build_vocab(articles)
 
 		for epoch in range(100):

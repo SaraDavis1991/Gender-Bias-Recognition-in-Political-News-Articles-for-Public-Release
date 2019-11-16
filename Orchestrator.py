@@ -15,7 +15,7 @@ class Orchestrator():
         self.docEmbed = doc()
         
     def read_data(self):       
-        self.Splits = self.Reader.Load_Splits(ApplicationConstants.all_articles)
+        return self.Reader.Load_Splits(ApplicationConstants.all_articles)
 
     def clean_all(self, data):
         contents = []
@@ -28,8 +28,10 @@ class Orchestrator():
     
     def embed_fold(self, data):
         
-        targets, regressors = orchestrator.docEmbed.Embed(data)
+        targets, regressors = self.docEmbed.Embed(data)
         print(targets)
+
+        return targets
 
 
 

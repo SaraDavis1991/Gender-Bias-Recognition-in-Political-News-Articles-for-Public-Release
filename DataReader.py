@@ -9,8 +9,7 @@ import ApplicationConstants
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
 
-    def object_decoder(sel
-    qf, obj): 
+    def object_decoder(self, obj): 
         if 'author' in obj:
             return Article(obj['title'], obj['url'], obj['subtitle'], obj['author'], obj['content'], obj['date'], obj['labels'])
         elif 'author_gender' in obj:
@@ -48,7 +47,14 @@ class DataReader():
             #gather all female sources 
             female_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Female, source))
 
-            #get 4 random of each category 
-            
+            #get 3 persons for train per gender
+            splits[ApplicationConstants.Train] = male_articles[:int(len(male_articles) * .80)] + female_articles[:int(len(female_articles) * .80)]
 
-        return ["a"]
+            #get 2 persons for val per gender 
+            splits[ApplicationConstants.Validation] = male_articles[int(len(male_articles) * .80):int(len(male_articles) * .90)] + female_articles[int(len(female_articles) * .80):int(len(female_articles) * .90)]
+
+            #get 2 persons for test per gender 
+            splits[ApplicationConstants.Test] = male_articles[int(len(male_articles) * .90):int(len(female_articles))] + female_articles[int(len(male_articles) * .90):int(len(female_articles) * .80)]
+
+
+        return splits
