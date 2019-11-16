@@ -3,6 +3,13 @@ from DataReader import DataReader
 from preprocessor import Preprocessor
 from DataContracts import Article
 from doc2vec import doc
+
+#models
+from SVM_engine import SVM
+from KNN_engine import KNN
+from Naive_Bayes_engine import Naive_Bayes
+from Linear_Regression_engine import Linear_Regression 
+
 import ApplicationConstants
 
 class Orchestrator():
@@ -18,34 +25,66 @@ class Orchestrator():
         return self.Reader.Load_Splits(ApplicationConstants.all_articles)
 
     def clean_all(self, splits):
+        ''' cleans all data within the splits per leaning '''
 
-        for key in splits:
+        #for each leaning
+        for leaning in splits: 
 
-            data = splits[key]
-            contents = []
-            
-            for article in data:
+            #get train, test, val 
+            for dataset in splits[leaning]:
 
-                content = article.Content
-                cleaned_content = orchestrator.Preprocessor.Clean(content)
-                contents.append((cleaned_content, article.Label.TargetGender))
+                #get article content
+                articles = splits[leaning][dataset]
+                
+                #clean, putting cleaned data back into the split dictionary
+                for index, article in enumerate(articles):
 
-        return contents
+                    content = article.Content
+                    cleaned_content = orchestrator.Preprocessor.Clean(content)
+                    splits[leaning][dataset][index].Content = cleaned_content
     
-    def embed_fold(self, cleaned_with_labels):
-        
-        targets, regressors = self.docEmbed.Embed(cleaned_with_labels)
-        print(targets)
+    def embed_fold(self, articles, labels):
+        ''' 
+        trains and returns the vector embeddings for doc2vec or sent2vec 
+        param: articles: a list of articles that are cleaned
+        param: labels: a list of labels corresponding to the article genders
+        ''' 
 
-        return targets
+        targets, regressors = self.docEmbed.Embed(articles, labels)
+
+        return targets, regressors
+
+    def train_all(self, split_data):
+        ''' trains all models against all leanings ''' 
+
+        models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression()]
+
+        for leaning in split_data:
+
+            #train embeddings
+            training_dataset = split_data[leaning][ApplicationConstants.Train]
+            training_labels = list(map(lambda article: article.Label.TargetGender, training_dataset))
+            _, training_embeddings = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), training_labels)
+
+            #validation embeddings 
+            validation_dataset = split_data[leaning][ApplicationConstants.Validation]
+            validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
+            _, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), validation_labels)
+
+            #test embeddings
+            test_dataset = split_data[leaning][ApplicationConstants.Test]
+            test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
+            _, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), test_labels)
+
+            for model in models: 
+
+                model.Train(training_embeddings, training_labels)
+                model.Predict(test_embeddings, test_labels)
 
 
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 
-cleaned_with_labels = orchestrator.clean_all(splits)
-embed = orchestrator.embed_fold(cleaned_with_labels)
+orchestrator.clean_all(splits)
 
-
-print (contents)
-
+orchestrator.train_all(splits)

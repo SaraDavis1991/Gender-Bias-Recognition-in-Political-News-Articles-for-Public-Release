@@ -123,4 +123,9 @@ StopWords = [
     'don',
     'should',
     'now',
+    'AOC',
+    'girl',
+    'boy',
+    'man',
+    'woman',
 ]

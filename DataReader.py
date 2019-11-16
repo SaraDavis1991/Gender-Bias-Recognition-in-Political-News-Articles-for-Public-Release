@@ -37,10 +37,15 @@ class DataReader():
         usa = data[ApplicationConstants.usa_today].Articles
         huffpost = data[ApplicationConstants.HuffPost].Articles
 
-        sources = [breitbart, fox, usa, huffpost]
+        sources = [(ApplicationConstants.Breitbart, breitbart), (ApplicationConstants.Fox, fox), (ApplicationConstants.usa_today, usa), (ApplicationConstants.HuffPost, huffpost)]
 
         for source in sources: 
             
+            source_name = source[0]
+            source = source[1]
+
+            splits[source_name] = {}
+
             #gather all male sources
             male_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Male, source))
 
@@ -48,13 +53,13 @@ class DataReader():
             female_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Female, source))
 
             #get 3 persons for train per gender
-            splits[ApplicationConstants.Train] = male_articles[:int(len(male_articles) * .80)] + female_articles[:int(len(female_articles) * .80)]
+            splits[source_name][ApplicationConstants.Train] = male_articles[:int(len(male_articles) * .80)] + female_articles[:int(len(female_articles) * .80)]
 
             #get 2 persons for val per gender 
-            splits[ApplicationConstants.Validation] = male_articles[int(len(male_articles) * .80):int(len(male_articles) * .90)] + female_articles[int(len(female_articles) * .80):int(len(female_articles) * .90)]
+            splits[source_name][ApplicationConstants.Validation] = male_articles[int(len(male_articles) * .80):int(len(male_articles) * .90)] + female_articles[int(len(female_articles) * .80):int(len(female_articles) * .90)]
 
             #get 2 persons for test per gender 
-            splits[ApplicationConstants.Test] = male_articles[int(len(male_articles) * .90):int(len(female_articles))] + female_articles[int(len(male_articles) * .90):int(len(female_articles) * .80)]
+            splits[source_name][ApplicationConstants.Test] = male_articles[int(len(male_articles) * .90):int(len(female_articles))] + female_articles[int(len(male_articles) * .90):int(len(female_articles) * .80)]
 
 
         return splits

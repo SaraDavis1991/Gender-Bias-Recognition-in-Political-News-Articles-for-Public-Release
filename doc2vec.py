@@ -3,6 +3,8 @@ import ApplicationConstants
 from DataReader import DataReader
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 import multiprocessing
+from nltk.tokenize import word_tokenize
+import random 
 
 #print(Orchestrator.sources['breitbart'].Articles[58].Label.TargetName, Orchestrator.sources['breitbart'].Articles[88].Label.TargetName, Orchestrator.sources['breitbart'].Articles[37].Label.TargetName, Orchestrator.sources['breitbart'].Articles[29].Label.TargetName)
 '''
@@ -17,21 +19,23 @@ for i in range(len(sources['breitbart'].Articles)):
 articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[str(i)]) for i, _d in enumerate(articles)]
 '''
 class doc():
-	def __init__(self):
-		print("butt")
 	
-	def Embed(self, cleaned_with_labels):
-		tagged = data.apply(lambda r: TaggedDocument(words = cleaned_with_labels[0], tags = cleaned_with_labels[1]), axis= -1)
+	def Embed(self, articles, labels):
+
+		articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]
+		random.shuffle(articles)
+
 		model = Doc2Vec(size = 300, alpha = 0.001, min_alpha = 0.00025, min_count = 2, dm = 0, negative = 5, hs = 0, sample = 0, workers = multiprocessing.cpu_count()) #dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
 		model.build_vocab(articles)
 
-		for epoch in range(100):
+		for epoch in range(10):
 			print('iteration {0}'.format(epoch))
 			model.train(articles, total_examples = model.corpus_count , epochs= model.iter)
 			model.alpha -= 0.0002
 			model.min_alpha = model.alpha
-		sents = tagged.values
-		targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps = 20)) for doc in sents])
+
+		targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps = 20)) for doc in articles])
+
 		return targets, regressors
 		#model.save("d2v.model")
 		#print("model saved")
