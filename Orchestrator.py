@@ -2,6 +2,7 @@ from DataReader import DataReader
 
 from preprocessor import Preprocessor
 from DataContracts import Article
+from doc2vec import doc
 import ApplicationConstants
 
 class Orchestrator():
@@ -10,6 +11,7 @@ class Orchestrator():
         self.Reader = DataReader()
         self.Preprocessor = Preprocessor()
         self.Sources = None 
+        self.docEmbed = doc()
         
     def read_data(self):       
         self.Sources = self.Reader.Load(ApplicationConstants.all_articles)
@@ -30,11 +32,18 @@ class Orchestrator():
             contents.append(cleaned_content)
 
         return contents
+    
+    def embed_fold(self, data):
+        
+        targets, regressors = orchestrator.docEmbed.Embed(data)
+        print(targets)
+
 
 
 orchestrator = Orchestrator()
 data = orchestrator.read_data() 
 contents = orchestrator.clean_all(data)
+embed = orchestrator.embed_fold(contents)
 
 
 print (contents)
