@@ -26,7 +26,8 @@ class Orchestrator():
 
     def clean_all(self, splits):
         ''' cleans all data within the splits per leaning '''
-
+        avg_len = 0 
+        num_articles = 0 
         #for each leaning
         for leaning in splits: 
 
@@ -40,8 +41,14 @@ class Orchestrator():
                 for index, article in enumerate(articles):
 
                     content = article.Content
+
+                    words = content.split(' ')
+                    avg_len += len(words) 
+                    num_articles += 1 
                     cleaned_content = orchestrator.Preprocessor.Clean(content)
                     splits[leaning][dataset][index].Content = cleaned_content
+
+        print("average: " + str(avg_len / num_articles))
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -63,28 +70,27 @@ class Orchestrator():
 
             #train embeddings
             training_dataset = split_data[leaning][ApplicationConstants.Train]
-            training_labels = list(map(lambda article: article.Label.TargetGender, training_dataset))
-            _, training_embeddings = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), training_labels)
+            training_labels, training_embeddings = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)))
 
             #validation embeddings 
             validation_dataset = split_data[leaning][ApplicationConstants.Validation]
             validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
-            _, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), validation_labels)
+            #_, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), validation_labels)
 
             #test embeddings
             test_dataset = split_data[leaning][ApplicationConstants.Test]
-            test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
-            _, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), test_labels)
+            test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
 
             for model in models: 
 
                 model.Train(training_embeddings, training_labels)
-                model.Predict(test_embeddings, test_labels)
+                prediction = model.Predict(test_embeddings)
 
-
+                print(model.Accuracy(prediction, test_labels))
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 
 orchestrator.clean_all(splits)
 
 orchestrator.train_all(splits)
+

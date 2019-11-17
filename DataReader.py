@@ -59,7 +59,7 @@ class DataReader():
             splits[source_name][ApplicationConstants.Validation] = male_articles[int(len(male_articles) * .80):int(len(male_articles) * .90)] + female_articles[int(len(female_articles) * .80):int(len(female_articles) * .90)]
 
             #get 2 persons for test per gender 
-            splits[source_name][ApplicationConstants.Test] = male_articles[int(len(male_articles) * .90):int(len(female_articles))] + female_articles[int(len(male_articles) * .90):int(len(female_articles) * .80)]
+            splits[source_name][ApplicationConstants.Test] = male_articles[int(len(male_articles) * .90):int(len(male_articles))] + female_articles[int(len(female_articles) * .90):int(len(female_articles))]
 
 
         return splits

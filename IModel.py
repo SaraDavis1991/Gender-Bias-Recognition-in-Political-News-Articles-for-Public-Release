@@ -7,8 +7,9 @@ class IModel(Interface):
         ''' Trains a given model on features and labels '''
         pass 
 
-    def Predict(self, features, labels):
+    def Predict(self, features):
         ''' Predicts on test data for a given model '''
         pass
 
-    
+    def Accuracy(self, prediction, truth_labels): 
+        pass 

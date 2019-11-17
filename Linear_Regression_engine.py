@@ -6,5 +6,8 @@ class Linear_Regression(implements(IModel)):
     def Train(self, features, labels):
         pass 
 
-    def Predict312(self, features, labels): 
+    def Predict(self, features): 
+        pass
+
+    def Accuracy(self, prediction, truth_labels): 
         pass 

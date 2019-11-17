@@ -128,4 +128,6 @@ StopWords = [
     'boy',
     'man',
     'woman',
+    'women',
+    'men',
 ]
