@@ -1,17 +1,17 @@
-from IModel import IModel
+from Interfaces.IModel import IModel
 from interface import implements
 
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.neighbors import KNeighborsClassifier
 
-class KNN(implements(IModel)):
+class NN(implements(IModel)):
 
     def __init__(self):
         self.Model = self.Build_Model()
 
     def Build_Model(self):
 
-        model = KNeighborsClassifier(n_neighbors=2)
+        model = MLPClassifier()
         return model 
 
     def Train(self, features, labels):

@@ -5,11 +5,11 @@ from DataContracts import Article
 from doc2vec import doc
 
 #models
-from SVM_engine import SVM
-from KNN_engine import KNN
-from Naive_Bayes_engine import Naive_Bayes
-from Linear_Regression_engine import Linear_Regression 
-from NN_engine import NN
+from Models.SVM_engine import SVM
+from Models.KNN_engine import KNN
+from Models.Naive_Bayes_engine import Naive_Bayes
+from Models.Linear_Regression_engine import Linear_Regression 
+from Models.NN_engine import NN
 
 import ApplicationConstants
 
@@ -42,10 +42,6 @@ class Orchestrator():
 
                     content = article.Content
                     cleaned_content = orchestrator.Preprocessor.Clean(content)
-
-                    print("\n\n")
-                    print(cleaned_content)
-                    print("\n\n")
                     splits[leaning][dataset][index].Content = cleaned_content
     
     def embed_fold(self, articles, labels):
@@ -88,7 +84,7 @@ class Orchestrator():
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 
-orchestrator.clean_all(splits)
+#orchestrator.clean_all(splits)
 
 orchestrator.train_all(splits)
 

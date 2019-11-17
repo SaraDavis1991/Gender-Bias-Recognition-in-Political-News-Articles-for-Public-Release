@@ -1,4 +1,4 @@
-from IModel import IModel
+from Interfaces.IModel import IModel
 from interface import implements
 
 from sklearn.metrics import accuracy_score
