@@ -123,6 +123,8 @@ StopWords = [
     'don',
     'should',
     'now',
+
+    #custom 
     'AOC',
     'girl',
     'boy',
@@ -130,4 +132,9 @@ StopWords = [
     'woman',
     'women',
     'men',
+    'education',
+    'secretary',
+    'president',
+    'school',
+    'ocasio',
 ]

@@ -9,6 +9,7 @@ from SVM_engine import SVM
 from KNN_engine import KNN
 from Naive_Bayes_engine import Naive_Bayes
 from Linear_Regression_engine import Linear_Regression 
+from NN_engine import NN
 
 import ApplicationConstants
 
@@ -26,8 +27,7 @@ class Orchestrator():
 
     def clean_all(self, splits):
         ''' cleans all data within the splits per leaning '''
-        avg_len = 0 
-        num_articles = 0 
+
         #for each leaning
         for leaning in splits: 
 
@@ -41,14 +41,12 @@ class Orchestrator():
                 for index, article in enumerate(articles):
 
                     content = article.Content
-
-                    words = content.split(' ')
-                    avg_len += len(words) 
-                    num_articles += 1 
                     cleaned_content = orchestrator.Preprocessor.Clean(content)
-                    splits[leaning][dataset][index].Content = cleaned_content
 
-        print("average: " + str(avg_len / num_articles))
+                    print("\n\n")
+                    print(cleaned_content)
+                    print("\n\n")
+                    splits[leaning][dataset][index].Content = cleaned_content
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -64,7 +62,7 @@ class Orchestrator():
     def train_all(self, split_data):
         ''' trains all models against all leanings ''' 
 
-        models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression()]
+        models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression(), NN()]
 
         for leaning in split_data:
 
@@ -86,7 +84,7 @@ class Orchestrator():
                 model.Train(training_embeddings, training_labels)
                 prediction = model.Predict(test_embeddings)
 
-                print(model.Accuracy(prediction, test_labels))
+                print(model.Accuracy(prediction, test_labels))               
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 

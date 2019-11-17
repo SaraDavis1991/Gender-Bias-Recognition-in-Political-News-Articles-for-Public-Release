@@ -17,7 +17,7 @@ class Preprocessor():
        # self.cont = Contractions(api_key='glove-twitter-25')
        # self.cont.load_models()
 
-    def Clean(self, data : str, names_to_remove = None):
+    def Clean(self, data : str):
         ''' Removes POS that are NNP, PRP, or PRP$, and removes all stop words  '''
 
         #normalize the data, removing punctuation 
@@ -42,9 +42,9 @@ class Preprocessor():
         #remove unwanted pos
         combined = "" 
         last_processed_punc = False
-
+        
         for word, tag in filtered_pos:
-            if (not word in stop_words and not word in punctuation_to_remove and word != tag and len(word) > 1 or word in punctuation_to_keep):
+            if (not word.lower() in stop_words and not word in punctuation_to_remove and word != tag and len(word) > 1 or word in punctuation_to_keep):
 
                 if (word in punctuation_to_keep):
 
