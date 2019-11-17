@@ -10,6 +10,3 @@ class IModel(Interface):
     def Predict(self, features):
         ''' Predicts on test data for a given model '''
         pass
-
-    def Accuracy(self, tp, fp, fn, tn): 
-        pass 

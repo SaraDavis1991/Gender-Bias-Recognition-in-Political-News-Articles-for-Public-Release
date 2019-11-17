@@ -6,81 +6,36 @@ import numpy as np
 import pickle
 import sys
 
+from Metrics import Metrics
+
 class Naive_Bayes(implements(IModel)):
-    
-    def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
-    	
-    	smooths = [0.00001, 0.000001, 0.0000001, 0.00000001, 0.000000001]
-    	bestF1 = -1
-    	for smooth in smooths:
-    		self.model = GaussianNB(var_smoothing=smooth)
-    		self.model.fit(trainFeatures, trainLabels)
-    		preds = self.Predict(validationFeatures)
-    		#print(preds)
-    		#print(validationLabels)
-    		tp, tn, fp, fn = self.Condition(preds, validationLabels)
-    		#print("vals ", tp, tn, fp, fn)
-    		recall = self.Recall(tp, fn)
-    		precision = self.Precision(tp, fp)
-    		currentF = self.Fmeasure(recall, precision)
-    		#print(precision, recall)
-    		self.Accuracy(tp, fp, fn, tn)
-    		
+	
+	def __init__(self):
+		self.Metrics = Metrics()
+		self.model = GaussianNB()
 
-    		if currentF > bestF1:
-    			print("Best F1: "+ str(currentF)+ " smoothing: " + str(smooth))
-    			bestF1 = currentF
+	def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
+		
+		smooths = [0.00001, 0.000001, 0.0000001, 0.00000001, 0.000000001]
 
+		best_smooth = 0
+		bestF1 = -1 
 
-        
+		for smooth in smooths:
+			
+			self.model.var_smoothing = smooth 
+			self.model.fit(trainFeatures, trainLabels)
+			
+			preds = self.Predict(validationFeatures)
+			currentF = self.Metrics.Fmeasure(preds, validationLabels)
 
-    def Predict(self, features):
-    	return self.model.predict(features)
-        
+			if currentF > bestF1:
+				bestF1 = currentF
+				best_smooth = smooth
+		
+		#reset the model to use the best smoothing vale
+		self.model.var_smoothing = smooth
+		self.model.fit(trainFeatures, trainLabels) 
 
-    def Accuracy(self, tp, fp, fn, tn): 
-    	if tp + fp > 0 and tp + fp + fn + tn > 0:
-    		return (tp + tn) / (tp + fp+fn + tn)
-    	else:
-    		return 0
-        
-
-    def Fmeasure(self, recall, precision):
-    	#print("P& R: ", precision, recall)
-
-    	if precision > 0 and recall > 0:
-    		mult = 2 * precision * recall
-    		addit = precision + recall
-    		#print(mult/addit)
-    		return mult/addit
-    	else:
-    		return 0
-
-    def Condition(self, prediction, truth_labels):
-    	tp = 0
-    	tn = 0
-    	fp = 0
-    	fn = 0
-    	for i in range(len(prediction)):
-    		#print(prediction[i], truth_labels[i])
-    		if prediction[i]=="Female" and truth_labels[i] == "Female": 
-    			tp+=1
-    		if prediction[i] == "Male" and truth_labels[i] =="Male":
-    			tn +=1
-    		if prediction[i] == "Female" and truth_labels[i] != "Female":
-    			fp +=1
-    		if prediction[i] == "Male" and truth_labels[i] != "Male":
-    			fn +=1
-    	return tp, tn, fp, fn
-
-    def Recall(self, tp, fn):
-    	if tp > 0:
-    		return (tp/(tp+fn))
-    	else:
-    		return 0
-
-    def Precision(self, tp, fp):
-    	if tp > 0:
-    		return (tp/(tp+fp))
-    	else:
-    		return 0
+	def Predict(self, features):
+		return self.model.predict(features) 
