@@ -24,7 +24,7 @@ class Naive_Bayes(implements(IModel)):
     		precision = self.Precision(tp, fp)
     		currentF = self.Fmeasure(recall, precision)
     		#print(precision, recall)
-    		self.Accuracy(preds, validationLabels)
+    		self.Accuracy(tp, fp, fn, tn)
     		
 
     		if currentF > bestF1:
@@ -38,8 +38,11 @@ class Naive_Bayes(implements(IModel)):
     	return self.model.predict(features)
         
 
-    def Accuracy(self, prediction, truth_labels): 
-    	return met.accuracy_score(truth_labels, prediction)
+    def Accuracy(self, tp, fp, fn, tn): 
+    	if tp + fp > 0 and tp + fp + fn + tn > 0:
+    		return (tp + tn) / (tp + fp+fn + tn)
+    	else:
+    		return 0
         
 
     def Fmeasure(self, recall, precision):

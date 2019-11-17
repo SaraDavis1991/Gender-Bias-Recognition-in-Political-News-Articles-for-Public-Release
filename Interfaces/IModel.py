@@ -11,5 +11,5 @@ class IModel(Interface):
         ''' Predicts on test data for a given model '''
         pass
 
-    def Accuracy(self, prediction, truth_labels): 
+    def Accuracy(self, tp, fp, fn, tn): 
         pass 
