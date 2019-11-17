@@ -14,8 +14,8 @@ class NN(implements(IModel)):
         model = MLPClassifier()
         return model 
 
-    def Train(self, features, labels):
-        self.Model.fit(features, labels)
+    def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
+        self.Model.fit(trainFeatures, trainLabels)
 
     def Predict(self, features): 
         return self.Model.predict(features) 

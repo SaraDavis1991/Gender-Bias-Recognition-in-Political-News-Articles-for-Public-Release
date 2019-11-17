@@ -53,13 +53,13 @@ class Orchestrator():
 
         targets, regressors = self.docEmbed.Embed(articles, labels)
 
-        return targets, regressors
+        return list(targets), regressors
 
     def train_all(self, split_data):
         ''' trains all models against all leanings ''' 
 
-        models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression(), NN()]
-
+        #models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression(), NN()]
+        models = [Naive_Bayes()]
         for leaning in split_data:
 
             #train embeddings
@@ -69,7 +69,7 @@ class Orchestrator():
             #validation embeddings 
             validation_dataset = split_data[leaning][ApplicationConstants.Validation]
             validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
-            #_, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), validation_labels)
+            validation_labels, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), validation_labels)
 
             #test embeddings
             test_dataset = split_data[leaning][ApplicationConstants.Test]
@@ -77,7 +77,7 @@ class Orchestrator():
 
             for model in models: 
 
-                model.Train(training_embeddings, training_labels)
+                model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
                 prediction = model.Predict(test_embeddings)
 
                 print(model.Accuracy(prediction, test_labels))               

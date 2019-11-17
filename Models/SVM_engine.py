@@ -17,9 +17,9 @@ class SVM(implements(IModel)):
 
         return model 
 
-    def Train(self, features, labels):
+    def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
         
-        self.Model.fit(features, labels)
+        self.Model.fit(trainFeatures, trainLabels)
 
     def Predict(self, features): 
         

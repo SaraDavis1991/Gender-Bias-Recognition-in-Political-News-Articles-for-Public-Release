@@ -3,7 +3,7 @@ from interface import Interface
 class IModel(Interface):
     '''The interface definition for models ''' 
 
-    def Train(self, features, labels):
+    def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
         ''' Trains a given model on features and labels '''
         pass 
 
