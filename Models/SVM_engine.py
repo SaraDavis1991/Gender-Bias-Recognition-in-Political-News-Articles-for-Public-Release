@@ -35,7 +35,7 @@ class SVM(implements(IModel)):
                 best_gamma = gamma
 
         #reset model with best gamma
-        self.Model.gamma = gamma
+        self.Model.gamma = best_gamma
         self.Model.fit(trainFeatures, trainLabels)
 
     def Predict(self, features): 

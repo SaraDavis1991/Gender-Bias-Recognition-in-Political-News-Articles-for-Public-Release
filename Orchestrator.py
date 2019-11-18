@@ -14,6 +14,9 @@ from Models.NN_engine import NN
 #metrics
 from Metrics import Metrics
 
+#visualizations
+from Visualizer import Visualizer 
+
 import ApplicationConstants
 
 class Orchestrator():
@@ -25,6 +28,7 @@ class Orchestrator():
         self.Sources = None 
         self.docEmbed = doc()
         self.Metrics = Metrics()
+        self.Visualizer = Visualizer() 
         
     def read_data(self):       
         return self.Reader.Load_Splits(ApplicationConstants.all_articles)
@@ -63,7 +67,9 @@ class Orchestrator():
         ''' trains all models against all leanings ''' 
 
         #models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression(), NN()]
-        models = [KNN()]
+
+        models = [NN()]
+
         for leaning in split_data:
 
             #train embeddings
@@ -83,11 +89,16 @@ class Orchestrator():
 
                 model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
                 prediction = model.Predict(test_embeddings)
-                print("Accuracy:", self.Metrics.Accuracy(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))               
+                print("Accuracy:", self.Metrics.Accuracy(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
+
+            model = models[0] 
+            #model.Model.coefs_[model.Model.n_layers_ - 2]
+            self.Visualizer.plot_TSNE(training_embeddings, training_labels)
+
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 
-#orchestrator.clean_all(splits)
+orchestrator.clean_all(splits)
 
 orchestrator.train_all(splits)
 
