@@ -17,6 +17,8 @@ from Metrics import Metrics
 #visualizations
 from Visualizer import Visualizer 
 
+#from folds
+
 import ApplicationConstants
 
 class Orchestrator():
@@ -67,8 +69,8 @@ class Orchestrator():
         ''' trains all models against all leanings ''' 
 
         #models = [SVM(), KNN(), Naive_Bayes(), Linear_Regression(), NN()]
-
-        models = [NN()]
+        models = [SVM(), KNN(), Naive_Bayes(), NN()]
+        #models = [Naive_Bayes()]
 
         for leaning in split_data:
 
@@ -89,11 +91,11 @@ class Orchestrator():
 
                 model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
                 prediction = model.Predict(test_embeddings)
-                print("Accuracy:", self.Metrics.Accuracy(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
+                print(leaning, " Accuracy:", self.Metrics.Accuracy(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
 
             model = models[0] 
             #model.Model.coefs_[model.Model.n_layers_ - 2]
-            self.Visualizer.plot_TSNE(training_embeddings, training_labels)
+            #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
 
 
 orchestrator = Orchestrator()

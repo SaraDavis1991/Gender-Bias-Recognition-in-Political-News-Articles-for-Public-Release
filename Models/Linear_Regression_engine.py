@@ -12,7 +12,7 @@ class Linear_Regression(implements(IModel)):
 		model = LinearRegression(n_jobs=-1)
 		return model
 
-	def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):	
+	def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
 		self.Model.fit(trainFeatures, trainLabels)
 		
 	def Predict(self, features): 

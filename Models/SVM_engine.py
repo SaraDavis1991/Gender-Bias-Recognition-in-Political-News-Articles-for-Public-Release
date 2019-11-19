@@ -10,7 +10,7 @@ class SVM(implements(IModel)):
 
     def __init__(self):
         self.Model = self.Build_SVM()
-
+        self.Metrics = Metrics()
     def Build_SVM(self):
 
         model = svm.SVC(gamma='auto')
