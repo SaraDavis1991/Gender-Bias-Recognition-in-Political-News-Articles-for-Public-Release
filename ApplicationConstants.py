@@ -1,6 +1,12 @@
 #Application Constants
 
+#Filenames
 all_articles = ".//Data//articles.json"
+fold_1 = ".//folds/fold1.txt"
+fold_2 = ".//folds/fold2.txt"
+fold_3 = ".//folds/fold3.txt"
+fold_4 = ".//folds/fold4.txt"
+fold_5 = ".//folds/fold5.txt"
 
 #leaning constants
 FarLeft = "Far_Left"

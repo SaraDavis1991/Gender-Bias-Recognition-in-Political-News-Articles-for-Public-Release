@@ -240,9 +240,4 @@ StopWords = [
     'administration',
     'left-wing', 
     'right-wing',
-
-
-
-
-
 ]

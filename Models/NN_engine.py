@@ -1,6 +1,11 @@
 from Interfaces.IModel import IModel
 from interface import implements
 
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
 from sklearn.neural_network import MLPClassifier
 
 

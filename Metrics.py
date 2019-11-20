@@ -42,12 +42,12 @@ class Metrics():
 
         for i in range(len(prediction)):
 
-            if prediction[i] == "Female" and truth_labels[i] == "Female": 
+            if prediction[i] == 0 and truth_labels[i] == 0: 
                 tp+=1
-            if prediction[i] == "Male" and truth_labels[i] =="Male":
+            if prediction[i] == 1 and truth_labels[i] == 1:
                 tn +=1
-            if prediction[i] == "Female" and truth_labels[i] != "Female":
+            if prediction[i] == 0 and truth_labels[i] != 0:
                 fp +=1
-            if prediction[i] == "Male" and truth_labels[i] != "Male":
+            if prediction[i] == 1 and truth_labels[i] != 1:
                 fn +=1
         return tp, tn, fp, fn

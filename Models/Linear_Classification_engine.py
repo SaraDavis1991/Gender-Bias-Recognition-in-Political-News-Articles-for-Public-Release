@@ -1,15 +1,15 @@
 from Interfaces.IModel import IModel
 from interface import implements
 
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import SGDClassifier
 
-class Linear_Regression(implements(IModel)):
+class Linear_Classifier(implements(IModel)):
 	
 	def __init__(self):
 		self.Model = self.__BuildModel()
 
 	def __BuildModel(self):
-		model = LinearRegression(n_jobs=-1)
+		model = SGDClassifier(n_jobs=-1)
 		return model
 
 	def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):

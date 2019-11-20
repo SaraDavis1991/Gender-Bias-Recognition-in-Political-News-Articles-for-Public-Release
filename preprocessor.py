@@ -6,16 +6,10 @@ from nltk.tag import pos_tag
 import unicodedata
 import string 
 import re
-#from pycontractions import Contractions
 import gensim.downloader as api
 import StopWords
 
 class Preprocessor():
-
-   # def __init__(self):
-
-       # self.cont = Contractions(api_key='glove-twitter-25')
-       # self.cont.load_models()
 
     def Clean(self, data : str):
         ''' Removes POS that are NNP, PRP, or PRP$, and removes all stop words  '''
@@ -25,16 +19,12 @@ class Preprocessor():
         
         #remove numbers
         data = re.sub('\d+', '', data)
-   
-
-        #expand contractions 
-        #data = self.cont._expand_text_precise(data)[0]
       
         #get parts of speech
         tokens = nltk.word_tokenize(data)
         tagged_pos = nltk.pos_tag(tokens)
         filtered_pos = list(filter(lambda word_tag: word_tag[1] != 'NNP' and word_tag[1] != 'PRP' and word_tag[1] != 'PRP$', tagged_pos))
-        #print(filtered_pos)
+       
         #remove stop words
         punctuation_to_keep = "!.?-'"
         punctuation_to_remove = re.sub("([!.?'])", "", string.punctuation)     

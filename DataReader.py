@@ -5,6 +5,7 @@ from DataContracts import Source
 from collections import namedtuple
 from typing import List
 import ApplicationConstants
+import copy
 
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
@@ -25,7 +26,9 @@ class DataReader():
 
     def Load_Splits(self, filePath):
 
-        splits = {}
+        candidate_split_file_names = [ApplicationConstants.fold_1, ApplicationConstants.fold_2, ApplicationConstants.fold_3, ApplicationConstants.fold_4, ApplicationConstants.fold_5]
+
+        split_list = [] 
 
         #read the freaking json
         with open(filePath, 'r') as read_file:
@@ -38,28 +41,59 @@ class DataReader():
         huffpost = data[ApplicationConstants.HuffPost].Articles
 
         sources = [(ApplicationConstants.Breitbart, breitbart), (ApplicationConstants.Fox, fox), (ApplicationConstants.usa_today, usa), (ApplicationConstants.HuffPost, huffpost)]
+   
+        #loop over each split 
+        for split_file_name in candidate_split_file_names: 
 
-        for source in sources: 
+            training_candidates = []
+            validation_candidates = []
+            test_candidates = []
+            split = {}
+
+            #open split file 
+            with open(split_file_name, 'r') as split_read:
+                split_info = split_read.read()
+
+            #parse the split 
+            groups = split_info.split('\n')
+
+            for group in groups:
+                candidate_group_mapping = group.split(' ')
+
+                #partition groups
+                if (len(candidate_group_mapping) == 3):
+
+                    #need to lower these to match the json data
+                    candidate_group_mapping[0] = candidate_group_mapping[0].lower()
+                    candidate_group_mapping[1] = candidate_group_mapping[1].lower()
+
+                    #training
+                    if candidate_group_mapping[2] == '0': 
+                        training_candidates.append(candidate_group_mapping[0] + "_" + candidate_group_mapping[1])
+                    #validation
+                    elif candidate_group_mapping[2] == '1': 
+                        validation_candidates.append(candidate_group_mapping[0] + "_" + candidate_group_mapping[1])
+                    #test
+                    elif candidate_group_mapping[2] == '2': 
+                        test_candidates.append(candidate_group_mapping[0] + "_" + candidate_group_mapping[1])
+
+            #loop over all sources
+            for source_tuple in sources: 
+                
+                source_name = source_tuple[0]
+                source = copy.deepcopy(source_tuple[1])
+                split[source_name] = {}
+                
+                #get the training data defined by the split 
+                split[source_name][ApplicationConstants.Train] = list(filter(lambda article: article.Label.TargetName.lower() in training_candidates, source))
+
+                #get the validation data defined by the split
+                split[source_name][ApplicationConstants.Validation] = list(filter(lambda article: article.Label.TargetName.lower() in validation_candidates, source))
+
+                #get the test data define by the split  
+                split[source_name][ApplicationConstants.Test] =list(filter(lambda article: article.Label.TargetName.lower() in test_candidates, source))
+
+      
+            split_list.append(split) 
             
-            source_name = source[0]
-            source = source[1]
-
-            splits[source_name] = {}
-
-            #gather all male sources
-            male_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Male, source))
-
-            #gather all female sources 
-            female_articles = list(filter(lambda article: article.Label.TargetGender == ApplicationConstants.Female, source))
-
-            #get 3 persons for train per gender
-            splits[source_name][ApplicationConstants.Train] = male_articles[:int(len(male_articles) * .80)] + female_articles[:int(len(female_articles) * .80)]
-
-            #get 2 persons for val per gender 
-            splits[source_name][ApplicationConstants.Validation] = male_articles[int(len(male_articles) * .80):int(len(male_articles) * .90)] + female_articles[int(len(female_articles) * .80):int(len(female_articles) * .90)]
-
-            #get 2 persons for test per gender 
-            splits[source_name][ApplicationConstants.Test] = male_articles[int(len(male_articles) * .90):int(len(male_articles))] + female_articles[int(len(female_articles) * .90):int(len(female_articles))]
-
-
-        return splits
+        return split_list
