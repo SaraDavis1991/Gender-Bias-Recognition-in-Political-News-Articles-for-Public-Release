@@ -42,6 +42,36 @@ class DataReader():
 
         sources = [(ApplicationConstants.Breitbart, breitbart), (ApplicationConstants.Fox, fox), (ApplicationConstants.usa_today, usa), (ApplicationConstants.HuffPost, huffpost)]
    
+        for source_tuple in sources: 
+
+                            
+            source_name = source_tuple[0]
+            source = source_tuple[1]
+
+            #candidates
+            dt_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.DonaldTrump, source))
+            jb_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.JoeBiden, source))
+            bs_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BernieSanders, source))
+            jm_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.JohnMccain, source))
+            bo_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BarrackObama, source))
+            hc_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.HillaryClinton, source))
+            sp_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.SarahPalin, source))
+            aoc_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.AlexandriaOcasioCortez, source))
+            bd_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BetsyDevos, source))
+            ew_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.ElizabethWarren, source))
+
+            print(source_name)
+            print("trump:", len(dt_breitbart))
+            print("joe biden:", len(jb_breitbart))
+            print("bernie:", len(bs_breitbart))
+            print("john:", len(jm_breitbart))
+            print("obama:", len(bo_breitbart))
+            print("hillary:", len(hc_breitbart))
+            print("sarah:", len(sp_breitbart))
+            print("aoc:", len(aoc_breitbart))
+            print("betsy:", len(bd_breitbart))
+            print("warren:", len(ew_breitbart))
+
         #loop over each split 
         for split_file_name in candidate_split_file_names: 
 

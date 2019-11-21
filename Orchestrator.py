@@ -74,7 +74,7 @@ class Orchestrator():
         ''' 
         trains and returns the vector embeddings for doc2vec or sent2vec 
 
-        Parameters:
+        Parameters:5
         articles: a list of articles that are cleaned
         labels: a list of labels corresponding to the article genders
         ''' 
