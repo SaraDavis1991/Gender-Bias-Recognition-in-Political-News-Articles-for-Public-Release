@@ -3,8 +3,8 @@ import json
 from typing import List
 
 json_extension = ".revised.json"
-base_directory = '.\\Data\\candidate\\'
-output_file_path = '.\\Data\\articles.json'
+base_directory = '.\\newData\\Data\\candidate\\'
+output_file_path = '.\\newData\\Data\\articles.json'
 combined_data = {}
 
 def find_files(directory_name, extension) -> List[str]:

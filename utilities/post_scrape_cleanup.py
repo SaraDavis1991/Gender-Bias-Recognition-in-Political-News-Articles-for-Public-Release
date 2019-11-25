@@ -3,12 +3,12 @@ import json
 import os.path
 from os import path
 import operator 
-import LabelConstants
+import ApplicationConstants 
 
 data = {}
 url_to_article_mapping = {} 
 json_already_added = []
-input_file_path = ".\\Data\\candidate\\new_york_times\\nyt_alexandria_ocasio-cortez.csv"
+input_file_path = ".\\newData\\Data\\candidate\\breitbart\\breitbart_hillary_clinton.csv"
 
 def create_json(file):
     ''' Creates the json representation of the data
@@ -27,8 +27,8 @@ def create_json(file):
     author_index = 6
     date_index = 7
     url_index = 3
-    content_index = 2
-
+    content_index = 8
+    count = 0 
     for row in reader:
         article = {}
         url = row[url_index]
@@ -53,14 +53,15 @@ def create_json(file):
             article["date"] = row[date_index]
             article["labels"] = {                  
                 "author_gender" : "",
-                "target_gender" : LabelConstants.Male,
-                "target_affiliation" : LabelConstants.FarLeft, 
-                "target_name" : LabelConstants.BernieSanders    
+                "target_gender" : ApplicationConstants.Female,
+                "target_affiliation" : ApplicationConstants.Left, 
+                "target_name" : ApplicationConstants.ElizabethWarren  
             }
 
             data["articles"].append(article)
-
+            count += 1
             index += 1
+    return count
 
 #open .csv and .json if it has already been created
 #using latin1 since I originally created the file in python 2 
@@ -68,8 +69,8 @@ with open(input_file_path, 'r', encoding="UTF-8-sig") as file:
     output_file_path = input_file_path.split('.')[1]
     output_file_path = ".\\" + output_file_path + '.revised.json'
     if (not path.exists(output_file_path)):
-        create_json(file)
-        
+        count = create_json(file)
+        print(count)    
 #write out the result
 with open(output_file_path, 'w') as write_file:
     json.dump(data, write_file, indent=2)
