@@ -6,7 +6,7 @@ class SentimentAnalyzer():
 
     def __init__(self): 
         self.Analyzer = SentimentIntensityAnalyzer()
-        self.Flair = flair.models.TextClassifier.load('en-sentiment')
+        #self.Flair = flair.models.TextClassifier.load('en-sentiment')
 
     def AnalyzeSentiment(self, article: str):
         intensity = self.Analyzer.polarity_scores(article)

@@ -111,6 +111,7 @@ class DataReader():
 
                 content = article.Content
                 cleaned_content = self.Preprocessor.Clean(content)
+                print('\n\n', cleaned_content)
                 sources[source_index][1][article_index].Content = cleaned_content 
 
         print("\nDone! \nStarting splitnig . . . ")

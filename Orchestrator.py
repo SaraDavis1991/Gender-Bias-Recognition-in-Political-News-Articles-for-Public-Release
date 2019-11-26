@@ -114,18 +114,17 @@ class Orchestrator():
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
-                #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
+                self.Visualizer.plot_TSNE(training_embeddings, training_labels)
                 #get sentiment 
-                male_articles = list(filter(lambda article: article.Label.TargetGender == 1, test_dataset + training_dataset + validation_dataset))
-                female_articles = list(filter(lambda article: article.Label.TargetGender == 0, test_dataset + training_dataset + validation_dataset))
+                #male_articles = list(filter(lambda article: article.Label.TargetGender == 1, test_dataset + training_dataset + validation_dataset))
+                #female_articles = list(filter(lambda article: article.Label.TargetGender == 0, test_dataset + training_dataset + validation_dataset))
 
-                self.run_sentiment_analysis(male_articles)
-                self.run_sentiment_analysis(female_articles)
+                #self.run_sentiment_analysis(male_articles)
+                #self.run_sentiment_analysis(female_articles)
 
 
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 
-
 orchestrator.train_all(splits)
 

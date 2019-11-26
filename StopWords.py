@@ -240,4 +240,11 @@ StopWords = [
     'administration',
     'left-wing', 
     'right-wing',
+    'impeach',
+    'impeachment',
+    'democratic-leaning',
+    'republican-leaning',
+    'obama-care',
+    'obamacare',
+    'ukrainian',
 ]
