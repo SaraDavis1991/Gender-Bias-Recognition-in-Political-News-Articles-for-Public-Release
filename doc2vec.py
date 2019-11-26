@@ -22,16 +22,16 @@ class doc():
 	
 	def Embed(self, articles, labels):
 
-		articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]
-		random.shuffle(articles)
+		tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]
+		random.shuffle(tagged_doc_articles)
 
 		#dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
 		model = Doc2Vec(vector_size= 50, alpha = 0.001, min_alpha = 0.00025, min_count = 1, epochs=100, negative=1, dm = 0, workers = multiprocessing.cpu_count()) 
-		model.build_vocab(articles)
+		model.build_vocab(tagged_doc_articles)
 
-		model.train(articles, total_examples = model.corpus_count, epochs= model.epochs)
+		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs= model.epochs)
 
-		targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words)) for doc in articles])
+		targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words)) for doc in tagged_doc_articles])
 
 		return targets, regressors
 		#model.save("d2v.model")

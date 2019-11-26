@@ -8,7 +8,7 @@ import ApplicationConstants
 data = {}
 url_to_article_mapping = {} 
 json_already_added = []
-input_file_path = ".\\newData\\Data\\candidate\\breitbart\\breitbart_hillary_clinton.csv"
+input_file_path = "./newData/Data/candidate/new_york_times/sp_nyt.csv"
 
 def create_json(file):
     ''' Creates the json representation of the data
@@ -54,8 +54,8 @@ def create_json(file):
             article["labels"] = {                  
                 "author_gender" : "",
                 "target_gender" : ApplicationConstants.Female,
-                "target_affiliation" : ApplicationConstants.Left, 
-                "target_name" : ApplicationConstants.ElizabethWarren  
+                "target_affiliation" : ApplicationConstants.Right, 
+                "target_name" : ApplicationConstants.SarahPalin  
             }
 
             data["articles"].append(article)
@@ -67,7 +67,7 @@ def create_json(file):
 #using latin1 since I originally created the file in python 2 
 with open(input_file_path, 'r', encoding="UTF-8-sig") as file:   
     output_file_path = input_file_path.split('.')[1]
-    output_file_path = ".\\" + output_file_path + '.revised.json'
+    output_file_path = "." + output_file_path + '.revised.json'
     if (not path.exists(output_file_path)):
         count = create_json(file)
         print(count)    

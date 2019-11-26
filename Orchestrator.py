@@ -1,10 +1,9 @@
-import sys
-
+#classes
 from DataReader import DataReader
 
-from preprocessor import Preprocessor
 from DataContracts import Article
 from doc2vec import doc
+from SentimentIntensityAnalyzer import SentimentAnalyzer
 
 #models
 from Models.SVM_engine import SVM
@@ -19,56 +18,23 @@ from Metrics import Metrics
 #visualizations
 from Visualizer import Visualizer 
 
+#Constants
 import ApplicationConstants
 
 class Orchestrator():
 
     def __init__(self):
         self.Reader = DataReader()
-        self.Preprocessor = Preprocessor()
+        
         self.Splits = None 
         self.Sources = None
         self.docEmbed = doc()
         self.Metrics = Metrics()
         self.Visualizer = Visualizer() 
+        self.SentimentAnalyzer = SentimentAnalyzer() 
         
     def read_data(self):       
         return self.Reader.Load_Splits(ApplicationConstants.all_articles)
-
-    def clean_all(self, splits):
-        ''' cleans all data within the splits per leaning '''
-
-        print("Cleaning ", end='')
-        sys.stdout.flush()
-
-        for index, split in enumerate(splits): 
-
-            #for each leaning
-            for leaning in split: 
-
-                #get train, test, val 
-                for dataset in split[leaning]:
-
-                    print(' . ', end='')
-                    sys.stdout.flush()
-
-                    #get article content
-                    articles = split[leaning][dataset]
-                    
-                    #clean, putting cleaned data back into the split dictionary
-                    for index, article in enumerate(articles):
-                        
-                        #convert labels to ints 
-                        if (article.Label.TargetGender == ApplicationConstants.Female):
-                            article.Label.TargetGender = 0
-                        elif (article.Label.TargetGender == ApplicationConstants.Male):
-                            article.Label.TargetGender = 1
- 
-                        content = article.Content
-                        cleaned_content = orchestrator.Preprocessor.Clean(content)
-                        split[leaning][dataset][index].Content = cleaned_content
-
-        print("\nDone!\n")
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -83,6 +49,25 @@ class Orchestrator():
 
         return list(targets), regressors
 
+    def run_sentiment_analysis(self, articles):
+     
+        positive_sum = 0 
+        negative_sum = 0 
+
+        for article in articles:
+            
+            result = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+            
+            prediction = result[0].value
+
+            if (prediction == "POSITIVE"):
+                positive_sum += 1
+            else:
+                negative_sum += 1
+
+
+        print ("Pos:", positive_sum / len(articles), "; Neg:", negative_sum / len(articles))
+
     def train_all(self, splits):
         ''' trains all models against all leanings
         
@@ -91,7 +76,6 @@ class Orchestrator():
         splits: A list of the splits 
 
         ''' 
-
         models = [SVM(), KNN(), Naive_Bayes(), Linear_Classifier(), NN()]
 
         #models = [NN()]
@@ -123,18 +107,25 @@ class Orchestrator():
 
                 for model in models: 
 
+                    #get prediction from embeddings 
                     model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
                     prediction = model.Predict(test_embeddings)
                     print("Model:", str(type(model)).split('.')[2].split('\'')[0], "Accuracy:", self.Metrics.Accuracy(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
 
-                print('\n')
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
                 #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
+                #get sentiment 
+                male_articles = list(filter(lambda article: article.Label.TargetGender == 1, test_dataset + training_dataset + validation_dataset))
+                female_articles = list(filter(lambda article: article.Label.TargetGender == 0, test_dataset + training_dataset + validation_dataset))
+
+                self.run_sentiment_analysis(male_articles)
+                self.run_sentiment_analysis(female_articles)
+
+
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data() 
-orchestrator.clean_all(splits)
 
 orchestrator.train_all(splits)
 
