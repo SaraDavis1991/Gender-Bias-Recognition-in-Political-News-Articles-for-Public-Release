@@ -123,6 +123,7 @@ class Orchestrator():
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data(clean=False) 
+
 sentimentAnalyzer = SentimentAnalyzer() 
 sents = ['I really like the new design of your website!', 'I\'m, not sure if I like the new design.', 'The new design is awful!']
 for sent in sents:
@@ -141,4 +142,5 @@ for sent in sents:
 print ("Pos:", positive_sum / len(don_articles), "; Neg:", negative_sum / len(don_articles))
 
 orchestrator.train_all(splits)
+
 
