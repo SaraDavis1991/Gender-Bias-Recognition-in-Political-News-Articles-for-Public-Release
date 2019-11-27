@@ -3,6 +3,9 @@ from DataReader import DataReader
 from DataContracts import Article
 from doc2vec import doc
 from SentimentIntensityAnalyzer import SentimentAnalyzer
+from Metrics import Metrics
+from Visualizer import Visualizer 
+import ApplicationConstants
 
 #models
 from Models.SVM_engine import SVM
@@ -11,14 +14,8 @@ from Models.Naive_Bayes_engine import Naive_Bayes
 from Models.Linear_Classification_engine import Linear_Classifier 
 from Models.NN_engine import NN
 
-#metrics
-from Metrics import Metrics
-
-#visualizations
-from Visualizer import Visualizer 
-
-#Constants
-import ApplicationConstants
+#helpers
+import statistics
 
 class Orchestrator():
 
@@ -49,23 +46,71 @@ class Orchestrator():
 
         return list(targets), regressors
 
-    def run_sentiment_analysis(self, articles):
+    def Retrieve_mean_sentiment(self, sentiments):
+
+        results = {}
+
+        neu_mean = []
+        pos_mean = []
+        neg_mean = [] 
+        neg_median = []
+        pos_median = []
+        neu_median = []
+
+        for sentiment in sentiments:
+
+            neu_mean.append(sentiment['neu_mean'])
+            neg_mean.append(sentiment['neg_mean'])
+            pos_mean.append(sentiment['pos_mean'])
+
+            neu_median.append(sentiment['neu_median'])
+            neg_median.append(sentiment['neg_median'])
+            pos_median.append(sentiment['pos_median'])   
+
+        results['neg_mean'] = statistics.mean(neg_mean)
+        results['pos_mean'] = statistics.mean(pos_mean)
+        results['neu_mean'] = statistics.mean(neu_mean)
+
+        results['neg_median'] = statistics.median(neg_median)
+        results['pos_median'] = statistics.median(pos_median)
+        results['neu_median'] = statistics.median(neu_median)
+
+        return results
+
+    def run_sentiment_analysis_all(self, articles):
      
-        positive_sum = 0 
-        negative_sum = 0 
+        #separate per sources per gender combining datasets
+        results = {}
 
-        for article in articles:
+        for leaning in articles: 
             
-            result = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+            results[leaning] = {} 
+            results[leaning][ApplicationConstants.Male] = {}
+            results[leaning][ApplicationConstants.Female] = {}
+
+            all_articles_for_leaning = articles[leaning][ApplicationConstants.Test] + articles[leaning][ApplicationConstants.Validation] + articles[leaning][ApplicationConstants.Train]
+
+            #separte per gender
+            female_articles = list(filter(lambda article: article.Label.TargetGender == 0, all_articles_for_leaning))
+            male_articles = list(filter(lambda article: article.Label.TargetGender == 1, all_articles_for_leaning))
+            female_sentiments = []
+            male_sentiments = []
+
+            for article in female_articles:
+                
+                _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                female_sentiments.append(sentiment)
             
-            prediction = result[0].value
+            for article in male_articles:
 
-            if (prediction == "POSITIVE"):
-                positive_sum += 1
-            else:
-                negative_sum += 1
+                _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                male_sentiments.append(sentiment)
+            
+            female_sentiment_scores = self.Retrieve_mean_sentiment(female_sentiments)
+            male_sentiment_scores = self.Retrieve_mean_sentiment(male_sentiments)
 
-        print ("Pos:", positive_sum / len(articles), "; Neg:", negative_sum / len(articles))
+            print ('female:',female_sentiment_scores)
+            print ('male:', male_sentiment_scores)
 
     def train_all(self, splits):
         ''' trains all models against all leanings
@@ -114,33 +159,11 @@ class Orchestrator():
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
                 #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
-                #get sentiment 
-                #male_articles = list(filter(lambda article: article.Label.TargetGender == 1, test_dataset + training_dataset + validation_dataset))
-                #female_articles = list(filter(lambda article: article.Label.TargetGender == 0, test_dataset + training_dataset + validation_dataset))
-
-                #self.run_sentiment_analysis(male_articles)
-                #self.run_sentiment_analysis(female_articles)
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data(clean=False) 
 
-sentimentAnalyzer = SentimentAnalyzer() 
-sents = ['I really like the new design of your website!', 'I\'m, not sure if I like the new design.', 'The new design is awful!']
-for sent in sents:
-    
-    result = sentimentAnalyzer.AnalyzeSentiment(sent)
-    
-    positive_sum += result['pos']
-    negative_sum += result['neg']
-    neu_sum += result['neu']
-
-    if (prediction == "POSITIVE"):
-        positive_sum += 1
-    else:
-        negative_sum += 1
-
-print ("Pos:", positive_sum / len(don_articles), "; Neg:", negative_sum / len(don_articles))
-
+orchestrator.run_sentiment_analysis_all(splits[0]) 
 orchestrator.train_all(splits)
 
 

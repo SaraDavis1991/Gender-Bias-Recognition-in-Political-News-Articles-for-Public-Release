@@ -10,10 +10,17 @@ import multiprocessing
 from nltk.tokenize import word_tokenize
 import random 
 
+<<<<<<< Updated upstream
 #from debias.debiaswe import debiaswe as dwe
 #import debias.debiaswe.debiaswe.we as we
 #from debias.debiaswe.debiaswe.we import WordEmbedding
 #from debias.debiaswe.debiaswe.data import load_professions
+=======
+# from debias.debiaswe import debiaswe as dwe
+# import debias.debiaswe.debiaswe.we as we
+# from debias.debiaswe.debiaswe.we import WordEmbedding
+# from debias.debiaswe.debiaswe.data import load_professions
+>>>>>>> Stashed changes
 
 class doc():
 	
@@ -36,8 +43,13 @@ class doc():
 	
 	def word2vec(self):
 		#E = WordEmbedding('./debias/debiaswe/embeddings/w2v_gnews_small.txt')
+<<<<<<< Updated upstream
 
 		return 0
+=======
+		pass
+		#return E
+>>>>>>> Stashed changes
 
 
 

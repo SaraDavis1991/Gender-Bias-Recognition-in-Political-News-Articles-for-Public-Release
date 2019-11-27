@@ -39,8 +39,8 @@ class Preprocessor():
         punctuation_to_remove = re.sub("([!.?'])", "", string.punctuation)     
         stop_words = StopWords.StopWords
 
-        with open('./debias/debiaswe/data/gender_specific_seed.json', "r") as f:
-            gender_specific_words = json.load(f)
+        # with open('./debias/debiaswe/data/gender_specific_seed.json', "r") as f:
+        #     gender_specific_words = json.load(f)
 
         #remove unwanted pos
         combined = "" 
@@ -54,7 +54,7 @@ class Preprocessor():
                 word = word.replace(word[len(word) - 1], '')
 
             if (not word.lower() in stop_words
-                and not word.lower() in gender_specific_words
+                #and not word.lower() in gender_specific_words
                 and not word in punctuation_to_remove
                 and word != tag
                 and (len(word) > 1 or word in punctuation_to_keep)):
