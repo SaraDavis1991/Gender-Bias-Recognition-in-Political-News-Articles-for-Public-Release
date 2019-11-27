@@ -33,8 +33,8 @@ class Orchestrator():
         self.Visualizer = Visualizer() 
         self.SentimentAnalyzer = SentimentAnalyzer() 
         
-    def read_data(self):       
-        return self.Reader.Load_Splits(ApplicationConstants.all_articles)
+    def read_data(self, clean=True):       
+        return self.Reader.Load_Splits(ApplicationConstants.all_articles, clean=clean)
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -45,6 +45,7 @@ class Orchestrator():
         labels: a list of labels corresponding to the article genders
         ''' 
 
+        #emb = self.docEmbed.word2vec() 
         targets, regressors = self.docEmbed.Embed(articles, labels)
 
         return list(targets), regressors
@@ -64,7 +65,6 @@ class Orchestrator():
                 positive_sum += 1
             else:
                 negative_sum += 1
-
 
         print ("Pos:", positive_sum / len(articles), "; Neg:", negative_sum / len(articles))
 
@@ -114,7 +114,7 @@ class Orchestrator():
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
-                self.Visualizer.plot_TSNE(training_embeddings, training_labels)
+                #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
                 #get sentiment 
                 #male_articles = list(filter(lambda article: article.Label.TargetGender == 1, test_dataset + training_dataset + validation_dataset))
                 #female_articles = list(filter(lambda article: article.Label.TargetGender == 0, test_dataset + training_dataset + validation_dataset))
@@ -122,9 +122,50 @@ class Orchestrator():
                 #self.run_sentiment_analysis(male_articles)
                 #self.run_sentiment_analysis(female_articles)
 
-
-
 orchestrator = Orchestrator()
-splits = orchestrator.read_data() 
+splits = orchestrator.read_data(clean=False) 
+sentimentAnalyzer = SentimentAnalyzer() 
+barrack_articles = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.SarahPalin, splits[0]['fox']['test']))[:5]
+don_articles = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.HillaryClinton, splits[0]['fox']['train']))[:5]
+
+positive_sum = 0 
+negative_sum = 0 
+neu_sum = 0
+for article in don_articles:
+    
+    result = sentimentAnalyzer.AnalyzeSentiment2(article.Content)
+    
+    prediction = result[0].value
+
+    # positive_sum += result['pos']
+    # negative_sum += result['neg']
+    # neu_sum += result['neu']
+
+    if (prediction == "POSITIVE"):
+        positive_sum += 1
+    else:
+        negative_sum += 1
+
+print ("Pos:", positive_sum / len(don_articles), "; Neg:", negative_sum / len(don_articles))
+
+positive_sum = 0 
+negative_sum = 0 
+neu_sum = 0
+for article in barrack_articles:
+    
+    result = sentimentAnalyzer.AnalyzeSentiment2(article.Content)
+    
+    # positive_sum += result['pos']
+    # negative_sum += result['neg']
+    # neu_sum += result['neu']
+
+    prediction = result[0].value
+
+    if (prediction == "POSITIVE"):
+        positive_sum += 1
+    else:
+        negative_sum += 1
+
+print ("Pos:", positive_sum / len(barrack_articles), "; Neg:", negative_sum / len(barrack_articles))
 orchestrator.train_all(splits)
 

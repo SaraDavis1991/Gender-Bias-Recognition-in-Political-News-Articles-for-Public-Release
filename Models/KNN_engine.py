@@ -19,12 +19,11 @@ class KNN(implements(IModel)):
 
     def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
 
-        n_neighbors = [2, 4, 6, 8]
+        n_neighbors = [4, 2, 4, 6, 8]
         best_f = -1 
         best_neighbor = -1
 
         for neighbor in n_neighbors:
-            
             self.Model.n_neighbors = neighbor
             self.Model.fit(trainFeatures, trainLabels)
 
@@ -36,6 +35,8 @@ class KNN(implements(IModel)):
                 best_neighbor = neighbor
 
         #reset model with best neighbor
+
+        print("best nn for KNN", best_neighbor)
         self.Model.n_neighbors = best_neighbor
         self.Model.fit(trainFeatures, trainLabels)
 

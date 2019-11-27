@@ -1,3 +1,7 @@
+from __future__ import print_function, division
+from matplotlib import pyplot as plt
+import json
+import numpy as np
 
 import ApplicationConstants
 from DataReader import DataReader
@@ -6,18 +10,11 @@ import multiprocessing
 from nltk.tokenize import word_tokenize
 import random 
 
-#print(Orchestrator.sources['breitbart'].Articles[58].Label.TargetName, Orchestrator.sources['breitbart'].Articles[88].Label.TargetName, Orchestrator.sources['breitbart'].Articles[37].Label.TargetName, Orchestrator.sources['breitbart'].Articles[29].Label.TargetName)
-'''
-articles = []
-dr = DataReader()
-sources = dr.Load(ApplicationConstants.all_articles)
+from debias.debiaswe import debiaswe as dwe
+import debias.debiaswe.debiaswe.we as we
+from debias.debiaswe.debiaswe.we import WordEmbedding
+from debias.debiaswe.debiaswe.data import load_professions
 
-for i in range(len(sources['breitbart'].Articles)):
-	if sources['breitbart'].Articles[i].Label.TargetName != ApplicationConstants.ElizabethWarren:
-		c = sources['breitbart'].Articles[i].Content
-		articles.append(c)
-articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[str(i)]) for i, _d in enumerate(articles)]
-'''
 class doc():
 	
 	def Embed(self, articles, labels):
@@ -36,18 +33,11 @@ class doc():
 		return targets, regressors
 		#model.save("d2v.model")
 		#print("model saved")
-		
-'''
-articles2 = []
-for i in range(len(sources['breitbart'].Articles)):
-	if sources['breitbart'].Articles[i].Label.TargetName == ApplicationConstants.ElizabethWarren:
-		c = sources['breitbart'].Articles[i].Content
-		articles2.append(c)
-#articles2= word_tokenize(_d.lower() for _d in enumerate(articles)) 
-#print(articles2)
-v1 = model.infer_vector(articles2)
-similar_doc = model.docvecs.most_similar('1')
-print(similar_doc)
-print(model.docvecs['1'])
-'''
+	
+	def word2vec(self):
+		E = WordEmbedding('./debias/debiaswe/embeddings/w2v_gnews_small.txt')
+
+		return E
+
+
 

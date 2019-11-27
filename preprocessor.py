@@ -8,6 +8,7 @@ import string
 import re
 import gensim.downloader as api
 import StopWords
+import json 
 
 class Preprocessor():
 
@@ -24,9 +25,9 @@ class Preprocessor():
         data = re.sub('(Follow)\s[a-zA-Z\s]*Twitter[a-zA-Z\s@]*.', '', data)
 
         #remove whole words from stop list 
-        for word in StopWords.StopWords: 
-            reg_string = word + '-[a-zA-Z]*'
-            data = re.sub(reg_string, '', data) 
+        #for word in StopWords.StopWords: 
+        #    reg_string = word + '-[a-zA-Z]*'
+        #    data = re.sub(reg_string, '', data) 
 
         #get parts of speech
         tokens = nltk.word_tokenize(data)
@@ -37,6 +38,9 @@ class Preprocessor():
         punctuation_to_keep = "!.?-'"
         punctuation_to_remove = re.sub("([!.?'])", "", string.punctuation)     
         stop_words = StopWords.StopWords
+
+        with open('./debias/debiaswe/data/gender_specific_seed.json', "r") as f:
+            gender_specific_words = json.load(f)
 
         #remove unwanted pos
         combined = "" 
@@ -49,7 +53,11 @@ class Preprocessor():
                 append = word[len(word) - 1]
                 word = word.replace(word[len(word) - 1], '')
 
-            if (not word.lower() in stop_words and not word in punctuation_to_remove and word != tag and (len(word) > 1 or word in punctuation_to_keep)):
+            if (not word.lower() in stop_words
+                and not word.lower() in gender_specific_words
+                and not word in punctuation_to_remove
+                and word != tag
+                and (len(word) > 1 or word in punctuation_to_keep)):
 
                 if (word in punctuation_to_keep):
 

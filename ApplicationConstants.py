@@ -1,7 +1,7 @@
 #Application Constants
 
 #Filenames
-all_articles = "./newData/Data/articles.json"
+all_articles = "./Data/articles.json"
 fold_1 = "./folds/fold1.txt"
 fold_2 = "./folds/fold2.txt"
 fold_3 = "./folds/fold3.txt"
