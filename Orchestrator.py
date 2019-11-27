@@ -17,6 +17,8 @@ from Models.NN_engine import NN
 #helpers
 import statistics
 
+import matplotlib.pytplot as plt 
+
 class Orchestrator():
 
     def __init__(self):
@@ -45,6 +47,24 @@ class Orchestrator():
         targets, regressors = self.docEmbed.Embed(articles, labels)
 
         return list(targets), regressors
+    
+    def calc_sent(self, sentiment):
+        if sentiment["pos_mean"] > sentiment["neg_mean"]:
+            return 0
+        else:
+            return 1
+        #return max(sentiment["pos_mean"], sentiment["neg_mean"])
+
+        
+    def graph_sentiment(self, Fsentiment, Msentiment):
+        femaleVals = []
+        maleVals = []
+        for i in range(len(Fsentiment)):
+            femaleVals.append(self.calc_sent(Fsentiment[i]))
+        for j in range(len(Msentiment)):
+            maleVals.append(self.calc_sent(Msentiment[j]))
+
+       
 
     def Retrieve_mean_sentiment(self, sentiments):
 
