@@ -1,6 +1,5 @@
 #classes
 from DataReader import DataReader
-
 from DataContracts import Article
 from doc2vec import doc
 from SentimentIntensityAnalyzer import SentimentAnalyzer
@@ -125,21 +124,14 @@ class Orchestrator():
 orchestrator = Orchestrator()
 splits = orchestrator.read_data(clean=False) 
 sentimentAnalyzer = SentimentAnalyzer() 
-barrack_articles = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.SarahPalin, splits[0]['fox']['test']))[:5]
-don_articles = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.HillaryClinton, splits[0]['fox']['train']))[:5]
-
-positive_sum = 0 
-negative_sum = 0 
-neu_sum = 0
-for article in don_articles:
+sents = ['I really like the new design of your website!', 'I\'m, not sure if I like the new design.', 'The new design is awful!']
+for sent in sents:
     
-    result = sentimentAnalyzer.AnalyzeSentiment2(article.Content)
+    result = sentimentAnalyzer.AnalyzeSentiment(sent)
     
-    prediction = result[0].value
-
-    # positive_sum += result['pos']
-    # negative_sum += result['neg']
-    # neu_sum += result['neu']
+    positive_sum += result['pos']
+    negative_sum += result['neg']
+    neu_sum += result['neu']
 
     if (prediction == "POSITIVE"):
         positive_sum += 1
@@ -148,24 +140,5 @@ for article in don_articles:
 
 print ("Pos:", positive_sum / len(don_articles), "; Neg:", negative_sum / len(don_articles))
 
-positive_sum = 0 
-negative_sum = 0 
-neu_sum = 0
-for article in barrack_articles:
-    
-    result = sentimentAnalyzer.AnalyzeSentiment2(article.Content)
-    
-    # positive_sum += result['pos']
-    # negative_sum += result['neg']
-    # neu_sum += result['neu']
-
-    prediction = result[0].value
-
-    if (prediction == "POSITIVE"):
-        positive_sum += 1
-    else:
-        negative_sum += 1
-
-print ("Pos:", positive_sum / len(barrack_articles), "; Neg:", negative_sum / len(barrack_articles))
 orchestrator.train_all(splits)
 
