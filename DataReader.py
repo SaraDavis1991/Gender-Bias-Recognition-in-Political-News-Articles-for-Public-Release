@@ -25,6 +25,51 @@ class DataReader():
             return Source(obj['articles'])
         return obj
     
+    def Randomize(self, filePath):
+        with open(filePath, 'r') as read_file:
+            data = json.load(read_file, object_hook=self.object_decoder)
+
+        breitbart = data[ApplicationConstants.Breitbart].Articles 
+        fox = data[ApplicationConstants.Fox].Articles 
+        usa_today = data[ApplicationConstants.usa_today].Articles 
+        nyt = data[ApplicationConstants.New_york_times].Articles 
+        huffpost = data[ApplicationConstants.HuffPost].Articles 
+
+        random.shuffle(breitbart) 
+        random.shuffle(fox)
+        random.shuffle(usa_today)
+        random.shuffle(nyt)
+        random.shuffle(huffpost)
+
+        output = {} 
+
+        for leaning in data: 
+            
+            articles = []
+
+            for article in data[leaning].Articles: 
+                
+                new_article = {} 
+                new_article["title"] = article.Title
+                new_article["subtitle"] = article.Subtitle
+                new_article["author"] = article.Author
+                new_article["date"] = article.Date
+                new_article["content"] = article.Content
+                new_article["url"] = article.Url
+                new_article["labels"] = {                  
+                    "author_gender" : "",
+                    "target_gender" : article.Label.TargetGender,
+                    "target_affiliation" : article.Label.TargetAffiliation,
+                    "target_name" : article.Label.TargetName
+                }
+
+                articles.append(new_article)
+            output[leaning] = {} 
+            output[leaning]['articles'] = articles
+
+        with open('./output.json', 'w') as write_file:
+            json.dump(output, write_file, indent=2)
+
     def Load(self, filePath) -> List[Source]:
         with open(filePath, 'r') as read_file:
             data = json.load(read_file, object_hook=self.object_decoder)
@@ -49,7 +94,7 @@ class DataReader():
         usa = []
         huffpost = []
         nyt = [] 
-        print()
+
         for candidate in candidates: 
             
             breitbart += list(filter(lambda article: article.Label.TargetName == candidate, data[ApplicationConstants.Breitbart].Articles))[:number_of_articles]

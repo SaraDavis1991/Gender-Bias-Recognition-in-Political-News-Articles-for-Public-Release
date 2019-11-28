@@ -2,6 +2,7 @@
 
 #Filenames
 all_articles = "./Data/articles.json"
+all_articles_random = "./Data/random_articles.json"
 fold_1 = "./folds/fold1.txt"
 fold_2 = "./folds/fold2.txt"
 fold_3 = "./folds/fold3.txt"

@@ -26,7 +26,7 @@ class SentimentAnalyzer():
             pos_list.append(intensity['pos'])
             neu_list.append(intensity['neu'])
         
-        if should_average_intensities:
+        if should_average_intensities and len(neg_list) > 0 and len(pos_list) > 0 and len(neu_list) > 0:
 
             results = {}
             

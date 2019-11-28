@@ -1,4 +1,5 @@
 #classes
+
 from DataReader import DataReader
 from DataContracts import Article
 from doc2vec import doc
@@ -16,8 +17,8 @@ from Models.NN_engine import NN
 
 #helpers
 import statistics
-
-import matplotlib.pytplot as plt 
+import numpy as np 
+import matplotlib.pyplot as plt 
 
 class Orchestrator():
 
@@ -31,8 +32,8 @@ class Orchestrator():
         self.Visualizer = Visualizer() 
         self.SentimentAnalyzer = SentimentAnalyzer() 
         
-    def read_data(self, clean=True):       
-        return self.Reader.Load_Splits(ApplicationConstants.all_articles, clean=clean)
+    def read_data(self, clean=True, number_of_articles = 50):       
+        return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -54,17 +55,38 @@ class Orchestrator():
         else:
             return 1
         #return max(sentiment["pos_mean"], sentiment["neg_mean"])
-
         
-    def graph_sentiment(self, Fsentiment, Msentiment):
+    def graph_sentiment(self, leaning, Fsentiment, Msentiment):
+
         femaleVals = []
         maleVals = []
+
         for i in range(len(Fsentiment)):
             femaleVals.append(self.calc_sent(Fsentiment[i]))
         for j in range(len(Msentiment)):
             maleVals.append(self.calc_sent(Msentiment[j]))
 
-       
+        female_pos = list(filter(lambda sent: sent == 0, femaleVals))
+        female_neg = list(filter(lambda sent: sent == 1, femaleVals))
+        female_bars = [len(female_pos), len(female_neg)]
+        male_pos = list(filter(lambda sent: sent == 0, maleVals))
+        male_neg = list(filter(lambda sent: sent == 1, maleVals))
+        male_bars = [len(male_pos), len(male_neg)]
+
+        N = 2
+        ind = np.arange(N) 
+        width = 0.35 
+
+        plt.bar(ind[0], len(female_pos), width, align='center', color='green')
+        plt.bar(ind[0] + width, len(female_neg), width, align='center', color='blue')
+        plt.bar(ind[1], len(male_pos), width, align='center', label='positive sentiment', color='green')
+        plt.bar(ind[1] + width, len(male_neg), width, align='center', label='negative sentiment', color='blue')
+
+        plt.ylabel('Article Polarity Count')
+        plt.title('Counts of positve and negative sentiment per gender for ' + leaning)
+        plt.xticks(ind + width / 2, ('Female Sentiment Polarity', 'Male Sentiment Polarity'))
+        plt.legend(loc='best')
+        plt.show()
 
     def Retrieve_mean_sentiment(self, sentiments):
 
@@ -105,9 +127,6 @@ class Orchestrator():
         for leaning in articles: 
             
             results[leaning] = {} 
-            results[leaning][ApplicationConstants.Male] = {}
-            results[leaning][ApplicationConstants.Female] = {}
-
             all_articles_for_leaning = articles[leaning][ApplicationConstants.Test] + articles[leaning][ApplicationConstants.Validation] + articles[leaning][ApplicationConstants.Train]
 
             #separte per gender
@@ -118,14 +137,17 @@ class Orchestrator():
 
             for article in female_articles:
                 
-                _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                female_sentiments.append(sentiment)
+                if (article.Content != '' and not article.Content.isspace()):
+                    _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                    print(sentiment)
+                    female_sentiments.append(sentiment)
             
             for article in male_articles:
-
-                _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                male_sentiments.append(sentiment)
+                if (article.Content != '' and not article.Content.isspace()):
+                    _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                    male_sentiments.append(sentiment)
             
+            self.graph_sentiment(leaning, female_sentiments, male_sentiments)
             female_sentiment_scores = self.Retrieve_mean_sentiment(female_sentiments)
             male_sentiment_scores = self.Retrieve_mean_sentiment(male_sentiments)
 
@@ -181,7 +203,8 @@ class Orchestrator():
                 #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(clean=False) 
+
+splits = orchestrator.read_data(clean=False, number_of_articles=10) 
 
 orchestrator.run_sentiment_analysis_all(splits[0]) 
 orchestrator.train_all(splits)
