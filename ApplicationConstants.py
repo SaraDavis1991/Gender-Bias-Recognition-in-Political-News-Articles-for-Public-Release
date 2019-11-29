@@ -1,7 +1,7 @@
 #Application Constants
 
 #Filenames
-all_articles = "./Data/articles.json"
+all_articles = "./Data/articles.updatedv2.json"
 all_articles_random = "./Data/random_articles.json"
 fold_1 = "./folds/fold1.txt"
 fold_2 = "./folds/fold2.txt"
@@ -31,6 +31,7 @@ BetsyDevos = "Betsy_Devos"
 ElizabethWarren = "Elizabeth_Warren"
 AlexandriaOcasioCortez = "Alexandria_ocasio-cortez"
 SarahPalin = "Sarah_Palin"
+MitchMcconnell = "Mitch_Mcconnell"
 
 #sources
 Breitbart = "breitbart"

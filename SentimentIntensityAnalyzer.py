@@ -2,6 +2,7 @@ import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk import tokenize 
 import statistics
+from sentiment import sentiment_analysis
 
 class SentimentAnalyzer(): 
 
@@ -10,34 +11,8 @@ class SentimentAnalyzer():
 
     def AnalyzeSentiment(self, article: str, should_average_intensities=True):
 
-        polarities = [] 
-        tokens = tokenize.sent_tokenize(article) 
-        
-        neg_list = []
-        pos_list = []
-        neu_list = []
-
-        for sent in tokens: 
-
-            intensity = self.Analyzer.polarity_scores(sent)
-            polarities.append(intensity) 
-
-            neg_list.append(intensity['neg'])
-            pos_list.append(intensity['pos'])
-            neu_list.append(intensity['neu'])
-        
-        if should_average_intensities and len(neg_list) > 0 and len(pos_list) > 0 and len(neu_list) > 0:
-
-            results = {}
-            
-            results['neg_mean'] = statistics.mean(neg_list)
-            results['pos_mean'] = statistics.mean(pos_list)
-            results['neu_mean'] = statistics.mean(neu_list)
-            results['neg_median'] = statistics.median(neg_list)
-            results['pos_median'] = statistics.median(pos_list)
-            results['neu_median'] = statistics.median(neu_list)
-
-            return polarities, results    
-
-        return polarities
+        annotations = sentiment_analysis.analyze(article) 
+        score = annotations.document_sentiment.score
+        magnitude = annotations.document_sentiment.magnitude
+        return score, magnitude
     

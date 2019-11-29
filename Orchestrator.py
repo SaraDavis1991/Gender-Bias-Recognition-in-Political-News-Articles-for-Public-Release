@@ -33,7 +33,7 @@ class Orchestrator():
         self.SentimentAnalyzer = SentimentAnalyzer() 
         
     def read_data(self, clean=True, number_of_articles = 50):       
-        return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
+        return self.Reader.Load_Splits(ApplicationConstants.all_articles, clean=clean, number_of_articles=number_of_articles)
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -49,12 +49,13 @@ class Orchestrator():
 
         return list(targets), regressors
     
-    def calc_sent(self, sentiment):
-        if sentiment["pos_mean"] > sentiment["neg_mean"]:
-            return 0
-        else:
-            return 1
-        #return max(sentiment["pos_mean"], sentiment["neg_mean"])
+    def calc_sent(self, magnitude, score):
+        if score > 0.25 and magnitude > 0.5:
+            return 'pos'
+        elif score < -0.25 and magnitude > 0.5:
+            return 'neg'
+
+        return 'neu'
         
     def graph_sentiment(self, leaning, Fsentiment, Msentiment):
 
@@ -62,9 +63,9 @@ class Orchestrator():
         maleVals = []
 
         for i in range(len(Fsentiment)):
-            femaleVals.append(self.calc_sent(Fsentiment[i]))
+            femaleVals.append(self.calc_sent(Fsentiment[1], Fsentiment[0]))
         for j in range(len(Msentiment)):
-            maleVals.append(self.calc_sent(Msentiment[j]))
+            maleVals.append(self.calc_sent(Msentiment[1], Msentiment[0]))
 
         female_pos = list(filter(lambda sent: sent == 0, femaleVals))
         female_neg = list(filter(lambda sent: sent == 1, femaleVals))
@@ -88,37 +89,6 @@ class Orchestrator():
         plt.legend(loc='best')
         plt.show()
 
-    def Retrieve_mean_sentiment(self, sentiments):
-
-        results = {}
-
-        neu_mean = []
-        pos_mean = []
-        neg_mean = [] 
-        neg_median = []
-        pos_median = []
-        neu_median = []
-
-        for sentiment in sentiments:
-
-            neu_mean.append(sentiment['neu_mean'])
-            neg_mean.append(sentiment['neg_mean'])
-            pos_mean.append(sentiment['pos_mean'])
-
-            neu_median.append(sentiment['neu_median'])
-            neg_median.append(sentiment['neg_median'])
-            pos_median.append(sentiment['pos_median'])   
-
-        results['neg_mean'] = statistics.mean(neg_mean)
-        results['pos_mean'] = statistics.mean(pos_mean)
-        results['neu_mean'] = statistics.mean(neu_mean)
-
-        results['neg_median'] = statistics.median(neg_median)
-        results['pos_median'] = statistics.median(pos_median)
-        results['neu_median'] = statistics.median(neu_median)
-
-        return results
-
     def run_sentiment_analysis_all(self, articles):
      
         #separate per sources per gender combining datasets
@@ -138,18 +108,16 @@ class Orchestrator():
             for article in female_articles:
                 
                 if (article.Content != '' and not article.Content.isspace()):
-                    _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                    print(sentiment)
-                    female_sentiments.append(sentiment)
+                    score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                    print(score)
+                    female_sentiments.append((score, magnitude))
             
             for article in male_articles:
                 if (article.Content != '' and not article.Content.isspace()):
-                    _, sentiment = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                    male_sentiments.append(sentiment)
+                    score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                    male_sentiments.append((score, magnitude))
             
             self.graph_sentiment(leaning, female_sentiments, male_sentiments)
-            female_sentiment_scores = self.Retrieve_mean_sentiment(female_sentiments)
-            male_sentiment_scores = self.Retrieve_mean_sentiment(male_sentiments)
 
             print ('female:',female_sentiment_scores)
             print ('male:', male_sentiment_scores)
@@ -204,7 +172,7 @@ class Orchestrator():
 
 orchestrator = Orchestrator()
 
-splits = orchestrator.read_data(clean=False, number_of_articles=10) 
+splits = orchestrator.read_data(clean=False, number_of_articles=25) 
 
 orchestrator.run_sentiment_analysis_all(splits[0]) 
 orchestrator.train_all(splits)
