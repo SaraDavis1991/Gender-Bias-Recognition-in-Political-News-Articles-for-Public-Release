@@ -208,15 +208,17 @@ class Orchestrator():
                     #get prediction from embeddings 
                     model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
                     prediction = model.Predict(test_embeddings)
-                    print("Model:", str(type(model)).split('.')[2].split('\'')[0], "Accuracy:", self.Metrics.Accuracy(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
+                    print("Model:", str(type(model)).split('.')[2].split('\'')[0], "precision:", self.Metrics.Precision(prediction, test_labels), "recall:", self.Metrics.Recall(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
-                self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels)
+               # self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels)
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data(clean=True, number_of_articles=25) 
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
 orchestrator.train_all(splits)
+
+a = 3
 
 
