@@ -19,6 +19,7 @@ from Models.NN_engine import NN
 import statistics
 import numpy as np 
 import matplotlib.pyplot as plt 
+import os.path
 
 class Orchestrator():
 
@@ -33,7 +34,7 @@ class Orchestrator():
         self.SentimentAnalyzer = SentimentAnalyzer() 
         
     def read_data(self, clean=True, number_of_articles = 50):       
-        return self.Reader.Load_Splits(ApplicationConstants.all_articles, clean=clean, number_of_articles=number_of_articles)
+        return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
     
     def embed_fold(self, articles, labels):
         ''' 
@@ -49,50 +50,76 @@ class Orchestrator():
 
         return list(targets), regressors
     
-    def calc_sent(self, magnitude, score):
-        if score > 0.25 and magnitude > 0.5:
+    def calc_sent(self, sentiment):
+        score = sentiment[0]
+        magnitude = sentiment[1]
+
+        if score > 0.1:
             return 'pos'
-        elif score < -0.25 and magnitude > 0.5:
+        elif score < -0.1:
             return 'neg'
-
-        return 'neu'
         
-    def graph_sentiment(self, leaning, Fsentiment, Msentiment):
+    def graph_sentiment(self, Fsentiment, Msentiment):
 
-        femaleVals = []
-        maleVals = []
+        pos_counts_per_leaning_female = [] 
+        neg_counts_per_leaning_male = []
+        pos_counts_per_leaning_male = [] 
+        neg_counts_per_leaning_female = []
+        leanings = ["Breitbart", "Fox", "USA Today", "New York Times", "Huffpost"]
 
-        for i in range(len(Fsentiment)):
-            femaleVals.append(self.calc_sent(Fsentiment[1], Fsentiment[0]))
-        for j in range(len(Msentiment)):
-            maleVals.append(self.calc_sent(Msentiment[1], Msentiment[0]))
+        breitbart_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Fsentiment))))
+        breitbart_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Msentiment))))
+        fox_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Fsentiment))))
+        fox_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Msentiment))))
+        usa_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Fsentiment))))
+        usa_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Msentiment))))
+        nyt_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Fsentiment))))
+        nyt_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Msentiment))))
+        hp_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Fsentiment))))
+        hp_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Msentiment))))
 
-        female_pos = list(filter(lambda sent: sent == 0, femaleVals))
-        female_neg = list(filter(lambda sent: sent == 1, femaleVals))
-        female_bars = [len(female_pos), len(female_neg)]
-        male_pos = list(filter(lambda sent: sent == 0, maleVals))
-        male_neg = list(filter(lambda sent: sent == 1, maleVals))
-        male_bars = [len(male_pos), len(male_neg)]
+        male_leanings = [breitbart_male_sentiments, fox_male_sentiments, usa_male_sentiments, nyt_male_sentiments, hp_male_sentiments]
+        female_leanings = [breitbart_female_sentiments, fox_female_sentiments, usa_female_sentiments, nyt_female_sentiments, hp_female_sentiments]
 
-        N = 2
-        ind = np.arange(N) 
-        width = 0.35 
+        for leaning in range(5): 
 
-        plt.bar(ind[0], len(female_pos), width, align='center', color='green')
-        plt.bar(ind[0] + width, len(female_neg), width, align='center', color='blue')
-        plt.bar(ind[1], len(male_pos), width, align='center', label='positive sentiment', color='green')
-        plt.bar(ind[1] + width, len(male_neg), width, align='center', label='negative sentiment', color='blue')
+            femaleVals = []
+            maleVals = []
 
-        plt.ylabel('Article Polarity Count')
-        plt.title('Counts of positve and negative sentiment per gender for ' + leaning)
-        plt.xticks(ind + width / 2, ('Female Sentiment Polarity', 'Male Sentiment Polarity'))
-        plt.legend(loc='best')
+            for sentiment in female_leanings[leaning][0]:
+                femaleVals.append(self.calc_sent(sentiment))
+
+            for sentiment in male_leanings[leaning][0]:
+                maleVals.append(self.calc_sent(sentiment))
+
+            female_pos = len(list(filter(lambda sent: sent == 'pos', femaleVals)))
+            female_neg = len(list(filter(lambda sent: sent == 'neg', femaleVals)))
+            male_pos = len(list(filter(lambda sent: sent == 'pos', maleVals)))
+            male_neg = len(list(filter(lambda sent: sent == 'neg', maleVals)))
+
+            pos_counts_per_leaning_female.append(female_pos / 125)
+            neg_counts_per_leaning_female.append(female_neg / 125)
+            neg_counts_per_leaning_male.append(male_neg / 125)
+            pos_counts_per_leaning_male.append(male_pos / 125)
+
+        plt.plot(leanings, pos_counts_per_leaning_female, marker='D', label='Positive Female Articles', color='seagreen')
+        plt.plot(leanings, neg_counts_per_leaning_female, marker='D', label='Negative Female Articles', color='slateblue')
+        plt.plot(leanings, pos_counts_per_leaning_male, marker='D', label='Positive Male Articles', color='orange')
+        plt.plot(leanings, neg_counts_per_leaning_male, marker='D', label='Negative Male Articles', color='crimson')
+
+        plt.ylabel('Mean Leaning Sentiment Positive:Negative Ratio')
+        plt.title('Positive and Negative Sentiment by Leaning and Gender')
+        plt.xticks(leanings)
+        plt.ylim((0, 1))
+        plt.legend(loc='center right')
         plt.show()
 
     def run_sentiment_analysis_all(self, articles):
      
         #separate per sources per gender combining datasets
         results = {}
+        all_female = []
+        all_male = []
 
         for leaning in articles: 
             
@@ -102,25 +129,42 @@ class Orchestrator():
             #separte per gender
             female_articles = list(filter(lambda article: article.Label.TargetGender == 0, all_articles_for_leaning))
             male_articles = list(filter(lambda article: article.Label.TargetGender == 1, all_articles_for_leaning))
+
             female_sentiments = []
             male_sentiments = []
+            print(leaning)
 
-            for article in female_articles:
+            female_path = './sentiment/' + leaning + '_female_sentiment_cleaned'
+            male_path = './sentiment/' + leaning + '_male_sentiment_cleaned'
+
+            if (not os.path.isfile(female_path + '.npy')):
+                for article in female_articles:
+                    
+                    if (article.Content != '' and not article.Content.isspace()):
+                        score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                        female_sentiments.append((score, magnitude)) 
                 
-                if (article.Content != '' and not article.Content.isspace()):
-                    score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                    print(score)
-                    female_sentiments.append((score, magnitude))
-            
-            for article in male_articles:
-                if (article.Content != '' and not article.Content.isspace()):
-                    score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                    male_sentiments.append((score, magnitude))
-            
-            self.graph_sentiment(leaning, female_sentiments, male_sentiments)
+                np.save(female_path, female_sentiments)
+            else:
+                female_sentiments = np.load(female_path + '.npy')
+                female_sentiments = list(map(lambda article: (article[0], article[1]), female_sentiments))
+             
+            if (not os.path.isfile(male_path + '.npy')):
+                for article in male_articles:
+                    if (article.Content != '' and not article.Content.isspace()):
+                        score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
+                        male_sentiments.append((score, magnitude))
+                    
+                np.save(male_path, male_sentiments)
 
-            print ('female:',female_sentiment_scores)
-            print ('male:', male_sentiment_scores)
+            else:
+                male_sentiments = np.load(male_path + '.npy')
+                male_sentiments = list(map(lambda article: (article[0], article[1]), male_sentiments))
+
+            all_female.append((leaning, female_sentiments))
+            all_male.append((leaning, male_sentiments))
+
+        self.graph_sentiment(all_female, all_male)
 
     def train_all(self, splits):
         ''' trains all models against all leanings
