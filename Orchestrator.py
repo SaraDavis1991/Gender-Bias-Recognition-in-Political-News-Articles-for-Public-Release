@@ -212,13 +212,11 @@ class Orchestrator():
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
-                #self.Visualizer.plot_TSNE(training_embeddings, training_labels)
+                self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels)
 
 orchestrator = Orchestrator()
-
-splits = orchestrator.read_data(clean=False, number_of_articles=25) 
-
-orchestrator.run_sentiment_analysis_all(splits[0]) 
+splits = orchestrator.read_data(clean=True, number_of_articles=25) 
+#orchestrator.run_sentiment_analysis_all(splits[0]) 
 orchestrator.train_all(splits)
 
 
