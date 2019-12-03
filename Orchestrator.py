@@ -54,9 +54,9 @@ class Orchestrator():
         score = sentiment[0]
         magnitude = sentiment[1]
 
-        if score > 0.1:
+        if score > 0.25:
             return 'pos'
-        elif score < -0.1:
+        elif score < -0.25:
             return 'neg'
         
     def graph_sentiment(self, Fsentiment, Msentiment):
@@ -96,6 +96,12 @@ class Orchestrator():
             female_neg = len(list(filter(lambda sent: sent == 'neg', femaleVals)))
             male_pos = len(list(filter(lambda sent: sent == 'pos', maleVals)))
             male_neg = len(list(filter(lambda sent: sent == 'neg', maleVals)))
+            print(leaning)
+            print("Num Female Pos: " + str(female_pos))
+            print("Num Female Neg: " + str(female_neg))
+            print("Num Male Pos: " + str(male_pos))
+            print("Num Male Neg: " + str(male_neg))
+
 
             pos_counts_per_leaning_female.append(female_pos / 125)
             neg_counts_per_leaning_female.append(female_neg / 125)
@@ -447,9 +453,10 @@ class Orchestrator():
 
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(clean=True, number_of_articles=25) 
-#orchestrator.run_sentiment_analysis_all(splits[0]) 
-orchestrator.train_all(splits)
+splits = orchestrator.read_data(clean=False, number_of_articles=25) 
+print("Dirty .25")
+orchestrator.run_sentiment_analysis_all(splits[0]) 
+#orchestrator.train_all(splits)
 
 
 
