@@ -46,13 +46,14 @@ class Visualizer():
                     arrowprops=dict(arrowstyle="->"))
         self.annot.set_visible(False)
 
-        self.sc = plt.scatter(x=results[:,0], y=results[0:,1], c=true_labels, cmap=matplotlib.colors.ListedColormap(cmap))
-        #self.sc = sns.scatterplot(x=results[:,0], y=results[0:,1], palette=sns.color_palette("hls", 2), hue=genders)
+        #self.sc = plt.scatter(x=results[:,0], y=results[0:,1], c=true_labels, cmap=matplotlib.colors.ListedColormap(cmap))
+        self.sc = sns.scatterplot(x=results[:,0], y=results[0:,1], palette=sns.color_palette("hls", 2), hue=self.genders)
 
         #plt.setp(ax.get_legend().get_texts(), fontsize='40')
-        plt.legend(loc='best', prop={'size': 20})
-        plt.title('t-SNE Article Distribution for ' + leaning, fontsize=40)
-        self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
+        plt.legend( loc='best', prop={'size': 15})
+        #plt.legend(*self.sc.legend_elements(), loc='best', prop={'size': 20})
+        plt.title('t-SNE Article Distribution for ' + leaning, fontsize=20)
+        #self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
         plt.show()
 
 

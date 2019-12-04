@@ -248,232 +248,234 @@ class Orchestrator():
                     prediction = model.Predict(test_embeddings)
 
                     print("Model:", str(type(model)).split('.')[2].split('\'')[0], "precision:", self.Metrics.Precision(prediction, test_labels), "recall:", self.Metrics.Recall(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
-                    # if leaning == "breitbart":
-                    #     bP.append(self.Metrics.Precision(prediction, test_labels))
-                    #     bR.append(self.Metrics.Recall(prediction, test_labels))
-                    #     bF.append(self.Metrics.Fmeasure(prediction, test_labels))
-                    # if leaning == "fox":
-                    #     fP.append(self.Metrics.Precision(prediction, test_labels))
-                    #     fR.append(self.Metrics.Recall(prediction, test_labels))
-                    #     fF.append(self.Metrics.Fmeasure(prediction, test_labels))
-                    # if leaning == "usa_today":
-                    #     uP.append(self.Metrics.Precision(prediction, test_labels))
-                    #     uR.append(self.Metrics.Recall(prediction, test_labels))
-                    #     uF.append(self.Metrics.Fmeasure(prediction, test_labels))
-                    # if leaning == "new_york_times":
-                    #     nP.append(self.Metrics.Precision(prediction, test_labels))
-                    #     nR.append(self.Metrics.Recall(prediction, test_labels))
-                    #     nF.append(self.Metrics.Fmeasure(prediction, test_labels))
-                    # if leaning == "huffpost":
-                    #     hP.append(self.Metrics.Precision(prediction, test_labels))
-                    #     hR.append(self.Metrics.Recall(prediction, test_labels))
-                    #     hF.append(self.Metrics.Fmeasure(prediction, test_labels))
+                    if leaning == "breitbart":
+                        bP.append(self.Metrics.Precision(prediction, test_labels))
+                        bR.append(self.Metrics.Recall(prediction, test_labels))
+                        bF.append(self.Metrics.Fmeasure(prediction, test_labels))
+                    if leaning == "fox":
+                        fP.append(self.Metrics.Precision(prediction, test_labels))
+                        fR.append(self.Metrics.Recall(prediction, test_labels))
+                        fF.append(self.Metrics.Fmeasure(prediction, test_labels))
+                    if leaning == "usa_today":
+                        uP.append(self.Metrics.Precision(prediction, test_labels))
+                        uR.append(self.Metrics.Recall(prediction, test_labels))
+                        uF.append(self.Metrics.Fmeasure(prediction, test_labels))
+                    if leaning == "new_york_times":
+                        nP.append(self.Metrics.Precision(prediction, test_labels))
+                        nR.append(self.Metrics.Recall(prediction, test_labels))
+                        nF.append(self.Metrics.Fmeasure(prediction, test_labels))
+                    if leaning == "huffpost":
+                        hP.append(self.Metrics.Precision(prediction, test_labels))
+                        hR.append(self.Metrics.Recall(prediction, test_labels))
+                        hF.append(self.Metrics.Fmeasure(prediction, test_labels))
 
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
-                self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
-        # BttlS = 0
-        # BttlK = 0
-        # BttlN = 0
-        # BttlL = 0
-        # BttlNet = 0
-        # FttlS = 0
-        # FttlK = 0
-        # FttlN = 0
-        # FttlL = 0
-        # FttlNet = 0
-        # UttlS = 0
-        # UttlK = 0
-        # UttlN = 0
-        # UttlL = 0
-        # UttlNet = 0
-        # HttlS = 0
-        # HttlK = 0
-        # HttlN = 0
-        # HttlL = 0
-        # HttlNet = 0
-        # NttlS = 0
-        # NttlK = 0
-        # NttlN = 0
-        # NttlL = 0
-        # NttlNet = 0
+                if split_count == 1:
+                    self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
+        BttlS = 0
+        BttlK = 0
+        BttlN = 0
+        BttlL = 0
+        BttlNet = 0
+        FttlS = 0
+        FttlK = 0
+        FttlN = 0
+        FttlL = 0
+        FttlNet = 0
+        UttlS = 0
+        UttlK = 0
+        UttlN = 0
+        UttlL = 0
+        UttlNet = 0
+        HttlS = 0
+        HttlK = 0
+        HttlN = 0
+        HttlL = 0
+        HttlNet = 0
+        NttlS = 0
+        NttlK = 0
+        NttlN = 0
+        NttlL = 0
+        NttlNet = 0
 
         
-        # for i in range(len(bP)):
-        #     if i %5 == 0:
-        #         BttlS +=bP[i]
-        #         FttlS +=fP[i]
-        #         UttlS += uP[i]
-        #         HttlS += hP[i]
-        #         NttlS += nP[i]
-        #     if i % 5 == 1:
-        #         BttlK +=bP[i]
-        #         FttlK +=fP[i]
-        #         UttlK += uP[i]
-        #         HttlK += hP[i]
-        #         NttlK += nP[i]
-        #     if i % 5 == 2:
-        #         BttlN +=bP[i]
-        #         FttlN +=fP[i]
-        #         UttlN += uP[i]
-        #         HttlN += hP[i]
-        #         NttlN += nP[i]
-        #     if i %5 == 3:
-        #         BttlL +=bP[i]
-        #         FttlL +=fP[i]
-        #         UttlL += uP[i]
-        #         HttlL += hP[i]
-        #         NttlL += nP[i]
-        #     if i%5 == 4:
-        #         BttlNet +=bP[i]
-        #         FttlNet +=fP[i]
-        #         UttlNet += uP[i]
-        #         HttlNet += hP[i]
-        #         NttlNet += nP[i]
-        # bp = bP
-        # print("Precisions- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + "Breitbart KNN:" + str(BttlK/(len(bP)/5)) + "Breitbart NB:" + str(BttlN /(len(bP)/5)) + "Breitbart LC: " +str(BttlL /(len(bP)/5)) + "Breitbart NN:" + str(BttlNet/(len(bP)/5)))
-        # print("Precisions- Fox SVM: " + str(FttlS /(len(bP)/5)) + "Fox KNN:" + str(FttlK/(len(bP)/5)) + "Fox NB:" + str(FttlN /(len(bP)/5)) + "Fox LC: " +str(FttlL /(len(bP)/5)) + "Fox NN:" + str(FttlNet/(len(bP)/5)))
-        # print("Precisions- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bP)/5)) + "USA NB:" + str(UttlN /(len(bP)/5)) + "USA LC: " +str(UttlL /(len(bP)/5)) + "USA NN:" + str(UttlNet/(len(bP)/5)))
-        # print("Precisions- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
-        # print("Precisions- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
+        for i in range(len(bP)):
+            if i %5 == 0:
+                BttlS +=bP[i]
+                FttlS +=fP[i]
+                UttlS += uP[i]
+                HttlS += hP[i]
+                NttlS += nP[i]
+            if i % 5 == 1:
+                BttlK +=bP[i]
+                FttlK +=fP[i]
+                UttlK += uP[i]
+                HttlK += hP[i]
+                NttlK += nP[i]
+            if i % 5 == 2:
+                BttlN +=bP[i]
+                FttlN +=fP[i]
+                UttlN += uP[i]
+                HttlN += hP[i]
+                NttlN += nP[i]
+            if i %5 == 3:
+                BttlL +=bP[i]
+                FttlL +=fP[i]
+                UttlL += uP[i]
+                HttlL += hP[i]
+                NttlL += nP[i]
+            if i%5 == 4:
+                BttlNet +=bP[i]
+                FttlNet +=fP[i]
+                UttlNet += uP[i]
+                HttlNet += hP[i]
+                NttlNet += nP[i]
+        bp = bP
+        print("Precisions- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + "Breitbart KNN:" + str(BttlK/(len(bP)/5)) + "Breitbart NB:" + str(BttlN /(len(bP)/5)) + "Breitbart LC: " +str(BttlL /(len(bP)/5)) + "Breitbart NN:" + str(BttlNet/(len(bP)/5)))
+        print("Precisions- Fox SVM: " + str(FttlS /(len(bP)/5)) + "Fox KNN:" + str(FttlK/(len(bP)/5)) + "Fox NB:" + str(FttlN /(len(bP)/5)) + "Fox LC: " +str(FttlL /(len(bP)/5)) + "Fox NN:" + str(FttlNet/(len(bP)/5)))
+        print("Precisions- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bP)/5)) + "USA NB:" + str(UttlN /(len(bP)/5)) + "USA LC: " +str(UttlL /(len(bP)/5)) + "USA NN:" + str(UttlNet/(len(bP)/5)))
+        print("Precisions- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
+        print("Precisions- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
     
-        # BttlS = 0
-        # BttlK = 0
-        # BttlN = 0
-        # BttlL = 0
-        # BttlNet = 0
-        # FttlS = 0
-        # FttlK = 0
-        # FttlN = 0
-        # FttlL = 0
-        # FttlNet = 0
-        # UttlS = 0
-        # UttlK = 0
-        # UttlN = 0
-        # UttlL = 0
-        # UttlNet = 0
-        # HttlS = 0
-        # HttlK = 0
-        # HttlN = 0
-        # HttlL = 0
-        # HttlNet = 0
-        # NttlS = 0
-        # NttlK = 0
-        # NttlN = 0
-        # NttlL = 0
-        # NttlNet = 0
+        BttlS = 0
+        BttlK = 0
+        BttlN = 0
+        BttlL = 0
+        BttlNet = 0
+        FttlS = 0
+        FttlK = 0
+        FttlN = 0
+        FttlL = 0
+        FttlNet = 0
+        UttlS = 0
+        UttlK = 0
+        UttlN = 0
+        UttlL = 0
+        UttlNet = 0
+        HttlS = 0
+        HttlK = 0
+        HttlN = 0
+        HttlL = 0
+        HttlNet = 0
+        NttlS = 0
+        NttlK = 0
+        NttlN = 0
+        NttlL = 0
+        NttlNet = 0
 
-        # bp = bP
-        # for i in range(len(bR)):
-        #     if i %5 == 0:
-        #         BttlS +=bR[i]
-        #         FttlS +=fR[i]
-        #         UttlS += uR[i]
-        #         HttlS += hR[i]
-        #         NttlS += nR[i]
-        #     if i % 5 == 1:
-        #         BttlK +=bR[i]
-        #         FttlK +=fR[i]
-        #         UttlK += uR[i]
-        #         HttlK += hR[i]
-        #         NttlK += nR[i]
-        #     if i % 5 == 2:
-        #         BttlN +=bR[i]
-        #         FttlN +=fR[i]
-        #         UttlN += uR[i]
-        #         HttlN += hR[i]
-        #         NttlN += nR[i]
-        #     if i %5 == 3:
-        #         BttlL +=bR[i]
-        #         FttlL +=fR[i]
-        #         UttlL += uR[i]
-        #         HttlL += hR[i]
-        #         NttlL += nR[i]
-        #     if i%5 == 4:
-        #         BttlNet +=bR[i]
-        #         FttlNet +=fR[i]
-        #         UttlNet += uR[i]
-        #         HttlNet += hR[i]
-        #         NttlNet += nR[i]
-        # print("Recalls- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + "Breitbart KNN:" + str(BttlK/(len(bp)/5)) + "Breitbart NB:" + str(BttlN /(len(bp)/5)) + "Breitbart LC: " +str(BttlL /(len(bp)/5)) + "Breitbart NN:" + str(BttlNet/(len(bp)/5)))
-        # print("Recalls- Fox SVM: " + str(FttlS /(len(bP)/5)) + "Fox KNN:" + str(FttlK/(len(bp)/5)) + "Fox NB:" + str(FttlN /(len(bp)/5)) + "Fox LC: " +str(FttlL /(len(bp)/5)) + "Fox NN:" + str(FttlNet/(len(bp)/5)))
-        # print("Recalls- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bp)/5)) + "USA NB:" + str(UttlN /(len(bp)/5)) + "USA LC: " +str(UttlL /(len(bp)/5)) + "USA NN:" + str(UttlNet/(len(bp)/5)))
-        # print("Recalls- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
-        # print("Recalls- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
+        bp = bP
+        for i in range(len(bR)):
+            if i %5 == 0:
+                BttlS +=bR[i]
+                FttlS +=fR[i]
+                UttlS += uR[i]
+                HttlS += hR[i]
+                NttlS += nR[i]
+            if i % 5 == 1:
+                BttlK +=bR[i]
+                FttlK +=fR[i]
+                UttlK += uR[i]
+                HttlK += hR[i]
+                NttlK += nR[i]
+            if i % 5 == 2:
+                BttlN +=bR[i]
+                FttlN +=fR[i]
+                UttlN += uR[i]
+                HttlN += hR[i]
+                NttlN += nR[i]
+            if i %5 == 3:
+                BttlL +=bR[i]
+                FttlL +=fR[i]
+                UttlL += uR[i]
+                HttlL += hR[i]
+                NttlL += nR[i]
+            if i%5 == 4:
+                BttlNet +=bR[i]
+                FttlNet +=fR[i]
+                UttlNet += uR[i]
+                HttlNet += hR[i]
+                NttlNet += nR[i]
+        print("Recalls- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + "Breitbart KNN:" + str(BttlK/(len(bp)/5)) + "Breitbart NB:" + str(BttlN /(len(bp)/5)) + "Breitbart LC: " +str(BttlL /(len(bp)/5)) + "Breitbart NN:" + str(BttlNet/(len(bp)/5)))
+        print("Recalls- Fox SVM: " + str(FttlS /(len(bP)/5)) + "Fox KNN:" + str(FttlK/(len(bp)/5)) + "Fox NB:" + str(FttlN /(len(bp)/5)) + "Fox LC: " +str(FttlL /(len(bp)/5)) + "Fox NN:" + str(FttlNet/(len(bp)/5)))
+        print("Recalls- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bp)/5)) + "USA NB:" + str(UttlN /(len(bp)/5)) + "USA LC: " +str(UttlL /(len(bp)/5)) + "USA NN:" + str(UttlNet/(len(bp)/5)))
+        print("Recalls- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
+        print("Recalls- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
     
 
-        # BttlS = 0
-        # BttlK = 0
-        # BttlN = 0
-        # BttlL = 0
-        # BttlNet = 0
-        # FttlS = 0
-        # FttlK = 0
-        # FttlN = 0
-        # FttlL = 0
-        # FttlNet = 0
-        # UttlS = 0
-        # UttlK = 0
-        # UttlN = 0
-        # UttlL = 0
-        # UttlNet = 0
-        # HttlS = 0
-        # HttlK = 0
-        # HttlN = 0
-        # HttlL = 0
-        # HttlNet = 0
-        # NttlS = 0
-        # NttlK = 0
-        # NttlN = 0
-        # NttlL = 0
-        # NttlNet = 0
+        BttlS = 0
+        BttlK = 0
+        BttlN = 0
+        BttlL = 0
+        BttlNet = 0
+        FttlS = 0
+        FttlK = 0
+        FttlN = 0
+        FttlL = 0
+        FttlNet = 0
+        UttlS = 0
+        UttlK = 0
+        UttlN = 0
+        UttlL = 0
+        UttlNet = 0
+        HttlS = 0
+        HttlK = 0
+        HttlN = 0
+        HttlL = 0
+        HttlNet = 0
+        NttlS = 0
+        NttlK = 0
+        NttlN = 0
+        NttlL = 0
+        NttlNet = 0
 
-        # bp = bP
-        # for i in range(len(bR)):
-        #     if i %5 == 0:
-        #         BttlS +=bF[i]
-        #         FttlS +=fF[i]
-        #         UttlS += uF[i]
-        #         HttlS += hF[i]
-        #         NttlS += nF[i]
-        #     if i % 5 == 1:
-        #         BttlK +=bF[i]
-        #         FttlK +=fF[i]
-        #         UttlK += uF[i]
-        #         HttlK += hF[i]
-        #         NttlK += nF[i]
-        #     if i % 5 == 2:
-        #         BttlN +=bF[i]
-        #         FttlN +=fF[i]
-        #         UttlN += uF[i]
-        #         HttlN += hF[i]
-        #         NttlN += nF[i]
-        #     if i %5 == 3:
-        #         BttlL +=bF[i]
-        #         FttlL +=fF[i]
-        #         UttlL += uF[i]
-        #         HttlL += hF[i]
-        #         NttlL += nF[i]
-        #     if i%5 == 4:
-        #         BttlNet +=bF[i]
-        #         FttlNet +=fF[i]
-        #         UttlNet += uF[i]
-        #         HttlNet += hF[i]
-        #         NttlNet += nF[i]
-        # print("Recalls- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + "Breitbart KNN:" + str(BttlK/(len(bp)/5)) + "Breitbart NB:" + str(BttlN /(len(bp)/5)) + "Breitbart LC: " +str(BttlL /(len(bp)/5)) + "Breitbart NN:" + str(BttlNet/(len(bp)/5)))
-        # print("Recalls- Fox SVM: " + str(FttlS /(len(bP)/5)) + "Fox KNN:" + str(FttlK/(len(bp)/5)) + "Fox NB:" + str(FttlN /(len(bp)/5)) + "Fox LC: " +str(FttlL /(len(bp)/5)) + "Fox NN:" + str(FttlNet/(len(bp)/5)))
-        # print("Recalls- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bp)/5)) + "USA NB:" + str(UttlN /(len(bp)/5)) + "USA LC: " +str(UttlL /(len(bp)/5)) + "USA NN:" + str(UttlNet/(len(bp)/5)))
-        # print("Recalls- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
-        # print("Recalls- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
+        bp = bP
+        for i in range(len(bR)):
+            if i %5 == 0:
+                BttlS +=bF[i]
+                FttlS +=fF[i]
+                UttlS += uF[i]
+                HttlS += hF[i]
+                NttlS += nF[i]
+            if i % 5 == 1:
+                BttlK +=bF[i]
+                FttlK +=fF[i]
+                UttlK += uF[i]
+                HttlK += hF[i]
+                NttlK += nF[i]
+            if i % 5 == 2:
+                BttlN +=bF[i]
+                FttlN +=fF[i]
+                UttlN += uF[i]
+                HttlN += hF[i]
+                NttlN += nF[i]
+            if i %5 == 3:
+                BttlL +=bF[i]
+                FttlL +=fF[i]
+                UttlL += uF[i]
+                HttlL += hF[i]
+                NttlL += nF[i]
+            if i%5 == 4:
+                BttlNet +=bF[i]
+                FttlNet +=fF[i]
+                UttlNet += uF[i]
+                HttlNet += hF[i]
+                NttlNet += nF[i]
+        print("F1- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + "Breitbart KNN:" + str(BttlK/(len(bp)/5)) + "Breitbart NB:" + str(BttlN /(len(bp)/5)) + "Breitbart LC: " +str(BttlL /(len(bp)/5)) + "Breitbart NN:" + str(BttlNet/(len(bp)/5)))
+        print("F1- Fox SVM: " + str(FttlS /(len(bP)/5)) + "Fox KNN:" + str(FttlK/(len(bp)/5)) + "Fox NB:" + str(FttlN /(len(bp)/5)) + "Fox LC: " +str(FttlL /(len(bp)/5)) + "Fox NN:" + str(FttlNet/(len(bp)/5)))
+        print("F1- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bp)/5)) + "USA NB:" + str(UttlN /(len(bp)/5)) + "USA LC: " +str(UttlL /(len(bp)/5)) + "USA NN:" + str(UttlNet/(len(bp)/5)))
+        print("F1- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
+        print("F1- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
     
 
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(clean=False, number_of_articles=25) 
+splits = orchestrator.read_data(clean=True, number_of_articles=25) 
 #print("Dirty .25")
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
 orchestrator.train_all(splits)
+
 
 
 
