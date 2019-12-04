@@ -214,24 +214,32 @@ class Orchestrator():
                 
                 #train embeddings
                 training_dataset = split[leaning][ApplicationConstants.Train]
-                training_labels, training_embeddings, mod = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)), split_count, leaning)
+                #training_labels, training_embeddings, mod = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)), split_count, leaning)
 
                 #validation embeddings 
                 validation_dataset = split[leaning][ApplicationConstants.Validation]
                 #validation_labels, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset)))
-                validation_labels, validation_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset))) 
-                validation_labels = list(validation_labels)
+              #  validation_labels, validation_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset))) 
+              #  validation_labels = list(validation_labels)
                 #validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
                 #NEED VALIDATION LABELS
 
                 #test embeddings
                 test_dataset = split[leaning][ApplicationConstants.Test]
                 #test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
-                test_labels, test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset))) 
-                test_labels = list(test_labels)
-                print(test_labels)
+              #  test_labels, test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset))) 
+              #  test_labels = list(test_labels)
+               # print(test_labels)
                 #test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
 
+                fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), split_count, leaning)
+                training_embeddings = fucking_embeddings[:len(training_dataset)]
+                training_labels = fucking_labels[:len(training_dataset)]
+                validation_embeddings = fucking_embeddings[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+                validation_labels = fucking_labels[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+
+                test_embeddings = fucking_embeddings[len(training_dataset) + len(validation_dataset):]
+                test_labels = fucking_labels[len(training_dataset) + len(validation_dataset):]
 
                 for model in models: 
 
@@ -264,7 +272,7 @@ class Orchestrator():
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
-                self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels)
+                self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
         # BttlS = 0
         # BttlK = 0
         # BttlN = 0
