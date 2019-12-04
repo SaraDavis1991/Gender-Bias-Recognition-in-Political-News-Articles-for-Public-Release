@@ -36,7 +36,7 @@ class Orchestrator():
     def read_data(self, clean=True, number_of_articles = 50):       
         return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
     
-    def embed_fold(self, articles, labels):
+    def embed_fold(self, articles, labels, fold):
         ''' 
         trains and returns the vector embeddings for doc2vec or sent2vec 
 
@@ -46,9 +46,9 @@ class Orchestrator():
         ''' 
 
         #emb = self.docEmbed.word2vec() 
-        targets, regressors = self.docEmbed.Embed(articles, labels)
+        targets, regressors, model = self.docEmbed.Embed(articles, labels, fold)
 
-        return list(targets), regressors
+        return list(targets), regressors, model
     
     def calc_sent(self, sentiment):
         score = sentiment[0]
@@ -214,15 +214,21 @@ class Orchestrator():
                 
                 #train embeddings
                 training_dataset = split[leaning][ApplicationConstants.Train]
-                training_labels, training_embeddings = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)))
+                training_labels, training_embeddings, mod = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)), split_count)
 
                 #validation embeddings 
                 validation_dataset = split[leaning][ApplicationConstants.Validation]
-                validation_labels, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset)))
+                #validation_labels, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset)))
+                validation_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content, validation_dataset))) 
+                validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
+                #NEED VALIDATION LABELS
 
                 #test embeddings
                 test_dataset = split[leaning][ApplicationConstants.Test]
-                test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
+                #test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
+                test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset))) 
+                test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
+
 
                 for model in models: 
 
@@ -454,9 +460,9 @@ class Orchestrator():
 
 orchestrator = Orchestrator()
 splits = orchestrator.read_data(clean=False, number_of_articles=25) 
-print("Dirty .25")
-orchestrator.run_sentiment_analysis_all(splits[0]) 
-#orchestrator.train_all(splits)
+#print("Dirty .25")
+#orchestrator.run_sentiment_analysis_all(splits[0]) 
+orchestrator.train_all(splits)
 
 
 

@@ -17,8 +17,8 @@ import random
 
 class doc():
 	
-	def Embed(self, articles, labels):
-
+	def Embed(self, articles, labels, fold):
+		#print(articles)
 		tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]
 		random.shuffle(tagged_doc_articles)
 
@@ -27,17 +27,16 @@ class doc():
 		model.build_vocab(tagged_doc_articles)
 
 		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs= model.epochs)
-
+		model.save( str(fold) + ".model")
 		targets, regressors = zip(*[(doc.tags[0], model.infer_vector(doc.words)) for doc in tagged_doc_articles])
 
-		return targets, regressors
+		return targets, regressors, model
 		#model.save("d2v.model")
 		#print("model saved")
 	
-	def word2vec(self):
-		#E = WordEmbedding('./debias/debiaswe/embeddings/w2v_gnews_small.txt')
-		pass
-		#return E
+	def gen_vec(self, model, articles):
+		return model.infer_vector(word_tokenize(articles)
+
 
 
 
