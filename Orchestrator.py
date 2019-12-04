@@ -36,7 +36,7 @@ class Orchestrator():
     def read_data(self, clean=True, number_of_articles = 50):       
         return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
     
-    def embed_fold(self, articles, labels, fold):
+    def embed_fold(self, articles, labels, fold, leaning):
         ''' 
         trains and returns the vector embeddings for doc2vec or sent2vec 
 
@@ -46,7 +46,7 @@ class Orchestrator():
         ''' 
 
         #emb = self.docEmbed.word2vec() 
-        targets, regressors, model = self.docEmbed.Embed(articles, labels, fold)
+        targets, regressors, model = self.docEmbed.Embed(articles, labels, fold, leaning)
 
         return list(targets), regressors, model
     
@@ -214,20 +214,23 @@ class Orchestrator():
                 
                 #train embeddings
                 training_dataset = split[leaning][ApplicationConstants.Train]
-                training_labels, training_embeddings, mod = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)), split_count)
+                training_labels, training_embeddings, mod = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)), split_count, leaning)
 
                 #validation embeddings 
                 validation_dataset = split[leaning][ApplicationConstants.Validation]
                 #validation_labels, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset)))
-                validation_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content, validation_dataset))) 
-                validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
+                validation_labels, validation_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset))) 
+                validation_labels = list(validation_labels)
+                #validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
                 #NEED VALIDATION LABELS
 
                 #test embeddings
                 test_dataset = split[leaning][ApplicationConstants.Test]
                 #test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
-                test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset))) 
-                test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
+                test_labels, test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset))) 
+                test_labels = list(test_labels)
+                print(test_labels)
+                #test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
 
 
                 for model in models: 
