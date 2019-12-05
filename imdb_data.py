@@ -91,7 +91,7 @@ class LabeledLineSentence(object):
 			elif "POS" in label:
 				labels[index] = 1
 
-		imdbVectors = model.infer_vector(words)
-		return imdbVectors, labels
+		targets, feature_vectors = zip(*[(labels, model.infer_vector(words, steps=20)) for document in words])
+		return feature_vectors, labels
 
 	
