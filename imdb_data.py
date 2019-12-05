@@ -102,8 +102,7 @@ class LabeledLineSentence(object):
 		
 		if (not os.path.isfile(imdb_sentiment_label_path or imdb_sentiment_path)):
 			
-			targets, feature_vectors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps=20)) for doc in tagged_doc_articles])
-		
+			targets, feature_vectors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps=20)) for doc in tagged_doc_articles])	
 
 			numpy.save(imdb_sentiment_path, feature_vectors)
 			numpy.save(imdb_sentiment_label_path, targets)
@@ -112,6 +111,6 @@ class LabeledLineSentence(object):
 			targets = numpy.load(imdb_sentiment_label_path) 
 			feature_vectors = numpy.load(imdb_sentiment_path)
 
-		return imdbVectors, labels
+		return feature_vectors, targets
 
 	

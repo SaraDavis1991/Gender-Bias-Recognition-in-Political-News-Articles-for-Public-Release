@@ -41,13 +41,59 @@ class Orchestrator():
     def imdb(self):
         sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS' }
         sentences = LabeledLineSentence(sources)
-        sentences.generate_imdb_vec()
+        vectors, labels = sentences.generate_imdb_vec()
+        #print(vectors)
+        return vectors, labels
 
-    def train_sent_models(imdb_vec):
-         models = [SVM(), KNN(), Naive_Bayes(), Linear_Classifier(), NN()]
-         print(imdb_vec)
-         #for model in models:
-            #model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
+    def train_sent_models(self, imdb_vec, labels ):
+         models = [ Linear_Classifier(), NN()]
+         #print(imdb_vec)
+         for model in models:
+            model.Train(training_embeddings, training_labels, None, None)
+            allF = []
+            allM = []
+
+            for split in splits[:1]:
+            
+                    print("Starting split:", str(split_count), "\n")
+                    split_count += 1
+
+                    #loop over all leanings
+                    for leaning in split:
+                        male = []
+                       
+                        female = []
+                        
+                        print("For leaning:", leaning.upper())
+                        
+                        #train embeddings
+                        training_dataset = split[leaning][ApplicationConstants.Train]
+                     
+                        validation_dataset = split[leaning][ApplicationConstants.Validation]
+                       
+                        test_dataset = split[leaning][ApplicationConstants.Test]
+                        
+              
+
+                        fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), split_count, leaning)
+                        
+                        predictions = model.Predict(fucking_embeddings)
+
+                        for i in range(len(predictions)):
+                            if fucking_labels[i] == 0:
+                                female.append(predictions[i])
+                            elif fucking_labels[i] == 1:
+                                male.append(predictions[i])
+                            
+
+                        allF.append((leaning, female))
+                        allM.append((leaning, male))
+            self.graph_sentiment(allF, allM)
+
+
+
+
+
     def embed_fold(self, articles, labels, fold, leaning):
         ''' 
         trains and returns the vector embeddings for doc2vec or sent2vec 
@@ -522,8 +568,8 @@ splits = orchestrator.read_data(clean=False, number_of_articles=25)
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
 #orchestrator.train_all(splits)
 #orchestrator.embed_all_articles(splits)
-imdb_vec = orchestrator.imdb()
-orchestrator.train_sent_models(imdb_vec)
+imdb_vec, imdb_labels = orchestrator.imdb()
+orchestrator.train_sent_models(imdb_vec, imdb_labels)
 
 
 
