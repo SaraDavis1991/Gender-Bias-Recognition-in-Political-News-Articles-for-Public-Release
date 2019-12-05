@@ -6,6 +6,7 @@ from doc2vec import doc
 from SentimentIntensityAnalyzer import SentimentAnalyzer
 from Metrics import Metrics
 from Visualizer import Visualizer 
+from imdb_data import imdb
 import ApplicationConstants
 
 #models
@@ -32,10 +33,24 @@ class Orchestrator():
         self.Metrics = Metrics()
         self.Visualizer = Visualizer() 
         self.SentimentAnalyzer = SentimentAnalyzer() 
-        
+        self.imdb = imdb()
+
+
     def read_data(self, clean=True, number_of_articles = 50):       
         return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
     
+    def load_imdb(self):
+        sentences = self.imdb
+        sentArray = sentences.to_array()
+        #print(sentArray)
+        imdbVec = sentences.generate_imdb_vec(sentArray)
+        return imdbVec
+
+    def train_sent_models(imdb_vec):
+         models = [SVM(), KNN(), Naive_Bayes(), Linear_Classifier(), NN()]
+         print(imdb_vec)
+         #for model in models:
+            #model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
     def embed_fold(self, articles, labels, fold, leaning):
         ''' 
         trains and returns the vector embeddings for doc2vec or sent2vec 
@@ -172,6 +187,37 @@ class Orchestrator():
 
         self.graph_sentiment(all_female, all_male)
 
+    def embed_all_articles(self, splits):
+
+
+       
+        split_count = 0 
+
+        #for each split
+        ttl_dataset = []
+        for split in splits:
+            
+            print("Starting split:", str(split_count), "\n")
+            split_count += 1
+
+            #loop over all leanings
+            for leaning in split:
+
+                print("For leaning:", leaning.upper())
+                
+                if split_count == 1:
+                    training_dataset = split[leaning][ApplicationConstants.Train]
+                    validation_dataset = split[leaning][ApplicationConstants.Validation]
+                    test_dataset = split[leaning][ApplicationConstants.Test]
+                    ttl_dataset += training_dataset
+                    ttl_dataset += validation_dataset
+                    ttl_dataset += test_dataset
+                #print(ttl_dataset)
+                
+        print(len(ttl_dataset))
+        labels, embeddings, model = self.embed_fold(list(map(lambda article: article.Content, ttl_dataset)), list(map(lambda article: article.Label.TargetGender, ttl_dataset)), 1, "all")
+
+
     def train_all(self, splits):
         ''' trains all models against all leanings
         
@@ -226,6 +272,7 @@ class Orchestrator():
 
                 #test embeddings
                 test_dataset = split[leaning][ApplicationConstants.Test]
+                
                 #test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
               #  test_labels, test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset))) 
               #  test_labels = list(test_labels)
@@ -246,7 +293,7 @@ class Orchestrator():
                     #get prediction from embeddings 
                     model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
                     prediction = model.Predict(test_embeddings)
-
+                    '''
                     print("Model:", str(type(model)).split('.')[2].split('\'')[0], "precision:", self.Metrics.Precision(prediction, test_labels), "recall:", self.Metrics.Recall(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
                     if leaning == "breitbart":
                         bP.append(self.Metrics.Precision(prediction, test_labels))
@@ -268,12 +315,14 @@ class Orchestrator():
                         hP.append(self.Metrics.Precision(prediction, test_labels))
                         hR.append(self.Metrics.Recall(prediction, test_labels))
                         hF.append(self.Metrics.Fmeasure(prediction, test_labels))
+                    '''
 
 
                 #model = models[0] 
                 #model.Model.coefs_[model.Model.n_layers_ - 2]
                 if split_count == 1:
                     self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
+        '''
         BttlS = 0
         BttlK = 0
         BttlN = 0
@@ -467,14 +516,18 @@ class Orchestrator():
         print("F1- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bp)/5)) + "USA NB:" + str(UttlN /(len(bp)/5)) + "USA LC: " +str(UttlL /(len(bp)/5)) + "USA NN:" + str(UttlNet/(len(bp)/5)))
         print("F1- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
         print("F1- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
-    
+        '''    
 
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(clean=True, number_of_articles=25) 
+splits = orchestrator.read_data(clean=False, number_of_articles=25) 
 #print("Dirty .25")
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
-orchestrator.train_all(splits)
+#orchestrator.train_all(splits)
+#orchestrator.embed_all_articles(splits)
+imdb_vec = orchestrator.load_imdb()
+orchestrator.train_sent_models(imdb_vec)
+
 
 
 
