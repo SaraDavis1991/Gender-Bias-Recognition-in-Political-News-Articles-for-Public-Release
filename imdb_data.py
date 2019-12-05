@@ -80,7 +80,18 @@ class LabeledLineSentence(object):
 
 	def generate_imdb_vec(self):
 		model = Doc2Vec.load("all_1.model")
-		imdbVectors = model.infer_vector(self.sources)
-		return imdbVectors
+		sentences = self.to_array()
+
+		words = list(map(lambda word: " ".join(word), list(map(lambda sentence: sentence.words, sentences))))
+		labels = list(map(lambda label: " ".join(label), list(map(lambda sentence: sentence.tags, sentences))))
+
+		for index, label in enumerate(labels): 
+			if "NEG" in label: 
+				labels[index] = 0
+			elif "POS" in label:
+				labels[index] = 1
+
+		imdbVectors = model.infer_vector(words)
+		return imdbVectors, labels
 
 	

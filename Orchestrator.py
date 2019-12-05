@@ -39,7 +39,7 @@ class Orchestrator():
         return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
 
     def imdb(self):
-        sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS', 'train-unsup.txt':'TRAIN_UNS'}
+        sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS' }
         sentences = LabeledLineSentence(sources)
         sentences.generate_imdb_vec()
 
