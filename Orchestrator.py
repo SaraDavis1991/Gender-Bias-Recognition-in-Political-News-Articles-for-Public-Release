@@ -6,7 +6,7 @@ from doc2vec import doc
 from SentimentIntensityAnalyzer import SentimentAnalyzer
 from Metrics import Metrics
 from Visualizer import Visualizer 
-from imdb_data import imdb
+from imdb_data import LabeledLineSentence
 import ApplicationConstants
 
 #models
@@ -33,18 +33,15 @@ class Orchestrator():
         self.Metrics = Metrics()
         self.Visualizer = Visualizer() 
         self.SentimentAnalyzer = SentimentAnalyzer() 
-        self.imdb = imdb()
 
 
     def read_data(self, clean=True, number_of_articles = 50):       
         return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
-    
-    def load_imdb(self):
-        sentences = self.imdb
-        sentArray = sentences.to_array()
-        #print(sentArray)
-        imdbVec = sentences.generate_imdb_vec(sentArray)
-        return imdbVec
+
+    def imdb(self):
+        sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS', 'train-unsup.txt':'TRAIN_UNS'}
+        sentences = LabeledLineSentence(sources)
+        sentences.generate_imdb_vec()
 
     def train_sent_models(imdb_vec):
          models = [SVM(), KNN(), Naive_Bayes(), Linear_Classifier(), NN()]
@@ -525,7 +522,7 @@ splits = orchestrator.read_data(clean=False, number_of_articles=25)
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
 #orchestrator.train_all(splits)
 #orchestrator.embed_all_articles(splits)
-imdb_vec = orchestrator.load_imdb()
+imdb_vec = orchestrator.imdb()
 orchestrator.train_sent_models(imdb_vec)
 
 
