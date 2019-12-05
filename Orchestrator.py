@@ -42,21 +42,20 @@ class Orchestrator():
         sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS' }
         sentences = LabeledLineSentence(sources)
         vectors, labels = sentences.generate_imdb_vec()
-        #print(vectors)
         return vectors, labels
 
     def train_sent_models(self, imdb_vec, labels ):
          models = [ Linear_Classifier(), NN()]
          #print(imdb_vec)
          for model in models:
-            model.Train(training_embeddings, training_labels, None, None)
+            model.Train(imdb_vec, labels, None, None)
             allF = []
             allM = []
 
             for split in splits[:1]:
             
-                    print("Starting split:", str(split_count), "\n")
-                    split_count += 1
+                    #print("Starting split:", str(split_count), "\n")
+                    #split_count += 1
 
                     #loop over all leanings
                     for leaning in split:
@@ -75,7 +74,7 @@ class Orchestrator():
                         
               
 
-                        fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), split_count, leaning)
+                        fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), 0, leaning)
                         
                         predictions = model.Predict(fucking_embeddings)
 
@@ -109,13 +108,18 @@ class Orchestrator():
         return list(targets), regressors, model
     
     def calc_sent(self, sentiment):
-        score = sentiment[0]
-        magnitude = sentiment[1]
 
-        if score > 0.25:
-            return 'pos'
-        elif score < -0.25:
+        if sentiment == 0:
             return 'neg'
+        else:
+            return 'pos'
+        #score = sentiment[0]
+        #magnitude = sentiment[1]
+
+        #if score > 0.25:
+        #    return 'pos'
+        #elif score < -0.25:
+        #    return 'neg'
         
     def graph_sentiment(self, Fsentiment, Msentiment):
 

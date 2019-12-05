@@ -31,6 +31,7 @@ from nltk.tokenize import word_tokenize
 import numpy 
 # shuffle
 from random import shuffle
+import random
 
 # logging
 import logging
@@ -86,21 +87,22 @@ class LabeledLineSentence(object):
 		model.save('./imdb.d2v')
 
 	def generate_imdb_vec(self):
-		model = Doc2Vec.load("all_1.model")
-		sentences = self.to_array()
-
-		words = list(map(lambda word: " ".join(word), list(map(lambda sentence: sentence.words, sentences))))
-		labels = list(map(lambda label: " ".join(label), list(map(lambda sentence: sentence.tags, sentences))))
-
-		for index, label in enumerate(labels): 
-			if "NEG" in label: 
-				labels[index] = 0
-			elif "POS" in label:
-				labels[index] = 1
-	
-		tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(words)]
-		
 		if (not os.path.isfile(imdb_sentiment_label_path or imdb_sentiment_path)):
+			model = Doc2Vec.load("all_1.model")
+			sentences = self.to_array()
+
+			words = list(map(lambda word: " ".join(word), list(map(lambda sentence: sentence.words, sentences))))
+			labels = list(map(lambda label: " ".join(label), list(map(lambda sentence: sentence.tags, sentences))))
+
+			for index, label in enumerate(labels): 
+				if "NEG" in label: 
+					labels[index] = 0
+				elif "POS" in label:
+					labels[index] = 1
+		
+			tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(words)]
+		
+		
 			
 			targets, feature_vectors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps=20)) for doc in tagged_doc_articles])	
 
@@ -110,6 +112,10 @@ class LabeledLineSentence(object):
 
 			targets = numpy.load(imdb_sentiment_label_path) 
 			feature_vectors = numpy.load(imdb_sentiment_path)
+
+		combo = list(zip(targets, feature_vectors))
+		random.shuffle(combo)
+		targets, feature_vectors = zip(*combo)
 
 		return feature_vectors, targets
 
