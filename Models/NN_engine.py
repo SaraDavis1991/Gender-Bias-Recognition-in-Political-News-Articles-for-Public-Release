@@ -23,4 +23,4 @@ class NN(implements(IModel)):
         self.Model.fit(trainFeatures, trainLabels)
 
     def Predict(self, features): 
-        return self.Model.predict(features) 
+        return self.Model.predict(features) , self.Model.predict_proba(features)

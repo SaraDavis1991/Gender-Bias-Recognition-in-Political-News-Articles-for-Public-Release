@@ -32,7 +32,7 @@ class Naive_Bayes(implements(IModel)):
     			bestF1 = currentF  
 
     def Predict(self, features):
-    	return self.model.predict(features)
+    	return self.model.predict(features), self.model.predict_proba(features)
         
 
     def Accuracy(self, tp, fp, fn, tn): 

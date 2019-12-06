@@ -113,9 +113,9 @@ class LabeledLineSentence(object):
 			targets = numpy.load(imdb_sentiment_label_path) 
 			feature_vectors = numpy.load(imdb_sentiment_path)
 
-		combo = list(zip(targets, feature_vectors))
-		random.shuffle(combo)
-		targets, feature_vectors = zip(*combo)
+		#combo = list(zip(targets, feature_vectors))
+		#random.shuffle(combo)
+		#targets, feature_vectors = zip(*combo)
 
 		return feature_vectors, targets
 

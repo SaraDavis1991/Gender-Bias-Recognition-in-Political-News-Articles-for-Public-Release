@@ -22,6 +22,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import os.path
 
+
 class Orchestrator():
 
     def __init__(self):
@@ -45,7 +46,8 @@ class Orchestrator():
         return vectors, labels
 
     def train_sent_models(self, imdb_vec, labels ):
-         models = [ Linear_Classifier(), NN()]
+         #models = [ Linear_Classifier(), NN()]
+         models = [SVM()]
          #print(imdb_vec)
          for model in models:
             model.Train(imdb_vec, labels, None, None)
@@ -76,7 +78,13 @@ class Orchestrator():
 
                         fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), 0, leaning)
                         
+                       # predictions, confidence = model.Predict(fucking_embeddings)
                         predictions = model.Predict(fucking_embeddings)
+                        #print(confidence)
+                        #conf = [(max(c), np.argmax(c)) for c in confidence]
+                        
+
+                       
 
                         for i in range(len(predictions)):
                             if fucking_labels[i] == 0:
@@ -87,10 +95,20 @@ class Orchestrator():
 
                         allF.append((leaning, female))
                         allM.append((leaning, male))
+            #self.print_shit( "alldata.txt", allF, allM, conf)
+            self.print_shit( "alldata.txt", allF, allM)
             self.graph_sentiment(allF, allM)
 
 
-
+    #def print_shit(self, fileName, allF, allM, conf):
+    def print_shit(self, fileName, allF, allM):
+        file = open(fileName, 'w')
+        print('FEMALE\n', file = file)
+        print(allF, file = file)
+        print('\nMALE\n',  file = file)
+        print(allM,  file = file)
+        #print('\nPROBABILITIES\n',  file = file)
+        #print(conf, file=file)
 
 
     def embed_fold(self, articles, labels, fold, leaning):
@@ -339,7 +357,7 @@ class Orchestrator():
 
                     #get prediction from embeddings 
                     model.Train(training_embeddings, training_labels, validation_embeddings, validation_labels)
-                    prediction = model.Predict(test_embeddings)
+                    prediction, confidence = model.Predict(test_embeddings)
                     '''
                     print("Model:", str(type(model)).split('.')[2].split('\'')[0], "precision:", self.Metrics.Precision(prediction, test_labels), "recall:", self.Metrics.Recall(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
                     if leaning == "breitbart":
