@@ -44,3 +44,11 @@ HuffPost = "huffpost"
 Train = "train"
 Validation = "val"
 Test = "test"
+
+#female and male meanings
+female_value = 0 
+male_value = 1 
+
+#sentiment values
+postive_sentiment = 1 
+negative_sentiment = 0 

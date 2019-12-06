@@ -5,6 +5,8 @@ import seaborn as sns
 import pandas as pd
 import numpy as np 
 
+import ApplicationConstants
+
 cmap = ['red','blue']
 
 class Visualizer():
@@ -56,4 +58,82 @@ class Visualizer():
         #self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
         plt.show()
 
+    def graph_sentiment(self, Fsentiment, Msentiment):
+
+        pos_counts_per_leaning_female = [] 
+        neg_counts_per_leaning_male = []
+        pos_counts_per_leaning_male = [] 
+        neg_counts_per_leaning_female = []
+        leanings = ["Breitbart", "Fox", "USA Today", "New York Times", "Huffpost"]
+
+        breitbart_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Fsentiment))))
+        breitbart_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Msentiment))))
+        fox_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Fsentiment))))
+        fox_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Msentiment))))
+        usa_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Fsentiment))))
+        usa_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Msentiment))))
+        nyt_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Fsentiment))))
+        nyt_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Msentiment))))
+        hp_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Fsentiment))))
+        hp_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Msentiment))))
+
+        male_leanings = [breitbart_male_sentiments, fox_male_sentiments, usa_male_sentiments, nyt_male_sentiments, hp_male_sentiments]
+        female_leanings = [breitbart_female_sentiments, fox_female_sentiments, usa_female_sentiments, nyt_female_sentiments, hp_female_sentiments]
+   
+        for leaning in range(5): 
+
+            femaleVals = []
+            maleVals = []
+
+            male_articles_length = len(male_leanings[leaning])
+            female_articles_length = len(female_leanings[leaning])
+            
+            for sentiment in female_leanings[leaning]:
+                femaleVals.append(self.calc_sent(sentiment))
+
+            for sentiment in male_leanings[leaning]:
+                maleVals.append(self.calc_sent(sentiment))
+
+            female_pos = len(list(filter(lambda sent: sent == 'pos', femaleVals)))
+            female_neg = len(list(filter(lambda sent: sent == 'neg', femaleVals)))
+            male_pos = len(list(filter(lambda sent: sent == 'pos', maleVals)))
+            male_neg = len(list(filter(lambda sent: sent == 'neg', maleVals)))
+
+            print(leaning)
+            print("Num Female Pos: " + str(female_pos))
+            print("Num Female Neg: " + str(female_neg))
+            print("Num Male Pos: " + str(male_pos))
+            print("Num Male Neg: " + str(male_neg))
+
+            pos_counts_per_leaning_female.append(female_pos / female_articles_length)
+            neg_counts_per_leaning_female.append(female_neg / female_articles_length)
+            neg_counts_per_leaning_male.append(male_neg / male_articles_length)
+            pos_counts_per_leaning_male.append(male_pos / male_articles_length)
+
+        plt.plot(leanings, pos_counts_per_leaning_female, marker='D', label='Positive Female Articles', color='seagreen')
+        plt.plot(leanings, neg_counts_per_leaning_female, marker='D', label='Negative Female Articles', color='slateblue')
+        plt.plot(leanings, pos_counts_per_leaning_male, marker='D', label='Positive Male Articles', color='orange')
+        plt.plot(leanings, neg_counts_per_leaning_male, marker='D', label='Negative Male Articles', color='crimson')
+
+        plt.ylabel('Mean Leaning Sentiment Positive:Negative Ratio')
+        plt.title('Positive and Negative Sentiment by Leaning and Gender')
+        plt.xticks(leanings)
+        plt.ylim((0, 1))
+        plt.legend(loc='center right')
+        plt.show()
+
+        
+    def calc_sent(self, sentiment):
+
+        if sentiment == 0:
+            return 'neg'
+        else:
+            return 'pos'
+        #score = sentiment[0]
+        #magnitude = sentiment[1]
+
+        #if score > 0.25:
+        #    return 'pos'
+        #elif score < -0.25:
+        #    return 'neg'
 

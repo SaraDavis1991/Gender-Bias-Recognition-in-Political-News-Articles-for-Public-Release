@@ -80,15 +80,12 @@ class LabeledLineSentence(object):
 		model.build_vocab(self.to_array())
 		for epoch in range(50):
 			logger.info('Epoch %d' % epoch)
-			model.train(self.sentences_perm(),
-						total_examples=model.corpus_count,
-						epochs=model.iter,
-			)
+			model.train(self.sentences_perm(), total_examples=model.corpus_count, epochs=model.iter)
 		model.save('./imdb.d2v')
 
-	def generate_imdb_vec(self):
+	def generate_imdb_vec(self, model):
 		if (not os.path.isfile(imdb_sentiment_label_path or imdb_sentiment_path)):
-			model = Doc2Vec.load("all_1.model")
+
 			sentences = self.to_array()
 
 			words = list(map(lambda word: " ".join(word), list(map(lambda sentence: sentence.words, sentences))))
@@ -102,7 +99,6 @@ class LabeledLineSentence(object):
 		
 			tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(words)]
 		
-		
 			
 			targets, feature_vectors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps=20)) for doc in tagged_doc_articles])	
 
@@ -113,9 +109,9 @@ class LabeledLineSentence(object):
 			targets = numpy.load(imdb_sentiment_label_path) 
 			feature_vectors = numpy.load(imdb_sentiment_path)
 
-		#combo = list(zip(targets, feature_vectors))
-		#random.shuffle(combo)
-		#targets, feature_vectors = zip(*combo)
+		combo = list(zip(targets, feature_vectors))
+		random.shuffle(combo)
+		targets, feature_vectors = zip(*combo)
 
 		return feature_vectors, targets
 
