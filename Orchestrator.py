@@ -22,6 +22,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import os.path
 
+doc2vec_vector_path = './article_embeddings_vectors.npy'
+doc2vec_labels_path = './article_embeddings_labels.npy'
 
 class Orchestrator():
 
@@ -35,70 +37,54 @@ class Orchestrator():
         self.Visualizer = Visualizer() 
         self.SentimentAnalyzer = SentimentAnalyzer() 
 
+    def read_data(self, path, clean=True, number_of_articles = 50):       
+        return self.Reader.Load_Splits(path, clean=clean, number_of_articles=number_of_articles)
 
-    def read_data(self, clean=True, number_of_articles = 50):       
-        return self.Reader.Load_Splits(ApplicationConstants.all_articles_random, clean=clean, number_of_articles=number_of_articles)
-
-    def imdb(self):
+    def imdb(self, model):
         sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS' }
         sentences = LabeledLineSentence(sources)
-        vectors, labels = sentences.generate_imdb_vec()
+        vectors, labels = sentences.generate_imdb_vec(model)
         return vectors, labels
 
-    def train_sent_models(self, imdb_vec, labels ):
-         #models = [ Linear_Classifier(), NN()]
-         models = [SVM()]
-         #print(imdb_vec)
-         for model in models:
-            model.Train(imdb_vec, labels, None, None)
-            allF = []
-            allM = []
+    def train_sent_models(self, all_articles, all_labels, leanings):
 
-            for split in splits[:1]:
+        if (not os.path.exists(doc2vec_labels_path) or not os.path.exists(doc2vec_vector_path) or self.docEmbed.Load_Model() is None):
             
-                    #print("Starting split:", str(split_count), "\n")
-                    #split_count += 1
+            for index, label in enumerate(all_labels):
+                all_labels[index] = (label, leanings[index])
 
-                    #loop over all leanings
-                    for leaning in split:
-                        male = []
-                       
-                        female = []
-                        
-                        print("For leaning:", leaning.upper())
-                        
-                        #train embeddings
-                        training_dataset = split[leaning][ApplicationConstants.Train]
-                     
-                        validation_dataset = split[leaning][ApplicationConstants.Validation]
-                       
-                        test_dataset = split[leaning][ApplicationConstants.Test]
-                        
-              
+            all_articles_labels, all_articles_vectors, all_articles_model = self.docEmbed.Embed(all_articles, all_labels) 
+            
+            np.save(doc2vec_labels_path, all_articles_labels)
+            np.save(doc2vec_vector_path, all_articles_vectors)
 
-                        fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), 0, leaning)
-                        
-                       # predictions, confidence = model.Predict(fucking_embeddings)
-                        predictions = model.Predict(fucking_embeddings)
-                        #print(confidence)
-                        #conf = [(max(c), np.argmax(c)) for c in confidence]
-                        
+        else:
+            
+            all_articles_model = self.docEmbed.Load_Model() 
+            all_articles_labels = np.load(doc2vec_labels_path)
+            all_articles_vectors = np.load(doc2vec_vector_path)
 
-                       
 
-                        for i in range(len(predictions)):
-                            if fucking_labels[i] == 0:
-                                female.append(predictions[i])
-                            elif fucking_labels[i] == 1:
-                                male.append(predictions[i])
-                            
+        imdb_vec, imdb_labels = self.imdb(all_articles_model)
 
-                        allF.append((leaning, female))
-                        allM.append((leaning, male))
-            #self.print_shit( "alldata.txt", allF, allM, conf)
-            self.print_shit( "alldata.txt", allF, allM)
-            self.graph_sentiment(allF, allM)
+        #models = [ Linear_Classifier(), NN()]
+        models = [SVM()]
 
+        for model in models:
+            male = []
+            female = [] 
+
+            model.Train(imdb_vec, imdb_labels, None, None)
+            predictions = model.Predict(all_articles_vectors)
+            
+            for index, prediction in enumerate(predictions):
+                                      
+                if int(all_articles_labels[index][0]) == ApplicationConstants.female_value:
+                    female.append((all_articles_labels[index][1], prediction))
+                else:
+                    male.append((all_articles_labels[index][1], prediction))
+
+            self.Visualizer.graph_sentiment(female, male)
 
     #def print_shit(self, fileName, allF, allM, conf):
     def print_shit(self, fileName, allF, allM):
@@ -125,135 +111,8 @@ class Orchestrator():
 
         return list(targets), regressors, model
     
-    def calc_sent(self, sentiment):
-
-        if sentiment == 0:
-            return 'neg'
-        else:
-            return 'pos'
-        #score = sentiment[0]
-        #magnitude = sentiment[1]
-
-        #if score > 0.25:
-        #    return 'pos'
-        #elif score < -0.25:
-        #    return 'neg'
-        
-    def graph_sentiment(self, Fsentiment, Msentiment):
-
-        pos_counts_per_leaning_female = [] 
-        neg_counts_per_leaning_male = []
-        pos_counts_per_leaning_male = [] 
-        neg_counts_per_leaning_female = []
-        leanings = ["Breitbart", "Fox", "USA Today", "New York Times", "Huffpost"]
-
-        breitbart_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Fsentiment))))
-        breitbart_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Msentiment))))
-        fox_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Fsentiment))))
-        fox_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Msentiment))))
-        usa_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Fsentiment))))
-        usa_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Msentiment))))
-        nyt_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Fsentiment))))
-        nyt_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Msentiment))))
-        hp_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Fsentiment))))
-        hp_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Msentiment))))
-
-        male_leanings = [breitbart_male_sentiments, fox_male_sentiments, usa_male_sentiments, nyt_male_sentiments, hp_male_sentiments]
-        female_leanings = [breitbart_female_sentiments, fox_female_sentiments, usa_female_sentiments, nyt_female_sentiments, hp_female_sentiments]
-
-        for leaning in range(5): 
-
-            femaleVals = []
-            maleVals = []
-
-            for sentiment in female_leanings[leaning][0]:
-                femaleVals.append(self.calc_sent(sentiment))
-
-            for sentiment in male_leanings[leaning][0]:
-                maleVals.append(self.calc_sent(sentiment))
-
-            female_pos = len(list(filter(lambda sent: sent == 'pos', femaleVals)))
-            female_neg = len(list(filter(lambda sent: sent == 'neg', femaleVals)))
-            male_pos = len(list(filter(lambda sent: sent == 'pos', maleVals)))
-            male_neg = len(list(filter(lambda sent: sent == 'neg', maleVals)))
-            print(leaning)
-            print("Num Female Pos: " + str(female_pos))
-            print("Num Female Neg: " + str(female_neg))
-            print("Num Male Pos: " + str(male_pos))
-            print("Num Male Neg: " + str(male_neg))
-
-
-            pos_counts_per_leaning_female.append(female_pos / 125)
-            neg_counts_per_leaning_female.append(female_neg / 125)
-            neg_counts_per_leaning_male.append(male_neg / 125)
-            pos_counts_per_leaning_male.append(male_pos / 125)
-
-        plt.plot(leanings, pos_counts_per_leaning_female, marker='D', label='Positive Female Articles', color='seagreen')
-        plt.plot(leanings, neg_counts_per_leaning_female, marker='D', label='Negative Female Articles', color='slateblue')
-        plt.plot(leanings, pos_counts_per_leaning_male, marker='D', label='Positive Male Articles', color='orange')
-        plt.plot(leanings, neg_counts_per_leaning_male, marker='D', label='Negative Male Articles', color='crimson')
-
-        plt.ylabel('Mean Leaning Sentiment Positive:Negative Ratio')
-        plt.title('Positive and Negative Sentiment by Leaning and Gender')
-        plt.xticks(leanings)
-        plt.ylim((0, 1))
-        plt.legend(loc='center right')
-        plt.show()
-
-    def run_sentiment_analysis_all(self, articles):
-     
-        #separate per sources per gender combining datasets
-        results = {}
-        all_female = []
-        all_male = []
-
-        for leaning in articles: 
-            
-            results[leaning] = {} 
-            all_articles_for_leaning = articles[leaning][ApplicationConstants.Test] + articles[leaning][ApplicationConstants.Validation] + articles[leaning][ApplicationConstants.Train]
-
-            #separte per gender
-            female_articles = list(filter(lambda article: article.Label.TargetGender == 0, all_articles_for_leaning))
-            male_articles = list(filter(lambda article: article.Label.TargetGender == 1, all_articles_for_leaning))
-
-            female_sentiments = []
-            male_sentiments = []
-            print(leaning)
-
-            female_path = './sentiment/' + leaning + '_female_sentiment_cleaned'
-            male_path = './sentiment/' + leaning + '_male_sentiment_cleaned'
-
-            if (not os.path.isfile(female_path + '.npy')):
-                for article in female_articles:
-                    
-                    if (article.Content != '' and not article.Content.isspace()):
-                        score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                        female_sentiments.append((score, magnitude)) 
-                
-                np.save(female_path, female_sentiments)
-            else:
-                female_sentiments = np.load(female_path + '.npy')
-                female_sentiments = list(map(lambda article: (article[0], article[1]), female_sentiments))
-             
-            if (not os.path.isfile(male_path + '.npy')):
-                for article in male_articles:
-                    if (article.Content != '' and not article.Content.isspace()):
-                        score, magnitude = self.SentimentAnalyzer.AnalyzeSentiment(article.Content)
-                        male_sentiments.append((score, magnitude))
-                    
-                np.save(male_path, male_sentiments)
-
-            else:
-                male_sentiments = np.load(male_path + '.npy')
-                male_sentiments = list(map(lambda article: (article[0], article[1]), male_sentiments))
-
-            all_female.append((leaning, female_sentiments))
-            all_male.append((leaning, male_sentiments))
-
-        self.graph_sentiment(all_female, all_male)
 
     def embed_all_articles(self, splits):
-
 
        
         split_count = 0 
@@ -325,33 +184,21 @@ class Orchestrator():
                 
                 #train embeddings
                 training_dataset = split[leaning][ApplicationConstants.Train]
-                #training_labels, training_embeddings, mod = self.embed_fold(list(map(lambda article: article.Content, training_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset)), split_count, leaning)
 
                 #validation embeddings 
                 validation_dataset = split[leaning][ApplicationConstants.Validation]
-                #validation_labels, validation_embeddings = self.embed_fold(list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset)))
-              #  validation_labels, validation_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content, validation_dataset)), list(map(lambda article: article.Label.TargetGender, validation_dataset))) 
-              #  validation_labels = list(validation_labels)
-                #validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
-                #NEED VALIDATION LABELS
 
                 #test embeddings
-                test_dataset = split[leaning][ApplicationConstants.Test]
-                
-                #test_labels, test_embeddings = self.embed_fold(list(map(lambda article: article.Content, test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset)))
-              #  test_labels, test_embeddings = self.docEmbed.gen_vec(mod, list(map(lambda article: article.Content,test_dataset)), list(map(lambda article: article.Label.TargetGender, test_dataset))) 
-              #  test_labels = list(test_labels)
-               # print(test_labels)
-                #test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
+                test_dataset = split[leaning][ApplicationConstants.Test]           
 
-                fucking_labels, fucking_embeddings, fucking_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), split_count, leaning)
-                training_embeddings = fucking_embeddings[:len(training_dataset)]
-                training_labels = fucking_labels[:len(training_dataset)]
-                validation_embeddings = fucking_embeddings[len(training_dataset): len(training_dataset) + len(validation_dataset)]
-                validation_labels = fucking_labels[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+                article_labels, article_embeddings, article_model = self.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), split_count, leaning)
+                training_embeddings = article_embeddings[:len(training_dataset)]
+                training_labels = article_labels[:len(training_dataset)]
+                validation_embeddings = article_embeddings[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+                validation_labels = article_labels[len(training_dataset): len(training_dataset) + len(validation_dataset)]
 
-                test_embeddings = fucking_embeddings[len(training_dataset) + len(validation_dataset):]
-                test_labels = fucking_labels[len(training_dataset) + len(validation_dataset):]
+                test_embeddings = article_embeddings[len(training_dataset) + len(validation_dataset):]
+                test_labels = article_labels[len(training_dataset) + len(validation_dataset):]
 
                 for model in models: 
 
@@ -581,17 +428,36 @@ class Orchestrator():
         print("F1- USA SVM: " + str(UttlS /(len(bP)/5)) + "USA KNN:" + str(UttlK/(len(bp)/5)) + "USA NB:" + str(UttlN /(len(bp)/5)) + "USA LC: " +str(UttlL /(len(bp)/5)) + "USA NN:" + str(UttlNet/(len(bp)/5)))
         print("F1- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + "Huffpost KNN:" + str(HttlK/(len(bp)/5)) + "Huffpost NB:" + str(HttlN /(len(bp)/5)) + "Huffpost LC: " +str(HttlL /(len(bp)/5)) + "Huffpost NN:" + str(HttlNet/(len(bp)/5)))
         print("F1- NYT SVM: " + str(NttlS /(len(bP)/5)) + "NYT KNN:" + str(NttlK/(len(bp)/5)) + "NYT NB:" + str(NttlN /(len(bp)/5)) + "NYT LC: " +str(NttlL /(len(bp)/5)) + "NYT NN:" + str(NttlNet/(len(bp)/5)))
-        '''    
+        '''  
+      
 
 
 orchestrator = Orchestrator()
+<<<<<<< HEAD
 splits = orchestrator.read_data(clean=True, number_of_articles=25) 
+=======
+splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, number_of_articles=25) 
+all_data = orchestrator.read_data(ApplicationConstants.all_articles, clean=False, number_of_articles=1000)
+
+>>>>>>> 2b6f8fba17c80fc813aa2c1b311ca1f9fe8493c6
 #print("Dirty .25")
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
 #orchestrator.train_all(splits)
 #orchestrator.embed_all_articles(splits)
-imdb_vec, imdb_labels = orchestrator.imdb()
-orchestrator.train_sent_models(imdb_vec, imdb_labels)
+
+#train embeddings
+leanings_articles = list(map(lambda leaning: all_data[0][leaning][ApplicationConstants.Train] + all_data[0][leaning][ApplicationConstants.Validation] + all_data[0][leaning][ApplicationConstants.Test], all_data[0]))
+leanings = []
+
+for leaning in all_data[0]:
+    for article in range(len(all_data[0][leaning][ApplicationConstants.Train] + all_data[0][leaning][ApplicationConstants.Validation] + all_data[0][leaning][ApplicationConstants.Test])):
+        leanings.append(leaning) 
+
+flat_list = [item for sublist in leanings_articles for item in sublist]
+articles = list(map(lambda article: article.Content, flat_list))  
+labels = list(map(lambda article: article.Label.TargetGender, flat_list))
+
+orchestrator.train_sent_models(articles, labels, leanings)
 
 
 
