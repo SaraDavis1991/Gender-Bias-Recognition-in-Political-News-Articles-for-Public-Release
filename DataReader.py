@@ -10,6 +10,7 @@ import copy
 from preprocessor import Preprocessor
 import random
 
+
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
 
@@ -24,8 +25,44 @@ class DataReader():
         elif 'articles' in obj:
             return Source(obj['articles'])
         return obj
+
+    def class_to_json(self, data):
+
+        output = {} 
+
+        for leaning in data: 
+            
+            articles = []
+
+            for article in data[leaning]: 
+                
+                new_article = {} 
+                new_article["title"] = article.Title
+                new_article["subtitle"] = article.Subtitle
+                new_article["author"] = article.Author
+                new_article["date"] = article.Date
+                new_article["content"] = article.Content
+                new_article["url"] = article.Url
+                new_article["labels"] = {                  
+                    "author_gender" : "",
+                    "target_gender" : article.Label.TargetGender,
+                    "target_affiliation" : article.Label.TargetAffiliation,
+                    "target_name" : article.Label.TargetName
+                }
+
+                articles.append(new_article)
+            output[leaning] = {} 
+            output[leaning]['articles'] = articles
+
+        return output
     
+    def save_to_file(self, path, data):
+
+        with open(path, 'w') as cleaned_data_file:
+            json.dump(data, cleaned_data_file, indent=2)
+
     def Randomize(self, filePath):
+
         with open(filePath, 'r') as read_file:
             data = json.load(read_file, object_hook=self.object_decoder)
 
@@ -39,7 +76,7 @@ class DataReader():
         random.shuffle(fox)
         random.shuffle(usa_today)
         random.shuffle(nyt)
-        random.shuffle(huffpost)
+        random.shuffle(huffpost)      
 
         output = {} 
 
@@ -67,6 +104,8 @@ class DataReader():
             output[leaning] = {} 
             output[leaning]['articles'] = articles
 
+        output = self.class_to_json(data)
+
         with open('./output.json', 'w') as write_file:
             json.dump(output, write_file, indent=2)
 
@@ -75,7 +114,7 @@ class DataReader():
             data = json.load(read_file, object_hook=self.object_decoder)
         return data
 
-    def Load_Splits(self, filePath, number_of_articles=50, clean=True):
+    def Load_Splits(self, filePath, number_of_articles=50, clean=True, save=False):
 
         candidate_split_file_names = [ApplicationConstants.fold_1, ApplicationConstants.fold_2, ApplicationConstants.fold_3, ApplicationConstants.fold_4, ApplicationConstants.fold_5]
 
@@ -168,6 +207,14 @@ class DataReader():
                 if (clean):
                     cleaned_content = self.Preprocessor.Clean(content)
                     sources[source_index][1][article_index].Content = cleaned_content 
+
+        if (save):
+            reconstructed_dictionary = {} 
+            for leaning, articles in sources:
+                reconstructed_dictionary[leaning] = articles
+
+            serialized_data = self.class_to_json(reconstructed_dictionary)
+            self.save_to_file(ApplicationConstants.cleaned_news_root_path, serialized_data)
 
         print("\nDone! \nStarting splitnig . . . ")
 

@@ -15,6 +15,11 @@ from collections import Counter
 import en_core_web_lg
 
 class Preprocessor():
+    
+    def __init__(self):
+                
+        self.nlp = spacy.load("en_core_web_lg")
+
     def cleanup(self, token, lower = True):
         if lower:
             token = token = token.lower()
@@ -34,15 +39,11 @@ class Preprocessor():
 
         #remove any word containing woman replace with person
 
-       
-
-        
-        nlp = spacy.load("en_core_web_lg")
-        doc = nlp(data)
+        doc = self.nlp(data)
       
         #Used tagged entities to replace names of places and people
         for ent in reversed(doc.ents):
-            print(ent.text, ent.start_char, ent.end_char, ent.label_)
+            # print(ent.text, ent.start_char, ent.end_char, ent.label_)
             if ent.label_ == 'PERSON' or ent.label_ == 'NORP' or ent.label_ == 'GPE' or ent.label == 'LOC':
                 data = data[:ent.start_char] + ent.label_.lower() + data[ent.end_char:]
 
@@ -82,8 +83,12 @@ class Preprocessor():
 
         data = re.sub('(?<![a-zA-Z])queen(?![a-zA-Z])', 'person', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])king(?![a-zA-Z])', 'person', data, flags =re.I)
-      
+        
+        #remove state tag and party tag. ie "(D-NV)"
+        data = re.sub(r'(\([DRrd]-[a-zA-Z]+\))', '', data, flags =re.I)
 
+        #remove twitter tags
+        data = re.sub(r'(@[a-zA-Z_-]*)', '', data, flags =re.I)
 
         #In case a person's name was not tagged as a name, replace it with person
 
@@ -111,9 +116,20 @@ class Preprocessor():
         data = re.sub('(?<![a-zA-Z])Hunter(?![a-zA-Z])', 'person', data, flags = re.I) 
         data = re.sub('(?<![a-zA-Z])Bernie(?![a-zA-Z])', 'person', data, flags = re.I)
 
+        #news outlets
+        data = re.sub('(breitbart)', 'news source', data, flags = re.I)
+        data = re.sub('(fox)', 'news source', data, flags = re.I)
+        data = re.sub('(usa today)', 'news source', data, flags = re.I)
+        data = re.sub('(huffpost)', 'news source', data, flags = re.I)
+        data = re.sub('(new york times)', 'news source', data, flags = re.I)
 
- 
-
+        data = re.sub('(breitbart news)', 'news source', data, flags = re.I)
+        data = re.sub('(fox news)', 'news source', data, flags = re.I)
+        data = re.sub('(usa today news)', 'news source', data, flags = re.I)
+        data = re.sub('(huffpost news)', 'news source', data, flags = re.I)
+        data = re.sub('(huffington post)', 'news source', data, flags = re.I)
+        data = re.sub('(new york times news)', 'news source', data, flags = re.I)
+        data = re.sub('(nyt)', 'news source', data, flags = re.I)
 
         data = re.sub('(?<![a-zA-Z])Ocasio-Cortez(?![a-zA-Z])', 'person', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])Ocasio Cortez(?![a-zA-Z])', 'person', data, flags = re.I)
@@ -145,8 +161,7 @@ class Preprocessor():
         data = re.sub('(?<![a-zA-Z])president of the united states of america(?![a-zA-Z])', 'person', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])president of the united states(?![a-zA-Z])', 'person', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])president(?![a-zA-Z])', 'person', data, flags = re.I)
-        
-        
+                
         data = re.sub('(?<![a-zA-Z])secretary(?![a-zA-Z])', '', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])s(?![a-zA-Z])', '', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])U.S.(?![a-zA-Z])', 'norp', data, flags = re.I)
@@ -155,21 +170,12 @@ class Preprocessor():
         #Cleanup the punctuation
         data = re.sub(' ,', ',', data, flags = re.I)
         data = re.sub('  ', ' ', data, flags = re.I)
- 
-
-     
-
-
-        #print(data)
-
-
 
         #remove whole words from stop list 
         for word in StopWords.StopWords: 
             reg_string = word + '-[a-zA-Z]*'
             data = re.sub(reg_string, '', data) 
-
-        
+     
         '''
         #get parts of speech
         tokens = nltk.word_tokenize(data)
@@ -221,8 +227,7 @@ class Preprocessor():
         '''
         #return processed_data
         return data
-        
-
+    
 
 #process = Preprocessor()
 #process.Clean("president Trump, Donald Trump, AOC, secretary Clinton, Trump. president")

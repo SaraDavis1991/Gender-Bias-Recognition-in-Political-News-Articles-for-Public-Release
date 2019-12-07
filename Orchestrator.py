@@ -37,8 +37,8 @@ class Orchestrator():
         self.Visualizer = Visualizer() 
         self.SentimentAnalyzer = SentimentAnalyzer() 
 
-    def read_data(self, path, clean=True, number_of_articles = 50):       
-        return self.Reader.Load_Splits(path, clean=clean, number_of_articles=number_of_articles)
+    def read_data(self, path, clean=True, save=False, number_of_articles = 50):       
+        return self.Reader.Load_Splits(path, clean=clean, save=save, number_of_articles=number_of_articles)
 
     def imdb(self, model):
         sources = {'test-neg.txt':'TEST_NEG', 'test-pos.txt':'TEST_POS', 'train-neg.txt':'TRAIN_NEG', 'train-pos.txt':'TRAIN_POS' }
@@ -433,25 +433,26 @@ class Orchestrator():
 
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(clean=True, number_of_articles=25) 
+splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean=False, save=False, number_of_articles=2000) 
+#cleaned = orchestrator.read_data('./cleaned_article_data/all_articles_random_cleaned.json', clean=True, save=True, number_of_articles=1000)
 #print("Dirty .25")
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
-#orchestrator.train_all(splits)
+orchestrator.train_all(splits)
 #orchestrator.embed_all_articles(splits)
 
 #train embeddings
-leanings_articles = list(map(lambda leaning: all_data[0][leaning][ApplicationConstants.Train] + all_data[0][leaning][ApplicationConstants.Validation] + all_data[0][leaning][ApplicationConstants.Test], all_data[0]))
-leanings = []
+# leanings_articles = list(map(lambda leaning: all_data[0][leaning][ApplicationConstants.Train] + all_data[0][leaning][ApplicationConstants.Validation] + all_data[0][leaning][ApplicationConstants.Test], all_data[0]))
+# leanings = []
 
-for leaning in all_data[0]:
-    for article in range(len(all_data[0][leaning][ApplicationConstants.Train] + all_data[0][leaning][ApplicationConstants.Validation] + all_data[0][leaning][ApplicationConstants.Test])):
-        leanings.append(leaning) 
+# for leaning in all_data[0]:
+#     for article in range(len(all_data[0][leaning][ApplicationConstants.Train] + all_data[0][leaning][ApplicationConstants.Validation] + all_data[0][leaning][ApplicationConstants.Test])):
+#         leanings.append(leaning) 
 
-flat_list = [item for sublist in leanings_articles for item in sublist]
-articles = list(map(lambda article: article.Content, flat_list))  
-labels = list(map(lambda article: article.Label.TargetGender, flat_list))
+# flat_list = [item for sublist in leanings_articles for item in sublist]
+# articles = list(map(lambda article: article.Content, flat_list))  
+# labels = list(map(lambda article: article.Label.TargetGender, flat_list))
 
-orchestrator.train_sent_models(articles, labels, leanings)
+# orchestrator.train_sent_models(articles, labels, leanings)
 
 
 

@@ -52,3 +52,6 @@ male_value = 1
 #sentiment values
 postive_sentiment = 1 
 negative_sentiment = 0 
+
+#paths
+cleaned_news_root_path = './cleaned_article_data/all_articles_random_cleaned.json'
