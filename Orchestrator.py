@@ -433,13 +433,7 @@ class Orchestrator():
 
 
 orchestrator = Orchestrator()
-<<<<<<< HEAD
 splits = orchestrator.read_data(clean=True, number_of_articles=25) 
-=======
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, number_of_articles=25) 
-all_data = orchestrator.read_data(ApplicationConstants.all_articles, clean=False, number_of_articles=1000)
-
->>>>>>> 2b6f8fba17c80fc813aa2c1b311ca1f9fe8493c6
 #print("Dirty .25")
 #orchestrator.run_sentiment_analysis_all(splits[0]) 
 #orchestrator.train_all(splits)
