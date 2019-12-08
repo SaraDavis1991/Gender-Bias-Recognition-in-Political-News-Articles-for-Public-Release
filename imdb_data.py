@@ -46,6 +46,7 @@ logger.info("running %s" % ' '.join(sys.argv))
 import os.path
 
 class LabeledLineSentence(object):
+
 	def __init__(self, sources):
 		self.sources = sources
 		flipped = {}
@@ -55,11 +56,13 @@ class LabeledLineSentence(object):
 				flipped[value] = [key]
 			else:
 				raise Exception('Non-unique prefix encountered')
+
 	def __iter__(self):
 		for source, prefix in self.sources.items():
 			with utils.smart_open(source) as fin:
 				for item_no, line in enumerate(fin):
 					yield LabeledSentence(utils.to_unicode(line).split(), [prefix + '_%s' % item_no])
+
 	def to_array(self):
 		self.sentences = []
 		for source, prefix in self.sources.items():
@@ -68,23 +71,17 @@ class LabeledLineSentence(object):
 					self.sentences.append(LabeledSentence(
 						utils.to_unicode(line).split(), [prefix + '_%s' % item_no]))
 		return self.sentences
+		
 	def sentences_perm(self):
 		shuffle(self.sentences)
 		return self.sentences
 
-	def train(self):
-		model = Doc2Vec(min_count=1, window=10, size=100, sample=1e-4, negative=5, workers=7)
-		model.build_vocab(self.to_array())
-		for epoch in range(50):
-			logger.info('Epoch %d' % epoch)
-			model.train(self.sentences_perm(), total_examples=model.corpus_count, epochs=model.iter)
-		model.save('./imdb.d2v')
 
 	def generate_imdb_vec(self, model, imdb_sentiment_label_path, imdb_sentiment_vector_path):
 
 		if (not os.path.isfile(imdb_sentiment_label_path or imdb_sentiment_vector_path)):
+			
 			sentences = self.to_array()
-
 			words = list(map(lambda word: " ".join(word), list(map(lambda sentence: sentence.words, sentences))))
 			labels = list(map(lambda label: " ".join(label), list(map(lambda sentence: sentence.tags, sentences))))
 

@@ -64,35 +64,41 @@ class Visualizer():
         neg_counts_per_leaning_male = []
         pos_counts_per_leaning_male = [] 
         neg_counts_per_leaning_female = []
-        leanings = ["Breitbart", "Fox", "USA Today", "New York Times", "Huffpost"]
+        leanings = ["Huffpost", "New York Times", "USA Today", "Fox", "Breitbart"]
 
-        breitbart_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Fsentiment))))
-        breitbart_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Msentiment))))
-        fox_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Fsentiment))))
-        fox_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Msentiment))))
-        usa_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Fsentiment))))
-        usa_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Msentiment))))
-        nyt_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Fsentiment))))
-        nyt_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Msentiment))))
-        hp_female_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Fsentiment))))
-        hp_male_sentiments = list(map(lambda sentiment: sentiment[1], list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Msentiment))))
+        breitbart_female_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Fsentiment))))
+        breitbart_male_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.Breitbart, Msentiment))))
+        fox_female_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Fsentiment))))
+        fox_male_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.Fox, Msentiment))))
+        usa_female_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Fsentiment))))
+        usa_male_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.usa_today, Msentiment))))
+        nyt_female_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Fsentiment))))
+        nyt_male_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.New_york_times, Msentiment))))
+        hp_female_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Fsentiment))))
+        hp_male_sentiments = list(map(lambda sentiment: (sentiment[1], sentiment[2]), list(filter(lambda leaning: leaning[0] == ApplicationConstants.HuffPost, Msentiment))))
 
-        male_leanings = [breitbart_male_sentiments, fox_male_sentiments, usa_male_sentiments, nyt_male_sentiments, hp_male_sentiments]
-        female_leanings = [breitbart_female_sentiments, fox_female_sentiments, usa_female_sentiments, nyt_female_sentiments, hp_female_sentiments]
+        male_leanings = [hp_male_sentiments, nyt_male_sentiments, usa_male_sentiments, fox_male_sentiments, breitbart_male_sentiments]
+        female_leanings = [hp_female_sentiments, nyt_female_sentiments, usa_female_sentiments, fox_female_sentiments, breitbart_female_sentiments]
    
         for leaning in range(5): 
 
             femaleVals = []
             maleVals = []
-
-            male_articles_length = len(male_leanings[leaning])
-            female_articles_length = len(female_leanings[leaning])
             
             for sentiment in female_leanings[leaning]:
-                femaleVals.append(self.calc_sent(sentiment))
+                result = self.calc_sent(sentiment[0], sentiment[1])
+
+                if result is not None:
+                    femaleVals.append(self.calc_sent(sentiment[0], sentiment[1]))
 
             for sentiment in male_leanings[leaning]:
-                maleVals.append(self.calc_sent(sentiment))
+                result = self.calc_sent(sentiment[0], sentiment[1])
+
+                if result is not None:
+                    maleVals.append(result)
+
+            male_articles_length = len(female_leanings[leaning])
+            female_articles_length = len(male_leanings[leaning])
 
             female_pos = len(list(filter(lambda sent: sent == 'pos', femaleVals)))
             female_neg = len(list(filter(lambda sent: sent == 'neg', femaleVals)))
@@ -123,7 +129,10 @@ class Visualizer():
         plt.show()
 
         
-    def calc_sent(self, sentiment):
+    def calc_sent(self, sentiment, confidence):
+
+        if (abs(confidence) < 0.25):
+            return None
 
         if sentiment == 0:
             return 'neg'

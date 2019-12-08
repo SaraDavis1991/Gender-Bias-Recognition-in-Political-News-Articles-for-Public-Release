@@ -56,17 +56,13 @@ class Orchestrator():
 		if (not os.path.exists(article_doc2vec_label_path) or not os.path.exists(article_doc2vec_vector_path)):
 
 			all_articles_labels, all_articles_vectors = self.docEmbed.gen_vec(all_articles_model, all_articles, all_labels)
-
 			np.save(article_doc2vec_label_path, all_articles_labels)
 			np.save(article_doc2vec_vector_path, all_articles_vectors)
 			
 		else:
 
 			all_articles_labels = np.load(article_doc2vec_label_path)
-			all_articles_vectors = np.load(article_doc2vec_vector_path)
-				
-		# for index, label in enumerate(all_articles_labels):
-		# 	all_articles_labels[index] = (label, leanings[index])
+			all_articles_vectors = np.load(article_doc2vec_vector_path)			
 
 		imdb_vec, imdb_labels = self.imdb(all_articles_model, imdb_label_path, imdb_vector_path)
 
@@ -78,14 +74,14 @@ class Orchestrator():
 			female = [] 
 
 			model.Train(imdb_vec, imdb_labels, None, None)
-			predictions, confidence = model.Predict(all_articles_vectors)
+			predictions, confidences = model.Predict(all_articles_vectors)
 			
 			for index, prediction in enumerate(predictions):
 									  
-				if int(all_articles_labels[index]) == ApplicationConstants.female_value:
-					female.append((leanings[index], prediction))
+				if int(all_labels[index]) == ApplicationConstants.female_value:
+					female.append((leanings[index], prediction, confidences[index]))
 				else:
-					male.append((leanings[index], prediction))
+					male.append((leanings[index], prediction, confidences[index]))
 
 			self.Visualizer.graph_sentiment(female, male)
 
@@ -403,7 +399,7 @@ class Orchestrator():
 		'''  
 	  
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=25) 
+splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=True, save=False, number_of_articles=50) 
 #cleaned_splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean=False, save=False, number_of_articles=1000)
 
 #train embeddings - uncleaned 
@@ -415,13 +411,12 @@ for leaning in splits[0]:
 		leanings.append(leaning) 
 
 flat_list = [item for sublist in leanings_articles for item in sublist]
-
 articles = list(map(lambda article: article.Content, flat_list))  
 labels = list(map(lambda article: article.Label.TargetGender, flat_list))
 
-orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path, ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path, ApplicationConstants.all_articles_doc2vec_model_uncleaned_path, ApplicationConstants.imdb_sentiment_label_uncleaned_path, ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
+#orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path, ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path, ApplicationConstants.all_articles_doc2vec_model_uncleaned_path, ApplicationConstants.imdb_sentiment_label_uncleaned_path, ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
 
-# #train embeddings - cleaned 
+#train embeddings - cleaned 
 # leanings_articles = list(map(lambda leaning: cleaned_splits[0][leaning][ApplicationConstants.Train] + cleaned_splits[0][leaning][ApplicationConstants.Validation] + cleaned_splits[0][leaning][ApplicationConstants.Test], cleaned_splits[0]))
 # leanings = []
 
@@ -433,7 +428,7 @@ orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.
 # cleaned_articles = list(map(lambda article: article.Content, flat_list))  
 # cleaned_labels = list(map(lambda article: article.Label.TargetGender, flat_list))
 
-# orchestrator.train_sent_models(cleaned_articles, cleaned_labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_cleaned_path, ApplicationConstants.all_articles_doc2vec_vector_cleaned_path, ApplicationConstants.all_articles_doc2vec_model_cleaned_path, ApplicationConstants.imdb_sentiment_label_cleaned_path, ApplicationConstants.imdb_sentiment_vector_cleaned_path)
+orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_cleaned_path, ApplicationConstants.all_articles_doc2vec_vector_cleaned_path, ApplicationConstants.all_articles_doc2vec_model_cleaned_path, ApplicationConstants.imdb_sentiment_label_cleaned_path, ApplicationConstants.imdb_sentiment_vector_cleaned_path)
 
 
 
