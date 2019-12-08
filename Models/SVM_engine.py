@@ -22,6 +22,6 @@ class SVM(implements(IModel)):
     def Predict(self, features): 
         
         prediction = self.Model.predict(features) 
-        #confidence = self.Model.predict_proba(features)
-        return prediction
-        #return prediction, confidence
+        confidence = self.Model.decision_function(features)
+
+        return prediction, confidence

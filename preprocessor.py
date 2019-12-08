@@ -131,6 +131,10 @@ class Preprocessor():
         data = re.sub('(new york times news)', 'news source', data, flags = re.I)
         data = re.sub('(nyt)', 'news source', data, flags = re.I)
 
+        data = re.sub('((mrs.))', 'news source', data, flags = re.I)
+        data = re.sub('((mr.))', 'news source', data, flags = re.I)
+        
+
         data = re.sub('(?<![a-zA-Z])Ocasio-Cortez(?![a-zA-Z])', 'person', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])Ocasio Cortez(?![a-zA-Z])', 'person', data, flags = re.I)
         data = re.sub('(?<![a-zA-Z])Ocasio(?![a-zA-Z])', 'person', data, flags = re.I)

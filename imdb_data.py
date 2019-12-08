@@ -45,9 +45,6 @@ logging.root.setLevel(level=logging.INFO)
 logger.info("running %s" % ' '.join(sys.argv))
 import os.path
 
-imdb_sentiment_path = "./sentiment/imdb_sentiment.npy"
-imdb_sentiment_label_path = "./sentiment/imdb_sentiment_labels.npy"
-
 class LabeledLineSentence(object):
 	def __init__(self, sources):
 		self.sources = sources
@@ -83,9 +80,9 @@ class LabeledLineSentence(object):
 			model.train(self.sentences_perm(), total_examples=model.corpus_count, epochs=model.iter)
 		model.save('./imdb.d2v')
 
-	def generate_imdb_vec(self, model):
-		if (not os.path.isfile(imdb_sentiment_label_path or imdb_sentiment_path)):
+	def generate_imdb_vec(self, model, imdb_sentiment_label_path, imdb_sentiment_vector_path):
 
+		if (not os.path.isfile(imdb_sentiment_label_path or imdb_sentiment_vector_path)):
 			sentences = self.to_array()
 
 			words = list(map(lambda word: " ".join(word), list(map(lambda sentence: sentence.words, sentences))))
@@ -98,16 +95,14 @@ class LabeledLineSentence(object):
 					labels[index] = 1
 		
 			tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(words)]
-		
-			
 			targets, feature_vectors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps=20)) for doc in tagged_doc_articles])	
 
-			numpy.save(imdb_sentiment_path, feature_vectors)
+			numpy.save(imdb_sentiment_vector_path, feature_vectors)
 			numpy.save(imdb_sentiment_label_path, targets)
 		else:
 
 			targets = numpy.load(imdb_sentiment_label_path) 
-			feature_vectors = numpy.load(imdb_sentiment_path)
+			feature_vectors = numpy.load(imdb_sentiment_vector_path)
 
 		combo = list(zip(targets, feature_vectors))
 		random.shuffle(combo)

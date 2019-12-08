@@ -55,3 +55,14 @@ negative_sentiment = 0
 
 #paths
 cleaned_news_root_path = './cleaned_article_data/all_articles_random_cleaned.json'
+
+all_articles_doc2vec_vector_cleaned_path = './word_models/all_article_embeddings_vectors_cleaned.npy'
+all_articles_doc2vec_labels_cleaned_path = './word_models/all_article_embeddings_labels_cleaned.npy'
+all_articles_doc2vec_model_cleaned_path = './word_models/all_articles_cleaned_doc2vec.model'
+all_articles_doc2vec_vector_uncleaned_path = './word_models/all_article_embeddings_vectors_uncleaned.npy'
+all_articles_doc2vec_labels_uncleaned_path = './word_models/all_article_embeddings_labels_uncleaned.npy'
+all_articles_doc2vec_model_uncleaned_path = './word_models/all_articles_uncleaned_doc2vec.model'
+imdb_sentiment_vector_uncleaned_path = "./word_models/imdb_sentiment_uncleaned.npy"
+imdb_sentiment_label_uncleaned_path = "./word_models/imdb_sentiment_labels_uncleaned.npy"
+imdb_sentiment_vector_cleaned_path = "./word_models/imdb_sentiment_cleaned.npy"
+imdb_sentiment_label_cleaned_path = "./word_models/imdb_sentiment_labels_cleaned.npy"
