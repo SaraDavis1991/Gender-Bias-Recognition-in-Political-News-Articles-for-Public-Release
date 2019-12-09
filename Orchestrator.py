@@ -326,13 +326,45 @@ class Orchestrator():
 					
 					print("Model:", str(type(model)).split('.')[2].split('\'')[0], "precision:", self.Metrics.Precision(prediction, test_labels), "recall:", self.Metrics.Recall(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
 
+					if leaning == "breitbart":
+						bP.append(self.Metrics.Precision(prediction, test_labels))
+						bR.append(self.Metrics.Recall(prediction, test_labels))
+						bF.append(self.Metrics.Fmeasure(prediction, test_labels))
+					if leaning == "fox":
+						fP.append(self.Metrics.Precision(prediction, test_labels))
+						fR.append(self.Metrics.Recall(prediction, test_labels))
+						fF.append(self.Metrics.Fmeasure(prediction, test_labels))
+					if leaning == "usa_today":
+						uP.append(self.Metrics.Precision(prediction, test_labels))
+						uR.append(self.Metrics.Recall(prediction, test_labels))
+						uF.append(self.Metrics.Fmeasure(prediction, test_labels))
+					if leaning == "new_york_times":
+						nP.append(self.Metrics.Precision(prediction, test_labels))
+						nR.append(self.Metrics.Recall(prediction, test_labels))
+						nF.append(self.Metrics.Fmeasure(prediction, test_labels))
+					if leaning == "huffpost":
+						hP.append(self.Metrics.Precision(prediction, test_labels))
+						hR.append(self.Metrics.Recall(prediction, test_labels))
+						hF.append(self.Metrics.Fmeasure(prediction, test_labels))
+
+				
+			
 				
 				#model = models[0] 
 				#model.Model.coefs_[model.Model.n_layers_ - 2]
 				if split_count == 1:
 					self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
-		
 
+				
+
+			print("PRECISION")
+			self.calc_metrics(bP, fP, uP, nP, hP)
+			print("RECALL")
+			self.calc_metrics(bR, fR, uR, nR, hR)
+			print("F-1")
+			self.calc_metrics(bF, fF, uF, nF, hF)
+		
+	'''
 	def get_most_sig_sent(self, articles, context_sentence_number = 2):
 
 		for article_index, article in enumerate(articles): 
@@ -345,19 +377,16 @@ class Orchestrator():
 			#start 2 over so we have context
 			for sentence_index in range(2, len(sentences)):
 
-				#check if name in sentence
-				if lastname in sentences[sentence_index]:
-					
-					for context_number in range(-context_sentence_number, context_sentence_number):
+				#check if name in sentence	def embed_fold(self, articles, labels, fold, leaning):
+		
 
-						if context_number + sentence_index < len(sentences):
-							qualtive_sentences.append(sentences[sentence_index + context_number])
+		#emb = self.docEmbed.word2vec() 
+		model = self.docEmbed.Embed(articles, labels)
+		targets, regressors = self.docEmbed.gen_vec(model, articles, labels)
 
-					break 
+		return list(targets), regressors, model
+	'''
 
-			articles[article_index].Content = " ".join(qualtive_sentences)
-
-		return articles
 
 	def calc_metrics(self, bP, fP, uP, hP, nP ):
 		BttlS = 0
@@ -427,8 +456,8 @@ class Orchestrator():
 	
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=5000) 
-
+splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=25) 
+orchestrator.train_all(splits)
 #train embeddings - uncleaned 
 leanings_articles = list(map(lambda leaning: splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test], splits[0]))
 leanings = []
@@ -436,12 +465,7 @@ leanings = []
 for leaning in splits[0]:
 	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
 		leanings.append(leaning) 
-		print("PRECISION")
-		orchestrator.calc_metrics(bP, fP, uP, nP, hP)
-		print("RECALL")
-		orchestrator.calc_metrics(bR, fR, uR, nR, hR)
-		print("F-1")
-		orchestrator.calc_metrics(bF, fF, uF, nF, hF)
+	
 
 #splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=1000) 
 #orchestrator.train_all(splits)
