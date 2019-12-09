@@ -359,6 +359,73 @@ class Orchestrator():
 
 		return articles
 
+	def calc_metrics(self, bP, fP, uP, hP, nP ):
+		BttlS = 0
+		BttlK = 0
+		BttlN = 0
+		BttlL = 0
+		BttlNet = 0
+		FttlS = 0
+		FttlK = 0
+		FttlN = 0
+		FttlL = 0
+		FttlNet = 0
+		UttlS = 0
+		UttlK = 0
+		UttlN = 0
+		UttlL = 0
+		UttlNet = 0
+		HttlS = 0
+		HttlK = 0
+		HttlN = 0
+		HttlL = 0
+		HttlNet = 0
+		NttlS = 0
+		NttlK = 0
+		NttlN = 0
+		NttlL = 0
+		NttlNet = 0
+
+		
+		for i in range(len(bP)):
+			if i %5 == 0:
+				BttlS +=bP[i]
+				FttlS +=fP[i]
+				UttlS += uP[i]
+				HttlS += hP[i]
+				NttlS += nP[i]
+			if i % 5 == 1:
+				BttlK +=bP[i]
+				FttlK +=fP[i]
+				UttlK += uP[i]
+				HttlK += hP[i]
+				NttlK += nP[i]
+			if i % 5 == 2:
+				BttlN +=bP[i]
+				FttlN +=fP[i]
+				UttlN += uP[i]
+				HttlN += hP[i]
+				NttlN += nP[i]
+			if i %5 == 3:
+				BttlL +=bP[i]
+				FttlL +=fP[i]
+				UttlL += uP[i]
+				HttlL += hP[i]
+				NttlL += nP[i]
+			if i%5 == 4:
+				BttlNet +=bP[i]
+				FttlNet +=fP[i]
+				UttlNet += uP[i]
+				HttlNet += hP[i]
+				NttlNet += nP[i]
+		bp = bP
+		print("Breitbart SVM: " + str(BttlS /(len(bP)/5)) + " Breitbart KNN: " + str(BttlK/(len(bP)/5)) + " Breitbart NB: " + str(BttlN /(len(bP)/5)) + " Breitbart LC: " +str(BttlL /(len(bP)/5)) + " Breitbart NN: " + str(BttlNet/(len(bP)/5)))
+		print("Fox SVM: " + str(FttlS /(len(bP)/5)) + " Fox KNN: " + str(FttlK/(len(bP)/5)) + " Fox NB: " + str(FttlN /(len(bP)/5)) + " Fox LC: " +str(FttlL /(len(bP)/5)) + " Fox NN: " + str(FttlNet/(len(bP)/5)))
+		print("USA SVM: " + str(UttlS /(len(bP)/5)) + " USA KNN: " + str(UttlK/(len(bP)/5)) + " USA NB: " + str(UttlN /(len(bP)/5)) + " USA LC: " +str(UttlL /(len(bP)/5)) + " USA NN: " + str(UttlNet/(len(bP)/5)))
+		print("Huffpost SVM: " + str(HttlS /(len(bP)/5)) + " Huffpost KNN: " + str(HttlK/(len(bp)/5)) + " Huffpost NB: " + str(HttlN /(len(bp)/5)) + " Huffpost LC: " +str(HttlL /(len(bp)/5)) + " Huffpost NN: " + str(HttlNet/(len(bp)/5)))
+		print("NYT SVM: " + str(NttlS /(len(bP)/5)) + " NYT KNN: " + str(NttlK/(len(bp)/5)) + " NYT NB: " + str(NttlN /(len(bp)/5)) + " NYT LC: " +str(NttlL /(len(bp)/5)) + " NYT NN: " + str(NttlNet/(len(bp)/5)))
+	
+
 orchestrator = Orchestrator()
 splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=5000) 
 
@@ -370,14 +437,13 @@ for leaning in splits[0]:
 	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
 		leanings.append(leaning) 
 		print("PRECISION")
-		self.calc_metrics(bP, fP, uP, nP, hP)
+		orchestrator.calc_metrics(bP, fP, uP, nP, hP)
 		print("RECALL")
-		self.calc_metrics(bR, fR, uR, nR, hR)
+		orchestrator.calc_metrics(bR, fR, uR, nR, hR)
 		print("F-1")
-		self.calc_metrics(bF, fF, uF, nF, hF)
-	  
-orchestrator = Orchestrator()
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=1000) 
+		orchestrator.calc_metrics(bF, fF, uF, nF, hF)
+
+#splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=1000) 
 #orchestrator.train_all(splits)
 cleaned_splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean= False, save=False, number_of_articles=1000)
 
