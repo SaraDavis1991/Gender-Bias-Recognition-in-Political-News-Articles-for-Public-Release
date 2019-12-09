@@ -66,3 +66,6 @@ imdb_sentiment_vector_uncleaned_path = "./word_models/imdb_sentiment_uncleaned.n
 imdb_sentiment_label_uncleaned_path = "./word_models/imdb_sentiment_labels_uncleaned.npy"
 imdb_sentiment_vector_cleaned_path = "./word_models/imdb_sentiment_cleaned.npy"
 imdb_sentiment_label_cleaned_path = "./word_models/imdb_sentiment_labels_cleaned.npy"
+
+qualitive_cleaned_path = './Data/qualitive_cleaned.json'
+qualitive_uncleaned_path = './Data/qualitive_uncleaned.json'

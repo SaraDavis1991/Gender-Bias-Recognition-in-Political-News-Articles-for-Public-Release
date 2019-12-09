@@ -97,15 +97,15 @@ class Visualizer():
                 if result is not None:
                     maleVals.append(result)
 
-            male_articles_length = len(female_leanings[leaning])
-            female_articles_length = len(male_leanings[leaning])
+            male_articles_length = len(male_leanings[leaning])
+            female_articles_length = len(female_leanings[leaning])
 
             female_pos = len(list(filter(lambda sent: sent == 'pos', femaleVals)))
             female_neg = len(list(filter(lambda sent: sent == 'neg', femaleVals)))
             male_pos = len(list(filter(lambda sent: sent == 'pos', maleVals)))
             male_neg = len(list(filter(lambda sent: sent == 'neg', maleVals)))
 
-            print(leaning)
+            print(leanings[leaning])
             print("Num Female Pos: " + str(female_pos))
             print("Num Female Neg: " + str(female_neg))
             print("Num Male Pos: " + str(male_pos))
@@ -128,11 +128,11 @@ class Visualizer():
         plt.legend(loc='center right')
         plt.show()
 
-    e()
+        
     def calc_sent(self, sentiment, confidence):
 
         if (abs(confidence) < 0.25):
-            return None
+           return None
 
         if sentiment == 0:
             return 'neg'

@@ -114,7 +114,7 @@ class DataReader():
             data = json.load(read_file, object_hook=self.object_decoder)
         return data
 
-    def Load_Splits(self, filePath, number_of_articles=50, clean=True, save=False):
+    def Load_Splits(self, filePath, savePath, number_of_articles=50, clean=True, save=False, shouldRandomize=True):
 
         candidate_split_file_names = [ApplicationConstants.fold_1, ApplicationConstants.fold_2, ApplicationConstants.fold_3, ApplicationConstants.fold_4, ApplicationConstants.fold_5]
 
@@ -141,43 +141,50 @@ class DataReader():
             usa += list(filter(lambda article: article.Label.TargetName == candidate, data[ApplicationConstants.usa_today].Articles))[:number_of_articles]
             huffpost += list(filter(lambda article: article.Label.TargetName == candidate, data[ApplicationConstants.HuffPost].Articles))[:number_of_articles]
             nyt += list(filter(lambda article: article.Label.TargetName == candidate, data[ApplicationConstants.New_york_times].Articles))[:number_of_articles]
-        
+
             # print(candidate + "\n\n")
             # titles = list(map(lambda article: article.Title, breitbart + fox + usa + huffpost + nyt))
             # for title in titles:
             #     print ("\n" + title)    
 
+        if (shouldRandomize):
+            random.shuffle(breitbart) 
+            random.shuffle(fox)
+            random.shuffle(usa)
+            random.shuffle(nyt)
+            random.shuffle(huffpost)  
+
         sources = [(ApplicationConstants.Breitbart, breitbart), (ApplicationConstants.Fox, fox), (ApplicationConstants.usa_today, usa), (ApplicationConstants.HuffPost, huffpost), (ApplicationConstants.New_york_times, nyt)]
    
-        # for source_tuple in sources: 
+        for source_tuple in sources: 
 
-        #      source_name = source_tuple[0]
-        #      source = source_tuple[1]
+            source_name = source_tuple[0]
+            source = source_tuple[1]
 
-        # #     #candidates
-        #      dt_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.DonaldTrump, source))
-        #      jb_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.JoeBiden, source))
-        #      bs_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BernieSanders, source))
-        #      jm_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.MitchMcconnell, source))
-        #      bo_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BarrackObama, source))
-        #      hc_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.HillaryClinton, source))
-        #      sp_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.SarahPalin, source))
-        #      aoc_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.AlexandriaOcasioCortez, source))
-        #      bd_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BetsyDevos, source))
-        #      ew_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.ElizabethWarren, source))
-        #      print(source_name)
-        #      print("trump:", len(dt_breitbart))
-        #      print("joe biden:", len(jb_breitbart))
-        #      print("bernie:", len(bs_breitbart))
-        #      print("mitch:", len(jm_breitbart))
-        #      print("obama:", len(bo_breitbart))
-        #      print("hillary:", len(hc_breitbart))
-        #      print("sarah:", len(sp_breitbart))
-        #      print("aoc:", len(aoc_breitbart))
-        #      print("betsy:", len(bd_breitbart))
-        #      print("warren:", len(ew_breitbart))
-        #      print("Cleaning data ", end='')
-            # sys.stdout.flush()
+        #     #candidates
+            dt_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.DonaldTrump, source))
+            jb_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.JoeBiden, source))
+            bs_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BernieSanders, source))
+            jm_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.MitchMcconnell, source))
+            bo_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BarrackObama, source))
+            hc_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.HillaryClinton, source))
+            sp_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.SarahPalin, source))
+            aoc_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.AlexandriaOcasioCortez, source))
+            bd_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BetsyDevos, source))
+            ew_breitbart = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.ElizabethWarren, source))
+            print(source_name)
+            print("trump:", len(dt_breitbart))
+            print("joe biden:", len(jb_breitbart))
+            print("bernie:", len(bs_breitbart))
+            print("mitch:", len(jm_breitbart))
+            print("obama:", len(bo_breitbart))
+            print("hillary:", len(hc_breitbart))
+            print("sarah:", len(sp_breitbart))
+            print("aoc:", len(aoc_breitbart))
+            print("betsy:", len(bd_breitbart))
+            print("warren:", len(ew_breitbart))
+            print("Cleaning data ", end='')
+            sys.stdout.flush()
 
       	  #clean data 
 
@@ -206,13 +213,13 @@ class DataReader():
                     cleaned_content = self.Preprocessor.Clean(content)
                     sources[source_index][1][article_index].Content = cleaned_content 
 
-        if (save):
+        if (save and savePath is not None):
             reconstructed_dictionary = {} 
             for leaning, articles in sources:
                 reconstructed_dictionary[leaning] = articles
 
             serialized_data = self.class_to_json(reconstructed_dictionary)
-            self.save_to_file(ApplicationConstants.cleaned_news_root_path, serialized_data)
+            self.save_to_file(savePath, serialized_data)
 
         print("\nDone! \nStarting splitting . . . ")
 
