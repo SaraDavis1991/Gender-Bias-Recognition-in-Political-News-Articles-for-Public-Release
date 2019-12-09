@@ -90,6 +90,18 @@ class Orchestrator():
 			self.print_sents(sents)
 			self.Visualizer.graph_sentiment(female, male)
 
+	
+			bFn, bFp, fFn, fFp, uFn, uFp, hFp, hFn, nFp, nFn = self.calc_plane_dist(female)
+			bMn, bMp, fMn, fMp, uMn, uMp, hMp, hMn, nMp, nMn = self.calc_plane_dist(male)
+			print("In order female pos/female neg/male pos/male neg")
+			print("Breitbart: " + str(bFp) + " " + str(bFn) + " " + str(bMp) + " " + str(bMn))
+			print("Fox: " + str(fFp) + " " + str(fFn) + " " + str(fMp) + " " + str(fMn))
+			print("USA: " + str(uFp) + " " + str(uFn) + " " + str(uMp) + " " + str(uMn))
+			print("Huffpost: " + str(hFp) + " " + str(hFn) + " "+  str(hMp) + " " + str(hMn))
+			print("NYT: " + str(nFp) + " " + str(nFn) + " " + str(nMp) + " " + str(nMn))
+
+			self.Visualizer.graph_sentiment(female, male)
+
 	def print_sents(self, sents):
 
 		for sent in sents:
@@ -101,6 +113,126 @@ class Orchestrator():
 			print("Gender:", sent[1])
 			print("prediction", sent[2])
 			print("confidence", sent[3])
+
+	def calc_plane_dist(self, gender):
+		ttlBP = 0
+		ttlBN = 0 
+		bn = 0
+		bp = 0
+		ttlFP = 0
+		ttlFN = 0
+		fn = 0
+		fp = 0
+		ttlUP = 0
+		ttlUN = 0
+		un = 0
+		up = 0
+		ttlHP = 0
+		ttlHN = 0
+		hn = 0
+		hp = 0
+		ttlNP = 0
+		ttlNN = 0
+		nn = 0
+		np = 0
+
+		for i in range(len(gender)):
+			if gender[i][0] == 'breitbart':
+			
+				if abs(gender[i][2]) >= 0.25:
+					
+					if gender[i][2] < 0:
+						ttlBN +=1
+						bn += gender[i][2]
+					else:
+						ttlBP +=1
+						bp += gender[i][2]
+			if gender[i][0] == 'fox' :
+				
+				if abs(gender[i][2]) >= 0.25:
+					
+					if gender[i][2] < 0:
+						ttlFN +=1
+						fn += gender[i][2]
+					else:
+						ttlFP +=1
+						fp += gender[i][2]
+			if gender[i][0] == 'usa_today' :
+				
+				if abs(gender[i][2]) >= 0.25:
+					
+					if gender[i][2] < 0:
+						ttlUN +=1
+						un += gender[i][2]
+					else:
+						ttlUP +=1
+						up += gender[i][2]
+			if gender[i][0] == 'huffpost' :
+				
+				if abs(gender[i][2]) >= 0.25:
+					
+					if gender[i][2] < 0:
+						ttlHN +=1
+						hn += gender[i][2]
+					else:
+						ttlHP +=1
+						hp += gender[i][2]
+			if gender[i][0] == 'new_york_times' :
+				
+				if abs(gender[i][2]) >= 0.25:
+					
+					if gender[i][2] < 0:
+						ttlNN +=1
+						nn += gender[i][2]
+					else:
+						ttlNP +=1
+						np += gender[i][2]
+
+		if bn != 0:
+			bn = bn/ttlBN
+		else:
+			bn = 0
+		if bp != 0:
+			bp = bp /ttlBP
+		else:
+			bp = 0
+		if fn != 0:
+			fn = fn/ttlFN
+		else:
+			fn = 0
+		if fp != 0:
+			fp = fp /ttlFP
+		else:
+			fp = 0
+		if un != 0:
+			un = un/ttlUN
+		else:
+			un = 0
+		if up != 0:
+			up = up /ttlUP
+		else:
+			up = 0
+		if hn != 0:
+			hn = hn/ttlHN
+		else:
+			hn = 0
+		if hp != 0:
+			hp = hp /ttlHP
+		else:
+			hp = 0
+		if nn != 0:
+			nn = nn/ttlNN
+		else:
+			nn = 0
+		if np != 0:
+			np = np /ttlNP
+		else:
+			np = 0
+		
+
+
+		return bn, bp, fn, fp, un, up, hn, hp, nn, np
+
 
 	#def print_shit(self, fileName, allF, allM, conf):
 	def print_shit(self, fileName, allF, allM):
@@ -237,6 +369,46 @@ leanings = []
 for leaning in splits[0]:
 	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
 		leanings.append(leaning) 
+		print("PRECISION")
+		self.calc_metrics(bP, fP, uP, nP, hP)
+		print("RECALL")
+		self.calc_metrics(bR, fR, uR, nR, hR)
+		print("F-1")
+		self.calc_metrics(bF, fF, uF, nF, hF)
+	  
+orchestrator = Orchestrator()
+splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=1000) 
+#orchestrator.train_all(splits)
+cleaned_splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean= False, save=False, number_of_articles=1000)
+
+#train embeddings - uncleaned 
+leanings_articles = list(map(lambda leaning: splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test], splits[0]))
+leanings = []
+
+for leaning in splits[0]:
+	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
+		leanings.append(leaning) 
+
+flat_list = [item for sublist in leanings_articles for item in sublist]
+articles = list(map(lambda article: article.Content, flat_list))  
+labels = list(map(lambda article: article.Label.TargetGender, flat_list))
+print("DIRTY BOYS")
+orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path, ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path, ApplicationConstants.all_articles_doc2vec_model_uncleaned_path, ApplicationConstants.imdb_sentiment_label_uncleaned_path, ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
+
+#train embeddings - cleaned 
+leanings_articles = list(map(lambda leaning: cleaned_splits[0][leaning][ApplicationConstants.Train] + cleaned_splits[0][leaning][ApplicationConstants.Validation] + cleaned_splits[0][leaning][ApplicationConstants.Test], cleaned_splits[0]))
+leanings = []
+
+for leaning in cleaned_splits[0]:
+	for article in range(len(cleaned_splits[0][leaning][ApplicationConstants.Train] + cleaned_splits[0][leaning][ApplicationConstants.Validation] + cleaned_splits[0][leaning][ApplicationConstants.Test])):
+ 		leanings.append(leaning) 
+
+flat_list = [item for sublist in leanings_articles for item in sublist]
+cleaned_articles = list(map(lambda article: article.Content, flat_list))  
+cleaned_labels = list(map(lambda article: article.Label.TargetGender, flat_list))
+print("CLEAN BOYS")
+orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_cleaned_path, ApplicationConstants.all_articles_doc2vec_vector_cleaned_path, ApplicationConstants.all_articles_doc2vec_model_cleaned_path, ApplicationConstants.imdb_sentiment_label_cleaned_path, ApplicationConstants.imdb_sentiment_vector_cleaned_path)
+
 
 flat_list = [item for sublist in leanings_articles for item in sublist]
 

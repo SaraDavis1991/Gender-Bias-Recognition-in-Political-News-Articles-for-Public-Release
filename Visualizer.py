@@ -128,7 +128,11 @@ class Visualizer():
         plt.legend(loc='center right')
         plt.show()
 
+<<<<<<< Updated upstream
         
+=======
+
+>>>>>>> Stashed changes
     def calc_sent(self, sentiment, confidence):
 
         if (abs(confidence) < 0.25):
