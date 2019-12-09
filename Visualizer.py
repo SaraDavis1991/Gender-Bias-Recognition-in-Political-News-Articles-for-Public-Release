@@ -128,7 +128,7 @@ class Visualizer():
         plt.legend(loc='center right')
         plt.show()
 
-        
+    e()
     def calc_sent(self, sentiment, confidence):
 
         if (abs(confidence) < 0.25):

@@ -110,6 +110,73 @@ class Orchestrator():
 		targets, regressors = self.docEmbed.gen_vec(model, articles, labels)
 
 		return list(targets), regressors, model
+
+	def calc_metrics(self, bP, fP, uP, hP, nP ):
+		BttlS = 0
+		BttlK = 0
+		BttlN = 0
+		BttlL = 0
+		BttlNet = 0
+		FttlS = 0
+		FttlK = 0
+		FttlN = 0
+		FttlL = 0
+		FttlNet = 0
+		UttlS = 0
+		UttlK = 0
+		UttlN = 0
+		UttlL = 0
+		UttlNet = 0
+		HttlS = 0
+		HttlK = 0
+		HttlN = 0
+		HttlL = 0
+		HttlNet = 0
+		NttlS = 0
+		NttlK = 0
+		NttlN = 0
+		NttlL = 0
+		NttlNet = 0
+
+		
+		for i in range(len(bP)):
+			if i %5 == 0:
+				BttlS +=bP[i]
+				FttlS +=fP[i]
+				UttlS += uP[i]
+				HttlS += hP[i]
+				NttlS += nP[i]
+			if i % 5 == 1:
+				BttlK +=bP[i]
+				FttlK +=fP[i]
+				UttlK += uP[i]
+				HttlK += hP[i]
+				NttlK += nP[i]
+			if i % 5 == 2:
+				BttlN +=bP[i]
+				FttlN +=fP[i]
+				UttlN += uP[i]
+				HttlN += hP[i]
+				NttlN += nP[i]
+			if i %5 == 3:
+				BttlL +=bP[i]
+				FttlL +=fP[i]
+				UttlL += uP[i]
+				HttlL += hP[i]
+				NttlL += nP[i]
+			if i%5 == 4:
+				BttlNet +=bP[i]
+				FttlNet +=fP[i]
+				UttlNet += uP[i]
+				HttlNet += hP[i]
+				NttlNet += nP[i]
+		bp = bP
+		print("Breitbart SVM: " + str(BttlS /(len(bP)/5)) + " Breitbart KNN: " + str(BttlK/(len(bP)/5)) + " Breitbart NB: " + str(BttlN /(len(bP)/5)) + " Breitbart LC: " +str(BttlL /(len(bP)/5)) + " Breitbart NN: " + str(BttlNet/(len(bP)/5)))
+		print("Fox SVM: " + str(FttlS /(len(bP)/5)) + " Fox KNN: " + str(FttlK/(len(bP)/5)) + " Fox NB: " + str(FttlN /(len(bP)/5)) + " Fox LC: " +str(FttlL /(len(bP)/5)) + " Fox NN: " + str(FttlNet/(len(bP)/5)))
+		print("USA SVM: " + str(UttlS /(len(bP)/5)) + " USA KNN: " + str(UttlK/(len(bP)/5)) + " USA NB: " + str(UttlN /(len(bP)/5)) + " USA LC: " +str(UttlL /(len(bP)/5)) + " USA NN: " + str(UttlNet/(len(bP)/5)))
+		print("Huffpost SVM: " + str(HttlS /(len(bP)/5)) + " Huffpost KNN: " + str(HttlK/(len(bp)/5)) + " Huffpost NB: " + str(HttlN /(len(bp)/5)) + " Huffpost LC: " +str(HttlL /(len(bp)/5)) + " Huffpost NN: " + str(HttlNet/(len(bp)/5)))
+		print("NYT SVM: " + str(NttlS /(len(bP)/5)) + " NYT KNN: " + str(NttlK/(len(bp)/5)) + " NYT NB: " + str(NttlN /(len(bp)/5)) + " NYT LC: " +str(NttlL /(len(bp)/5)) + " NYT NN: " + str(NttlNet/(len(bp)/5)))
+	
 	
 	def train_all(self, splits):
 		''' trains all models against all leanings
@@ -203,209 +270,16 @@ class Orchestrator():
 				#model.Model.coefs_[model.Model.n_layers_ - 2]
 				if split_count == 1:
 					self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
-		
-		BttlS = 0
-		BttlK = 0
-		BttlN = 0
-		BttlL = 0
-		BttlNet = 0
-		FttlS = 0
-		FttlK = 0
-		FttlN = 0
-		FttlL = 0
-		FttlNet = 0
-		UttlS = 0
-		UttlK = 0
-		UttlN = 0
-		UttlL = 0
-		UttlNet = 0
-		HttlS = 0
-		HttlK = 0
-		HttlN = 0
-		HttlL = 0
-		HttlNet = 0
-		NttlS = 0
-		NttlK = 0
-		NttlN = 0
-		NttlL = 0
-		NttlNet = 0
-
-		
-		for i in range(len(bP)):
-			if i %5 == 0:
-				BttlS +=bP[i]
-				FttlS +=fP[i]
-				UttlS += uP[i]
-				HttlS += hP[i]
-				NttlS += nP[i]
-			if i % 5 == 1:
-				BttlK +=bP[i]
-				FttlK +=fP[i]
-				UttlK += uP[i]
-				HttlK += hP[i]
-				NttlK += nP[i]
-			if i % 5 == 2:
-				BttlN +=bP[i]
-				FttlN +=fP[i]
-				UttlN += uP[i]
-				HttlN += hP[i]
-				NttlN += nP[i]
-			if i %5 == 3:
-				BttlL +=bP[i]
-				FttlL +=fP[i]
-				UttlL += uP[i]
-				HttlL += hP[i]
-				NttlL += nP[i]
-			if i%5 == 4:
-				BttlNet +=bP[i]
-				FttlNet +=fP[i]
-				UttlNet += uP[i]
-				HttlNet += hP[i]
-				NttlNet += nP[i]
-		bp = bP
-		print("Precisions- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + " Breitbart KNN: " + str(BttlK/(len(bP)/5)) + " Breitbart NB: " + str(BttlN /(len(bP)/5)) + " Breitbart LC: " +str(BttlL /(len(bP)/5)) + " Breitbart NN: " + str(BttlNet/(len(bP)/5)))
-		print("Precisions- Fox SVM: " + str(FttlS /(len(bP)/5)) + " Fox KNN: " + str(FttlK/(len(bP)/5)) + " Fox NB: " + str(FttlN /(len(bP)/5)) + " Fox LC: " +str(FttlL /(len(bP)/5)) + " Fox NN: " + str(FttlNet/(len(bP)/5)))
-		print("Precisions- USA SVM: " + str(UttlS /(len(bP)/5)) + " USA KNN: " + str(UttlK/(len(bP)/5)) + " USA NB: " + str(UttlN /(len(bP)/5)) + " USA LC: " +str(UttlL /(len(bP)/5)) + " USA NN: " + str(UttlNet/(len(bP)/5)))
-		print("Precisions- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + " Huffpost KNN: " + str(HttlK/(len(bp)/5)) + " Huffpost NB: " + str(HttlN /(len(bp)/5)) + " Huffpost LC: " +str(HttlL /(len(bp)/5)) + " Huffpost NN: " + str(HttlNet/(len(bp)/5)))
-		print("Precisions- NYT SVM: " + str(NttlS /(len(bP)/5)) + " NYT KNN: " + str(NttlK/(len(bp)/5)) + " NYT NB: " + str(NttlN /(len(bp)/5)) + " NYT LC: " +str(NttlL /(len(bp)/5)) + " NYT NN: " + str(NttlNet/(len(bp)/5)))
-	
-		BttlS = 0
-		BttlK = 0
-		BttlN = 0
-		BttlL = 0
-		BttlNet = 0
-		FttlS = 0
-		FttlK = 0
-		FttlN = 0
-		FttlL = 0
-		FttlNet = 0
-		UttlS = 0
-		UttlK = 0
-		UttlN = 0
-		UttlL = 0
-		UttlNet = 0
-		HttlS = 0
-		HttlK = 0
-		HttlN = 0
-		HttlL = 0
-		HttlNet = 0
-		NttlS = 0
-		NttlK = 0
-		NttlN = 0
-		NttlL = 0
-		NttlNet = 0
-
-		bp = bP
-		for i in range(len(bR)):
-			if i %5 == 0:
-				BttlS +=bR[i]
-				FttlS +=fR[i]
-				UttlS += uR[i]
-				HttlS += hR[i]
-				NttlS += nR[i]
-			if i % 5 == 1:
-				BttlK +=bR[i]
-				FttlK +=fR[i]
-				UttlK += uR[i]
-				HttlK += hR[i]
-				NttlK += nR[i]
-			if i % 5 == 2:
-				BttlN +=bR[i]
-				FttlN +=fR[i]
-				UttlN += uR[i]
-				HttlN += hR[i]
-				NttlN += nR[i]
-			if i %5 == 3:
-				BttlL +=bR[i]
-				FttlL +=fR[i]
-				UttlL += uR[i]
-				HttlL += hR[i]
-				NttlL += nR[i]
-			if i%5 == 4:
-				BttlNet +=bR[i]
-				FttlNet +=fR[i]
-				UttlNet += uR[i]
-				HttlNet += hR[i]
-				NttlNet += nR[i]
-		print("Recalls- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + " Breitbart KNN: " + str(BttlK/(len(bp)/5)) + " Breitbart NB: " + str(BttlN /(len(bp)/5)) + " Breitbart LC: " +str(BttlL /(len(bp)/5)) + " Breitbart NN: " + str(BttlNet/(len(bp)/5)))
-		print("Recalls- Fox SVM: " + str(FttlS /(len(bP)/5)) + " Fox KNN: " + str(FttlK/(len(bp)/5)) + " Fox NB: " + str(FttlN /(len(bp)/5)) + " Fox LC: " +str(FttlL /(len(bp)/5)) + " Fox NN: " + str(FttlNet/(len(bp)/5)))
-		print("Recalls- USA SVM: " + str(UttlS /(len(bP)/5)) + " USA KNN: " + str(UttlK/(len(bp)/5)) + " USA NB: " + str(UttlN /(len(bp)/5)) + " USA LC: " +str(UttlL /(len(bp)/5)) + " USA NN: " + str(UttlNet/(len(bp)/5)))
-		print("Recalls- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + " Huffpost KNN: " + str(HttlK/(len(bp)/5)) + " Huffpost NB: " + str(HttlN /(len(bp)/5)) + " Huffpost LC: " +str(HttlL /(len(bp)/5)) + " Huffpost NN: " + str(HttlNet/(len(bp)/5)))
-		print("Recalls- NYT SVM: " + str(NttlS /(len(bP)/5)) + " NYT KNN: " + str(NttlK/(len(bp)/5)) + " NYT NB: " + str(NttlN /(len(bp)/5)) + " NYT LC: " +str(NttlL /(len(bp)/5)) + " NYT NN: " + str(NttlNet/(len(bp)/5)))
-	
-
-		BttlS = 0
-		BttlK = 0
-		BttlN = 0
-		BttlL = 0
-		BttlNet = 0
-		FttlS = 0
-		FttlK = 0
-		FttlN = 0
-		FttlL = 0
-		FttlNet = 0
-		UttlS = 0
-		UttlK = 0
-		UttlN = 0
-		UttlL = 0
-		UttlNet = 0
-		HttlS = 0
-		HttlK = 0
-		HttlN = 0
-		HttlL = 0
-		HttlNet = 0
-		NttlS = 0
-		NttlK = 0
-		NttlN = 0
-		NttlL = 0
-		NttlNet = 0
-
-		bp = bP
-		for i in range(len(bR)):
-			if i %5 == 0:
-				BttlS +=bF[i]
-				FttlS +=fF[i]
-				UttlS += uF[i]
-				HttlS += hF[i]
-				NttlS += nF[i]
-			if i % 5 == 1:
-				BttlK +=bF[i]
-				FttlK +=fF[i]
-				UttlK += uF[i]
-				HttlK += hF[i]
-				NttlK += nF[i]
-			if i % 5 == 2:
-				BttlN +=bF[i]
-				FttlN +=fF[i]
-				UttlN += uF[i]
-				HttlN += hF[i]
-				NttlN += nF[i]
-			if i %5 == 3:
-				BttlL +=bF[i]
-				FttlL +=fF[i]
-				UttlL += uF[i]
-				HttlL += hF[i]
-				NttlL += nF[i]
-			if i%5 == 4:
-				BttlNet +=bF[i]
-				FttlNet +=fF[i]
-				UttlNet += uF[i]
-				HttlNet += hF[i]
-				NttlNet += nF[i]
-		print("F1- Breitbart SVM: " + str(BttlS /(len(bP)/5)) + " Breitbart KNN: " + str(BttlK/(len(bp)/5)) + " Breitbart NB: " + str(BttlN /(len(bp)/5)) + " Breitbart LC: " +str(BttlL /(len(bp)/5)) + " Breitbart NN: " + str(BttlNet/(len(bp)/5)))
-		print("F1- Fox SVM: " + str(FttlS /(len(bP)/5)) + " Fox KNN: " + str(FttlK/(len(bp)/5)) + " Fox NB: " + str(FttlN /(len(bp)/5)) + " Fox LC: " +str(FttlL /(len(bp)/5)) + " Fox NN: " + str(FttlNet/(len(bp)/5)))
-		print("F1- USA SVM: " + str(UttlS /(len(bP)/5)) + " USA KNN: " + str(UttlK/(len(bp)/5)) + " USA NB: " + str(UttlN /(len(bp)/5)) + " USA LC: " +str(UttlL /(len(bp)/5)) + " USA NN: " + str(UttlNet/(len(bp)/5)))
-		print("F1- Huffpost SVM: " + str(HttlS /(len(bP)/5)) + " Huffpost KNN: " + str(HttlK/(len(bp)/5)) + " Huffpost NB: " + str(HttlN /(len(bp)/5)) + " Huffpost LC: " +str(HttlL /(len(bp)/5)) + " Huffpost NN: " + str(HttlNet/(len(bp)/5)))
-		print("F1- NYT SVM: " + str(NttlS /(len(bP)/5)) + " NYT KNN: " + str(NttlK/(len(bp)/5)) + " NYT NB: " + str(NttlN /(len(bp)/5)) + " NYT LC: " +str(NttlL /(len(bp)/5)) + " NYT NN: " + str(NttlNet/(len(bp)/5)))
-		
+		print("PRECISION")
+		self.calc_metrics(bP, fP, uP, nP, hP)
+		print("RECALL")
+		self.calc_metrics(bR, fR, uR, nR, hR)
+		print("F-1")
+		self.calc_metrics(bF, fF, uF, nF, hF)
 	  
 orchestrator = Orchestrator()
-<<<<<<< HEAD
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=1000) 
+splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=25) 
 orchestrator.train_all(splits)
-=======
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=True, save=False, number_of_articles=50) 
->>>>>>> 4f622bea4e70761b3ed1c1bb4b2f779a9e6e874f
 #cleaned_splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean=False, save=False, number_of_articles=1000)
 
 #train embeddings - uncleaned 
@@ -415,17 +289,10 @@ splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=
 #for leaning in splits[0]:
 #	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
 #		leanings.append(leaning) 
-
-<<<<<<< HEAD
-#flat_list = [item for sublist in leanings_articles for item in sublist]
-
-#articles = list(map(lambda article: article.Content, flat_list))  
-#labels = list(map(lambda article: article.Label.TargetGender, flat_list))
-=======
+'''
 flat_list = [item for sublist in leanings_articles for item in sublist]
 articles = list(map(lambda article: article.Content, flat_list))  
 labels = list(map(lambda article: article.Label.TargetGender, flat_list))
->>>>>>> 4f622bea4e70761b3ed1c1bb4b2f779a9e6e874f
 
 #orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path, ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path, ApplicationConstants.all_articles_doc2vec_model_uncleaned_path, ApplicationConstants.imdb_sentiment_label_uncleaned_path, ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
 
@@ -442,7 +309,7 @@ labels = list(map(lambda article: article.Label.TargetGender, flat_list))
 # cleaned_labels = list(map(lambda article: article.Label.TargetGender, flat_list))
 
 orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_cleaned_path, ApplicationConstants.all_articles_doc2vec_vector_cleaned_path, ApplicationConstants.all_articles_doc2vec_model_cleaned_path, ApplicationConstants.imdb_sentiment_label_cleaned_path, ApplicationConstants.imdb_sentiment_vector_cleaned_path)
-
+'''
 
 
 
