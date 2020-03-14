@@ -118,7 +118,8 @@ StopWords = [
     'very',
     
     #custom 
-    
+    'gynecologist',
+    'Klobuchar',
     'girl',
     'boy',
     'male',
@@ -215,11 +216,13 @@ StopWords = [
     'right-wing',
     'impeach',
     'impeachment',
+    'impeachable', 
     'democratic-leaning',
     'republican-leaning',
     'obama-care',
     'obamacare',
     'ukrainian',
+    'White House',
     
 
     #male list
@@ -403,6 +406,7 @@ StopWords = [
 'princess',
 'governesses',
 'abbess',
+'oval',
 'widow',
 'ladies',
 'sorceresses',
@@ -467,7 +471,6 @@ StopWords = [
 'ms.',
 'nieces',
 'mothered',
-'cow',
 'belles',
 'landladies',
 'granddaughter',
@@ -542,7 +545,6 @@ StopWords = [
 'vagina',
 'hers',
 'masseuse',
-'cows',
 'aunts',
 'wench',
 'toques',
