@@ -16,5 +16,5 @@ class Linear_Classifier(implements(IModel)):
 		self.Model.fit(trainFeatures, trainLabels)
 		
 	def Predict(self, features): 
-		return self.Model.predict(features), self.Model.predict_proba(features)
+		return self.Model.predict(features)
 	
