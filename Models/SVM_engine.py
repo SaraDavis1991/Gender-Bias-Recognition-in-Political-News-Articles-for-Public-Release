@@ -13,7 +13,7 @@ class SVM(implements(IModel)):
         self.Metrics = Metrics()
     def Build_SVM(self):
 
-        model = svm.SVC(gamma='auto', probability = False)
+        model = svm.SVC(kernel='linear', gamma='auto', probability = False)
         return model 
 
     def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):
@@ -22,6 +22,5 @@ class SVM(implements(IModel)):
     def Predict(self, features): 
         
         prediction = self.Model.predict(features) 
-        confidence = self.Model.decision_function(features)
 
-        return prediction, confidence
+        return prediction

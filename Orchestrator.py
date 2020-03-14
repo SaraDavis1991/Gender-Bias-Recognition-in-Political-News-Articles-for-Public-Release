@@ -3,24 +3,30 @@
 from DataReader import DataReader
 from DataContracts import Article
 from doc2vec import doc
-from SentimentIntensityAnalyzer import SentimentAnalyzer
 from Metrics import Metrics
 from Visualizer import Visualizer 
 from imdb_data import LabeledLineSentence
 import ApplicationConstants
-
+import nltk
+import re
+import StopWords
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+import pickle
 #models
 from Models.SVM_engine import SVM
 from Models.KNN_engine import KNN
 from Models.Naive_Bayes_engine import Naive_Bayes
 from Models.Linear_Classification_engine import Linear_Classifier 
 from Models.NN_engine import NN
+from Models.NN_engine import  Linear_NN
 
 #helpers
 import statistics
 import numpy as np 
 import matplotlib.pyplot as plt 
 import os.path
+import random
 
 
 class Orchestrator():
@@ -33,9 +39,8 @@ class Orchestrator():
 		self.docEmbed = doc()
 		self.Metrics = Metrics()
 		self.Visualizer = Visualizer() 
-		self.SentimentAnalyzer = SentimentAnalyzer() 
 
-	def read_data(self, path, savePath=None, clean=True, save=False, random=True, number_of_articles = 50):       
+	def read_data(self, path, savePath=None, clean=True, save=False, random=False, number_of_articles = 50):       
 		return self.Reader.Load_Splits(path, savePath=savePath, clean=clean, save=save, shouldRandomize=random, number_of_articles=number_of_articles)
 
 	def imdb(self, model, label_path, vector_path):
@@ -46,14 +51,14 @@ class Orchestrator():
 
 	def train_sent_models(self, all_articles, leanings, article_doc2vec_label_path, article_doc2vec_vector_path, article_doc2vec_model_path, imdb_label_path, imdb_vector_path):
 
-		articles = list(map(lambda article: article.Content, flat_list))
-		labels = list(map(lambda article: article.Label.TargetGender, flat_list))
+		articles = list(map(lambda article: article.Content, all_articles))
+		labels = list(map(lambda article: article.Label.TargetGender, all_articles))
 
 		if (not os.path.exists(article_doc2vec_model_path)):
 			all_articles_model = self.docEmbed.Embed(articles, labels) 
 			all_articles_model.save(article_doc2vec_model_path)
 		else:
-			all_articles_model = self.docEmbed.Load_Model(article_doc2vec_model_path) 
+			all_articles_model = self.docEmbed.Load_Model(article_doc2vec_model_path)
 
 		if (not os.path.exists(article_doc2vec_label_path) or not os.path.exists(article_doc2vec_vector_path)):
 
@@ -109,8 +114,8 @@ class Orchestrator():
 			print('\n')
 
 			print('leaning', sent[4])
-			print("content:", sent[0])
-			print("Gender:", sent[1])
+			print("content:", sent[0].Content)
+			print("target:", sent[0].Label.TargetName)
 			print("prediction", sent[2])
 			print("confidence", sent[3])
 
@@ -326,45 +331,13 @@ class Orchestrator():
 					
 					print("Model:", str(type(model)).split('.')[2].split('\'')[0], "precision:", self.Metrics.Precision(prediction, test_labels), "recall:", self.Metrics.Recall(prediction, test_labels), "F-Measure:", self.Metrics.Fmeasure(prediction, test_labels))   
 
-					if leaning == "breitbart":
-						bP.append(self.Metrics.Precision(prediction, test_labels))
-						bR.append(self.Metrics.Recall(prediction, test_labels))
-						bF.append(self.Metrics.Fmeasure(prediction, test_labels))
-					if leaning == "fox":
-						fP.append(self.Metrics.Precision(prediction, test_labels))
-						fR.append(self.Metrics.Recall(prediction, test_labels))
-						fF.append(self.Metrics.Fmeasure(prediction, test_labels))
-					if leaning == "usa_today":
-						uP.append(self.Metrics.Precision(prediction, test_labels))
-						uR.append(self.Metrics.Recall(prediction, test_labels))
-						uF.append(self.Metrics.Fmeasure(prediction, test_labels))
-					if leaning == "new_york_times":
-						nP.append(self.Metrics.Precision(prediction, test_labels))
-						nR.append(self.Metrics.Recall(prediction, test_labels))
-						nF.append(self.Metrics.Fmeasure(prediction, test_labels))
-					if leaning == "huffpost":
-						hP.append(self.Metrics.Precision(prediction, test_labels))
-						hR.append(self.Metrics.Recall(prediction, test_labels))
-						hF.append(self.Metrics.Fmeasure(prediction, test_labels))
-
-				
-			
 				
 				#model = models[0] 
 				#model.Model.coefs_[model.Model.n_layers_ - 2]
 				if split_count == 1:
 					self.Visualizer.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
-
-				
-
-			print("PRECISION")
-			self.calc_metrics(bP, fP, uP, nP, hP)
-			print("RECALL")
-			self.calc_metrics(bR, fR, uR, nR, hR)
-			print("F-1")
-			self.calc_metrics(bF, fF, uF, nF, hF)
 		
-	'''
+
 	def get_most_sig_sent(self, articles, context_sentence_number = 2):
 
 		for article_index, article in enumerate(articles): 
@@ -377,16 +350,19 @@ class Orchestrator():
 			#start 2 over so we have context
 			for sentence_index in range(2, len(sentences)):
 
-				#check if name in sentence	def embed_fold(self, articles, labels, fold, leaning):
-		
+				#check if name in sentence
+				if lastname in sentences[sentence_index]:
+					
+					for context_number in range(-context_sentence_number, context_sentence_number):
 
-		#emb = self.docEmbed.word2vec() 
-		model = self.docEmbed.Embed(articles, labels)
-		targets, regressors = self.docEmbed.gen_vec(model, articles, labels)
+						if context_number + sentence_index < len(sentences):
+							qualtive_sentences.append(sentences[sentence_index + context_number])
 
-		return list(targets), regressors, model
-	'''
+					break 
 
+			articles[article_index].Content = " ".join(qualtive_sentences)
+
+		return articles
 
 	def calc_metrics(self, bP, fP, uP, hP, nP ):
 		BttlS = 0
@@ -453,55 +429,167 @@ class Orchestrator():
 		print("USA SVM: " + str(UttlS /(len(bP)/5)) + " USA KNN: " + str(UttlK/(len(bP)/5)) + " USA NB: " + str(UttlN /(len(bP)/5)) + " USA LC: " +str(UttlL /(len(bP)/5)) + " USA NN: " + str(UttlNet/(len(bP)/5)))
 		print("Huffpost SVM: " + str(HttlS /(len(bP)/5)) + " Huffpost KNN: " + str(HttlK/(len(bp)/5)) + " Huffpost NB: " + str(HttlN /(len(bp)/5)) + " Huffpost LC: " +str(HttlL /(len(bp)/5)) + " Huffpost NN: " + str(HttlNet/(len(bp)/5)))
 		print("NYT SVM: " + str(NttlS /(len(bP)/5)) + " NYT KNN: " + str(NttlK/(len(bp)/5)) + " NYT NB: " + str(NttlN /(len(bp)/5)) + " NYT LC: " +str(NttlL /(len(bp)/5)) + " NYT NN: " + str(NttlNet/(len(bp)/5)))
-	
+
+	def check_word_content(self, word_list, all_articles):
+		articles = list(map(lambda article: article.Content, all_articles))
+
+		bad_words = []
+		ttl = 0
+		#count = 0
+		affected = []
+		count_list = []
+		print(len(articles))
+		for i, article in enumerate(articles):
+			for word in word_list:
+				if re.search(rf'\b{word}\b' ,  article):
+					if word not in bad_words:
+						bad_words.append(word)
+						count_list.append(1)
+
+					else:
+						ind = bad_words.index(word)
+						val = count_list[ind]
+
+						num_exist = val + article.count(word)
+						count_list[ind] = num_exist
+
+					affected.append(i)
+
+		a = []
+		print(affected)
+		[a.append(x) for x in affected if x not in a]
+		print(a)
+		print(bad_words)
+		print("total articles: ", len(a))
+		zipped = list(zip(bad_words, count_list))
+		print("total use: ",zipped)
+
+
+	def calc_word_vector(self, all_articles):
+		word_vector = []
+		count_vector = []
+		from nltk.corpus import stopwords
+		stops = list(stopwords.words('english'))
+		punctuation = [',', '.', '\"','"','!', '?', '\'', '$', ''', '\n', ' ', '-', '_', ':', ';', '%', '—', '–', ''', '•']
+		no_no = ['oval','Oval', 'Rep', 'rep', 'Rep.', 'rep.', 'Dem.', 'Dem', 'dem', 'dem.', 'son', 'p.m', 'ms']
+		articles = list(map(lambda article: article.Content, all_articles))
+		for article in articles:
+			words = nltk.word_tokenize(article)
+			for word in words:
+				if '.' in word or ',' in word:
+					word = word[:-1]
+				word = word.lower()
+				if word not in no_no and word not in punctuation and word not in word_vector and word not in stops:
+					word_vector.append(word)
+		return word_vector
+
+	def calc_count_doc_count_vector(self, word_vector, article):
+		words = nltk.word_tokenize(article)
+		count_vector = []
+		for i in range(len(word_vector)):
+			count_vector.append(0)         
+		for word in words:
+			if '.' in word or ',' in word:
+				word = word[:-1]
+			word = word.lower()
+			if word in word_vector:
+				ind = word_vector.index(word)
+				count_vector[ind] += 1
+			#print(sum(count_vector))
+		return count_vector
+
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=25) 
-orchestrator.train_all(splits)
-#train embeddings - uncleaned 
+splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean=False, save=False, number_of_articles=1000) #article objects
+
 leanings_articles = list(map(lambda leaning: splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test], splits[0]))
-leanings = []
+#print(leanings_articles)
+leanings = [] #flattened leanings
 
 for leaning in splits[0]:
 	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
-		leanings.append(leaning) 
-	
+		leanings.append(leaning)
 
-#splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=False, save=False, number_of_articles=1000) 
-#orchestrator.train_all(splits)
-cleaned_splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean= False, save=False, number_of_articles=1000)
-
-#train embeddings - uncleaned 
-leanings_articles = list(map(lambda leaning: splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test], splits[0]))
-leanings = []
-
-for leaning in splits[0]:
-	for article in range(len(splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test])):
-		leanings.append(leaning) 
-
-flat_list = [item for sublist in leanings_articles for item in sublist]
-articles = list(map(lambda article: article.Content, flat_list))  
-labels = list(map(lambda article: article.Label.TargetGender, flat_list))
-print("DIRTY BOYS")
-orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path, ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path, ApplicationConstants.all_articles_doc2vec_model_uncleaned_path, ApplicationConstants.imdb_sentiment_label_uncleaned_path, ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
-
-#train embeddings - cleaned 
-leanings_articles = list(map(lambda leaning: cleaned_splits[0][leaning][ApplicationConstants.Train] + cleaned_splits[0][leaning][ApplicationConstants.Validation] + cleaned_splits[0][leaning][ApplicationConstants.Test], cleaned_splits[0]))
-leanings = []
-
-for leaning in cleaned_splits[0]:
-	for article in range(len(cleaned_splits[0][leaning][ApplicationConstants.Train] + cleaned_splits[0][leaning][ApplicationConstants.Validation] + cleaned_splits[0][leaning][ApplicationConstants.Test])):
- 		leanings.append(leaning) 
-
-flat_list = [item for sublist in leanings_articles for item in sublist]
-cleaned_articles = list(map(lambda article: article.Content, flat_list))  
-cleaned_labels = list(map(lambda article: article.Label.TargetGender, flat_list))
-print("CLEAN BOYS")
-orchestrator.train_sent_models(articles, labels, leanings, ApplicationConstants.all_articles_doc2vec_labels_cleaned_path, ApplicationConstants.all_articles_doc2vec_vector_cleaned_path, ApplicationConstants.all_articles_doc2vec_model_cleaned_path, ApplicationConstants.imdb_sentiment_label_cleaned_path, ApplicationConstants.imdb_sentiment_vector_cleaned_path)
+articles = [item for sublist in leanings_articles for item in sublist]
+if os.path.isfile('np_cum_vec.npy'):
+	numpy_cumulative = np.load('np_cum_vec.npy')
+	cumulative_word_vec = numpy_cumulative.tolist()
+else:
 
 
-flat_list = [item for sublist in leanings_articles for item in sublist]
+	cumulative_word_vec = orchestrator.calc_word_vector(articles)
 
-orchestrator.train_sent_models(flat_list, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path, ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path, ApplicationConstants.all_articles_doc2vec_model_uncleaned_path, ApplicationConstants.imdb_sentiment_label_uncleaned_path, ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
+	numpy_cumulative = np.array(cumulative_word_vec)
+	np.save('np_cum_vec.npy', numpy_cumulative)
+	print("total num words = " + str(len(cumulative_word_vec)))
+
+articles_list = list(map(lambda article: article.Content, articles))
+labels = list(map(lambda article: article.Label.TargetGender,articles))
+print("zipping and shuffling")
+zippedArticles = list(zip(articles_list, labels))
+random.shuffle(zippedArticles)
+
+list_articles = []
+list_labels = []
+print("unzipping")
+for article, label in zippedArticles:
+	list_articles.append(article)
+	list_labels.append(label)
+
+print("enumerating")
+for i, label in enumerate(list_labels):
+	if label == 0:
+		list_labels[i] = -1
+
+print("appending")
+count_vectors = []
+print(len(list_articles))
+if os.path.isfile('np_count_vec.npy'):
+	numpy_cumulative = np.load('np_count_vec.npy')
+	count_vectors = numpy_cumulative.tolist()
+else:
+	for article in list_articles:
+		count_vectors.append(orchestrator.calc_count_doc_count_vector(cumulative_word_vec, article))
+	numpy_count = np.array(count_vectors)
+
+	np.save('np_count_vec.npy', numpy_count)
+trainLen = int(len(count_vectors)*0.8)
 
 
+print("building net")
+
+net = SVM()
+print("training")
+weights = net.Train(count_vectors[:trainLen], list_labels[:trainLen], count_vectors[trainLen:], list_labels[trainLen:])
+print("at preds")
+predictions = net.Predict(count_vectors[trainLen:])
+print(len(predictions), len(list_labels))
+print()
+acc = accuracy_score(list_labels[trainLen:], predictions)
+target_names = ['Female', 'Male']
+print("accuracy is: " + str(acc))
+
+
+print(classification_report(list_labels[trainLen:], predictions, target_names=target_names))
+
+
+weights = weights[0]
+print(weights)
+
+
+resTop = sorted(range(len(weights)), key = lambda sub: weights[sub])[-21:]
+resBottom = sorted(range(len(weights)), key = lambda sub: weights[sub])[:21]
+
+pickle.dump(net, open("perceptron2.sav", 'wb'))
+print("Male Top Words: ")
+for index in resTop:
+	print(cumulative_word_vec[index], float(weights[index]))
+print("Female Top Words: ")
+for index in resBottom:
+	print(cumulative_word_vec[index], float(weights[index]))
+
+#debias, zhao, not_shared = word_sets()
+
+#orchestrator.check_word_content(not_shared, articles)
+
+#orchestrator.train_sent_models(articles, leanings, ApplicationConstants.all_articles_doc2vec_labels_cleaned_path, ApplicationConstants.all_articles_doc2vec_vector_cleaned_path, ApplicationConstants.all_articles_doc2vec_model_cleaned_path, ApplicationConstants.imdb_sentiment_label_cleaned_path, ApplicationConstants.imdb_sentiment_vector_cleaned_path)
