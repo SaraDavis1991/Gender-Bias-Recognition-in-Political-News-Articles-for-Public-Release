@@ -80,7 +80,7 @@ class Orchestrator():
 
 			male = []
 			female = [] 
-
+			print = hi
 			model.Train(imdb_vec, imdb_labels, None, None)
 			predictions, confidences = model.Predict(all_articles_vectors)
 			
