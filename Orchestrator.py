@@ -58,7 +58,8 @@ class Orchestrator():
 			all_articles_model = self.docEmbed.Embed(articles, labels) 
 			all_articles_model.save(article_doc2vec_model_path)
 		else:
-			all_articles_model = self.docEmbed.Load_Model(article_doc2vec_model_path)
+			all_articles_model = self.docEmbed.Load_Mo   
+      	#clean data el(article_doc2vec_model_path)
 
 		if (not os.path.exists(article_doc2vec_label_path) or not os.path.exists(article_doc2vec_vector_path)):
 
@@ -500,7 +501,8 @@ class Orchestrator():
 
 
 orchestrator = Orchestrator()
-splits = orchestrator.read_data(ApplicationConstants.cleaned_news_root_path, clean=False, save=False, number_of_articles=1000) #article objects
+splits = orchestrator.read_data(ApplicationConstants.all_articles_random, clean=True, save=True, savePath="./Data/articles_random_v2_cleaned.json", number_of_articles=50) #article objects
+
 
 leanings_articles = list(map(lambda leaning: splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test], splits[0]))
 #print(leanings_articles)
@@ -569,13 +571,10 @@ acc = accuracy_score(list_labels[trainLen:], predictions)
 target_names = ['Female', 'Male']
 print("accuracy is: " + str(acc))
 
-
 print(classification_report(list_labels[trainLen:], predictions, target_names=target_names))
-
 
 weights = weights[0]
 print(weights)
-
 
 resTop = sorted(range(len(weights)), key = lambda sub: weights[sub])[-21:]
 resBottom = sorted(range(len(weights)), key = lambda sub: weights[sub])[:21]
