@@ -58,8 +58,7 @@ class Orchestrator():
 			all_articles_model = self.docEmbed.Embed(articles, labels) 
 			all_articles_model.save(article_doc2vec_model_path)
 		else:
-			all_articles_model = self.docEmbed.Load_Mo   
-      	#clean data el(article_doc2vec_model_path)
+			all_articles_model = self.docEmbed.Load_Model(article_doc2vec_model_path)
 
 		if (not os.path.exists(article_doc2vec_label_path) or not os.path.exists(article_doc2vec_vector_path)):
 
