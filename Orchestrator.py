@@ -515,8 +515,6 @@ if os.path.isfile('np_cum_vec.npy'):
 	numpy_cumulative = np.load('np_cum_vec.npy')
 	cumulative_word_vec = numpy_cumulative.tolist()
 else:
-
-
 	cumulative_word_vec = orchestrator.calc_word_vector(articles)
 
 	numpy_cumulative = np.array(cumulative_word_vec)
@@ -557,7 +555,6 @@ trainLen = int(len(count_vectors)*0.8)
 
 
 print("building net")
-
 net = SVM()
 print("training")
 weights = net.Train(count_vectors[:trainLen], list_labels[:trainLen], count_vectors[trainLen:], list_labels[trainLen:])

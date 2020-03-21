@@ -6,7 +6,6 @@ from nltk.tag import pos_tag
 import unicodedata
 import string 
 import re
-import gensim.downloader as api
 import StopWords
 import json 
 from collections import Counter
