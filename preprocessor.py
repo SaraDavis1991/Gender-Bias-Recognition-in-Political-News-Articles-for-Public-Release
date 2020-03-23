@@ -32,10 +32,7 @@ class Preprocessor():
         
         #remove numbers
         data = re.sub('\d+', '', data)
-        
-        #remove "follow n on twitter"
-        data = re.sub('(Follow)\s[a-zA-Z\s]*Twitter[a-zA-Z\s@]*.', '', data)
-
+    
         #remove any word containing woman replace with person
         doc = self.nlp(data)
       
@@ -50,9 +47,11 @@ class Preprocessor():
         for pattern, replacement in RegexSearchPatterns.Patterns:
             data = re.sub(pattern, replacement, data, flags = re.I)
 
-        #Cleanup the punctuation
+        #Cleanup the punctuation / symbols
         data = re.sub(' ,', ',', data, flags = re.I)
         data = re.sub('  ', ' ', data, flags = re.I)
+        data = re.sub('\+', ' ', data, flags = re.I)
+        data = re.sub('&', ' ', data, flags = re.I)
 
         #remove whole words from stop list 
         for word in StopWords.StopWords: 
@@ -66,4 +65,4 @@ if __name__ == "__main__":
 
     process = Preprocessor()
     #process.Clean("president Trump, Donald Trump, AOC, secretary Clinton, Trump. president")
-    print(process.Clean("Ocasio-Cortez (D-Ny.), CBS's Impeachment he he-hiadw helicopter who is a self-described 'democratic socialist,' made the comments in an interview published Tuesday. Yahoo! News reported: 'Are we headed to fascism? Yes. I don't think there's a question,' the congresswoman told Yahoo News hours after she 'toured' the detention facilities run by Customs and Border Protection. 'If you actually take the time to study, and to look at the steps, and to see how government transforms under authoritarian regimes, and look at the political decisions and patterns of this president, the answer is yes.' Last month Ocasio-Cortez sparked controversy when she described the migrant detention facilities as 'concentration camps on our southern border.' Her comment drew an immediate backlash from critics who accused her of trivializing Nazi concentration camps, while others, including some Holocaust survivors and scholars, said the comparison was a valid one. The freshman Democratic lawmaker from New York refused to back down from that comparison, and in her conversation with Yahoo News, Ocasio-Cortez argued that many things about President Trump echo that dark period in history. Read the full Yahoo! News article here. Also on Monday evening, National Border Patrol Council president Brandon Judd told Breitbart News Tonight that Ocasio-Cortez had lied about conditions at facilities where illegal aliens are being held near the border, as well as about the behavior of officers at the facilities. 'How can you have the moral high ground if you are going to throw facts out the window and spew falsehoods?', he commented. Ocasio-Cortez was elected in November as part of a Democratic Party victory in the U.S. House of Representatives, matching a pattern throughout recent U.S. history in which the opposition fares well in the midterm elections. Since taking office, Ocasio-Cortez has proposed ambitious new policies that grant sweeping powers to the government over the U.S. economy, envisioning a highly controlled system in which the state controls private industry and steers it toward overarching utopian goals, such as a shift to 100% renewable energy and the elimination of fossil fuels. Hers, his, she, he, Trump, shis, president Trump, president obama, secretary clinton, secretary of education, secretary of state, department of education, department of state person person "))
+    print(process.Clean("Ocasio-Cortez (D-Ny.), gop GOP G.O.P g.o.p. + 51st & CBS's Impeachment he he-hiadw helicopter who is a self-described 'democratic socialist,' made the comments in an interview published Tuesday. Yahoo! News reported: 'Are we headed to fascism? Yes. I don't think there's a question,' the congresswoman told Yahoo News hours after she 'toured' the detention facilities run by Customs and Border Protection. 'If you actually take the time to study, and to look at the steps, and to see how government transforms under authoritarian regimes, and look at the political decisions and patterns of this president, the answer is yes.' Last month Ocasio-Cortez sparked controversy when she described the migrant detention facilities as 'concentration camps on our southern border.' Her comment drew an immediate backlash from critics who accused her of trivializing Nazi concentration camps, while others, including some Holocaust survivors and scholars, said the comparison was a valid one. The freshman Democratic lawmaker from New York refused to back down from that comparison, and in her conversation with Yahoo News, Ocasio-Cortez argued that many things about President Trump echo that dark period in history. Read the full Yahoo! News article here. Also on Monday evening, National Border Patrol Council president Brandon Judd told Breitbart News Tonight that Ocasio-Cortez had lied about conditions at facilities where illegal aliens are being held near the border, as well as about the behavior of officers at the facilities. 'How can you have the moral high ground if you are going to throw facts out the window and spew falsehoods?', he commented. Ocasio-Cortez was elected in November as part of a Democratic Party victory in the U.S. House of Representatives, matching a pattern throughout recent U.S. history in which the opposition fares well in the midterm elections. Since taking office, Ocasio-Cortez has proposed ambitious new policies that grant sweeping powers to the government over the U.S. economy, envisioning a highly controlled system in which the state controls private industry and steers it toward overarching utopian goals, such as a shift to 100% renewable energy and the elimination of fossil fuels. Hers, his, she, he, Trump, shis, president Trump, president obama, secretary clinton, secretary of education, secretary of state, department of education, department of state person person "))
