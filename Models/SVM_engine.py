@@ -24,3 +24,6 @@ class SVM(implements(IModel)):
         prediction = self.Model.predict(features) 
 
         return prediction
+
+    def Get_Weights(self):
+        return self.Model.coef_
