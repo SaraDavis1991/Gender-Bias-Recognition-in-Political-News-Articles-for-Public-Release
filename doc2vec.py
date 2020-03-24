@@ -13,6 +13,17 @@ import os.path
 
 class doc():
 
+	# trains and returns the vector embeddings for doc2vec or sent2vec
+	#	Parameters:5
+	#	articles: a list of articles that are cleaned
+	#	labels: a list of labels corresponding to the article genders
+	def embed_fold(self, articles, labels, leaning):
+
+		model = self.Embed(articles, labels)
+		targets, regressors = self.gen_vec(model, articles, labels)
+
+		return list(targets), regressors, model
+
 	def Load_Model(self, article_doc2vec_model_path):
 		if (os.path.exists(article_doc2vec_model_path)):
 			model = Doc2Vec.load(article_doc2vec_model_path)

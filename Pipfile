@@ -11,6 +11,10 @@ spacy = "*"
 nltk = "*"
 scikit-learn = "*"
 python-interface = "*"
+matplotlib = "*"
+gensim = "*"
+seaborn = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.6"

@@ -164,7 +164,7 @@ if __name__ == "__main__":
 	bow = Bow()
 	reader = DataReader()  
 
-	splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, ApplicationConstants.all_articles_random_v2_cleaned, number_of_articles=50, clean=True, save=True, shouldRandomize=False)
+	splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2_cleaned, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
 
 	cumulative_word_vec, weights, resTop, resBottom = bow.generate_bow(splits)
 	bow.print_bow(cumulative_word_vec, weights, resTop, resBottom)
