@@ -8,6 +8,7 @@ import numpy as np
 from doc2vec import doc
 from DataReader import DataReader
 import ApplicationConstants
+from enum import Enum
 
 cmap = ['red','blue']
 
@@ -65,7 +66,7 @@ class Visualizer():
 		plt.show()
 		#plt.savefig("visualizations/" + leaning)
 
-	def graph_sentiment(self, Fsentiment, Msentiment):
+	def graph_sentiment(self, Fsentiment, Msentiment, graphType):
 
 		pos_counts_per_leaning_female = [] 
 		neg_counts_per_leaning_male = []
@@ -123,16 +124,33 @@ class Visualizer():
 			neg_counts_per_leaning_male.append(male_neg / male_articles_length)
 			pos_counts_per_leaning_male.append(male_pos / male_articles_length)
 
-		plt.plot(leanings, pos_counts_per_leaning_female, marker='D', label='Positive Female Articles', color='seagreen')
-		plt.plot(leanings, neg_counts_per_leaning_female, marker='D', label='Negative Female Articles', color='slateblue')
-		plt.plot(leanings, pos_counts_per_leaning_male, marker='D', label='Positive Male Articles', color='orange')
-		plt.plot(leanings, neg_counts_per_leaning_male, marker='D', label='Negative Male Articles', color='crimson')
+		if (graphType == GraphType.Line):
 
+			plt.plot(leanings, pos_counts_per_leaning_female, marker='D', label='Positive Female Articles', color='seagreen')
+			plt.plot(leanings, neg_counts_per_leaning_female, marker='D', label='Negative Female Articles', color='slateblue')
+			plt.plot(leanings, pos_counts_per_leaning_male, marker='D', label='Positive Male Articles', color='orange')
+			plt.plot(leanings, neg_counts_per_leaning_male, marker='D', label='Negative Male Articles', color='crimson')
+
+			plt.xticks(leanings)
+			plt.ylim((0, 1))
+			plt.legend(loc='center right')
+
+		elif (graphType == GraphType.StackedBargraph):
+
+			ind = np.arange(len(leanings))    # the x locations for the groups
+			width = 0.35       # the width of the bars: can also be len(x) sequence
+
+			p1 = plt.bar(ind - width / 2, neg_counts_per_leaning_female, width, color='pink', hatch='\\')
+			p2 = plt.bar(ind - width / 2, neg_counts_per_leaning_male, width, bottom=neg_counts_per_leaning_female, color='lightblue', hatch='\\')
+			p3 = plt.bar(ind + width / 2, pos_counts_per_leaning_female, width, color='pink')
+			p4 = plt.bar(ind + width / 2, pos_counts_per_leaning_male, width, bottom=pos_counts_per_leaning_female, color='lightblue')
+
+			plt.xticks(ind, (leanings))
+			plt.yticks(np.arange(0, 2, 0.1))
+			plt.legend((p1[0], p2[0], p3[0], p4[0]), ('Female Negative', 'Male Negative', 'Female Positve', 'Male Positive'))
+		
 		plt.ylabel('Mean Leaning Sentiment Positive:Negative Ratio')
 		plt.title('Positive and Negative Sentiment by Leaning and Gender')
-		plt.xticks(leanings)
-		plt.ylim((0, 1))
-		plt.legend(loc='center right')
 		plt.show()
 
 	def calc_sent(self, sentiment, confidence):
@@ -188,11 +206,15 @@ class Visualizer():
 			#model.Model.coefs_[model.Model.n_layers_ - 2]
 			self.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
 
+class GraphType(Enum):
+	Line = 1
+	StackedBargraph = 2
+
 if __name__ == "__main__":
 	visualizer = Visualizer()
 	reader = DataReader()
 
-	dirty = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, None, number_of_articles=500, clean=False, save=False, shouldRandomize=False)
-	splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2_cleaned, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
+	dirty = reader.Load_Splits(ApplicationConstants.all_articles, None, number_of_articles=500, clean=False, save=False, shouldRandomize=False)
+	#splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2_cleaned, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
 	visualizer.run_visualization(dirty)
-	visualizer.run_visualization(splits)
+#	visualizer.run_visualization(splits)

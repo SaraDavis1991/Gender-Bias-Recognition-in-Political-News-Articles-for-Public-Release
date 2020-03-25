@@ -7,6 +7,7 @@ import os
 import ApplicationConstants
 from imdb_data import LabeledLineSentence
 from Visualizer import Visualizer
+from Visualizer import GraphType
 
 class Sentiment():
 
@@ -64,7 +65,7 @@ class Sentiment():
 					male.append((leanings[index], prediction, confidences[index]))
 
 			self.print_sents(sents)
-			self.Visualizer.graph_sentiment(female, male)
+			self.Visualizer.graph_sentiment(female, male, GraphType.StackedBargraph)
 
 	
 			bFn, bFp, fFn, fFp, uFn, uFp, hFp, hFn, nFp, nFn = self.calc_plane_dist(female)
