@@ -75,9 +75,11 @@ if __name__ == "__main__":
 	reader = DataReader()
 
 	#dirty data first
-	# dirty_splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
-	# orchestration.train_all(dirty_splits)
+	print("DIRTY ARTICLES")
+	dirty_splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
+	orchestration.train_all(dirty_splits)
 
 	#clean data
+	print("\n\nCLEAN ARTICLES")
 	cleaned_splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2_cleaned, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
 	orchestration.train_all(cleaned_splits)

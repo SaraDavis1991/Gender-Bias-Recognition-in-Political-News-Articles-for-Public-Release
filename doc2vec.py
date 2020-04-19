@@ -30,13 +30,13 @@ class doc():
 			return model 
 		return None
 
-	def Embed(self, articles, labels):
+	def Embed(self, articles, labels, vector_size=50, epochs=100):
 
 		tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]
 		#random.shuffle(tagged_doc_articles)
 
 		#dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
-		model = Doc2Vec(vector_size=5, alpha = 0.001, min_alpha = 0.00025, min_count = 1, epochs=100, negative=1, dm = 0, workers = multiprocessing.cpu_count()) 
+		model = Doc2Vec(vector_size=vector_size, alpha = 0.001, min_alpha = 0.00025, min_count = 1, epochs=epochs, negative=1, dm = 0, workers = multiprocessing.cpu_count()) 
 		model.build_vocab(tagged_doc_articles)
 		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs= model.epochs)
 
@@ -44,6 +44,13 @@ class doc():
 
 		#model.save("d2v.model")
 		#print("model saved")
+
+	def fine_tune(self, articles, labels, model, epochs=50, learning_rate=0.0001): 
+
+		tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]
+		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs=epochs, start_alpha=learning_rate, end_alpha=learning_rate)
+
+		return model 
 	
 	def gen_vec(self, model, articles, labels):
 		tagged_doc_articles = [TaggedDocument(words=word_tokenize(_d.lower()), tags=[labels[i]]) for i, _d in enumerate(articles)]

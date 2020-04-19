@@ -9,6 +9,7 @@ from doc2vec import doc
 from DataReader import DataReader
 import ApplicationConstants
 from enum import Enum
+import os 
 
 cmap = ['red','blue']
 
@@ -139,15 +140,15 @@ class Visualizer():
 
 			ind = np.arange(len(leanings))    # the x locations for the groups
 			width = 0.35       # the width of the bars: can also be len(x) sequence
-
-			p1 = plt.bar(ind - width / 2, neg_counts_per_leaning_female, width, color='pink', hatch='\\')
-			p2 = plt.bar(ind - width / 2, neg_counts_per_leaning_male, width, bottom=neg_counts_per_leaning_female, color='lightblue', hatch='\\')
-			p3 = plt.bar(ind + width / 2, pos_counts_per_leaning_female, width, color='pink')
-			p4 = plt.bar(ind + width / 2, pos_counts_per_leaning_male, width, bottom=pos_counts_per_leaning_female, color='lightblue')
+			offset = 0.01
+			p1 = plt.bar((ind - width / 2) - offset, neg_counts_per_leaning_female, width, color='crimson')
+			p2 = plt.bar((ind - width / 2) - offset, pos_counts_per_leaning_female, width, bottom=neg_counts_per_leaning_female, color='slateblue')
+			p3 = plt.bar((ind + width / 2) + offset, neg_counts_per_leaning_male, width, color='crimson', hatch='////'), 
+			p4 = plt.bar((ind + width / 2) + offset, pos_counts_per_leaning_male, width, bottom=neg_counts_per_leaning_male, color='slateblue', hatch='////')
 
 			plt.xticks(ind, (leanings))
-			plt.yticks(np.arange(0, 2, 0.1))
-			plt.legend((p1[0], p2[0], p3[0], p4[0]), ('Female Negative', 'Male Negative', 'Female Positve', 'Male Positive'))
+			plt.yticks(np.arange(0, 1, 0.1))
+			plt.legend((p1[0], p2[0], p3[0], p4[0]), ('Female Negative', 'Female Positve', 'Male Negative', 'Male Positive'))
 		
 		plt.ylabel('Mean Leaning Sentiment Positive:Negative Ratio')
 		plt.title('Positive and Negative Sentiment by Leaning and Gender')
@@ -155,8 +156,8 @@ class Visualizer():
 
 	def calc_sent(self, sentiment, confidence):
 
-		if (abs(confidence) < 0.25):
-		   return None
+		# if (abs(confidence) < 0.25):
+		#    return None
 
 		if sentiment == 0:
 			return 'neg'
@@ -170,7 +171,7 @@ class Visualizer():
 		#elif score < -0.25:
 		#    return 'neg'
 
-	def run_visualization(self, splits):
+	def run_visualization(self, splits, pretrain=None):
 		''' trains all models against all leanings
 		
 		Parameters: 
@@ -178,34 +179,57 @@ class Visualizer():
 		splits: A list of the splits 
 
 		''' 
-
+		count = 0
 		#loop over all leanings
 		for leaning in splits[0]:
 
 			print("For leaning:", leaning.upper())
+	
+			if count > 3:
 
-			#train embeddings
-			training_dataset = splits[0][leaning][ApplicationConstants.Train]
-			validation_dataset = splits[0][leaning][ApplicationConstants.Validation]
-			test_dataset = splits[0][leaning][ApplicationConstants.Test]           
-			article_labels, article_embeddings, article_model = self.docEmbed.embed_fold(list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset)), list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset)), leaning)
+				#train embeddings
+				training_dataset = splits[0][leaning][ApplicationConstants.Train]
+				validation_dataset = splits[0][leaning][ApplicationConstants.Validation]
+				test_dataset = splits[0][leaning][ApplicationConstants.Test]  
 
-			#training embeddings
-			training_embeddings = article_embeddings[:len(training_dataset)]
-			training_labels = article_labels[:len(training_dataset)]
+				articles = list(map(lambda article: article.Content, training_dataset + validation_dataset + test_dataset))
+				labels = list(map(lambda article: article.Label.TargetGender, training_dataset + validation_dataset + test_dataset))
 
-			#validation embeddings 
-			validation_embeddings = article_embeddings[len(training_dataset): len(training_dataset) + len(validation_dataset)]
-			validation_labels = article_labels[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+				if (pretrain is not None):
+					atn_content = list(map(lambda article: article.Content, pretrain))[:int(len(pretrain) * 0.25)] #grabbing only half cuz my computer can't fit training all this in memory
+					atn_labels = list(map(lambda article: article.Label, pretrain))[:int(len(pretrain) * 0.25)] #these values are null since ATN doesn't have gender labels
 
-			#test embeddings
-			test_embeddings = article_embeddings[len(training_dataset) + len(validation_dataset):]
-			test_labels = article_labels[len(training_dataset) + len(validation_dataset):]
+					if (os.path.exists('store/pretrained_model.model')):
+						pretrained_article_model = self.docEmbed.Load_Model('store/pretrained_model.model')
+					else:
+						pretrained_article_model = self.docEmbed.Embed(atn_content, atn_labels, epochs=50)
+						pretrained_article_model.save('store/pretrained_model.model')
 
-			#model = models[0] 
-			#model.Model.coefs_[model.Model.n_layers_ - 2]
-			self.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
+					fine_tuned_model = self.docEmbed.fine_tune(articles, labels, pretrained_article_model)
+					article_labels, article_embeddings = self.docEmbed.gen_vec(fine_tuned_model, articles, labels)
 
+				else:
+					article_labels, article_embeddings, _ = self.docEmbed.embed_fold(articles, labels, leaning)
+
+				#training embeddings
+				training_embeddings = article_embeddings[:len(training_dataset)]
+				training_labels = article_labels[:len(training_dataset)]
+
+				#validation embeddings 
+				validation_embeddings = article_embeddings[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+				validation_labels = article_labels[len(training_dataset): len(training_dataset) + len(validation_dataset)]
+
+				#test embeddings
+				test_embeddings = article_embeddings[len(training_dataset) + len(validation_dataset):]
+				test_labels = article_labels[len(training_dataset) + len(validation_dataset):]
+
+				
+
+				#model = models[0] 
+				#model.Model.coefs_[model.Model.n_layers_ - 2]
+			
+				self.plot_TSNE(leaning, training_embeddings + validation_embeddings + test_embeddings, training_labels + validation_labels + test_labels, training_dataset + validation_dataset + test_dataset)
+			count += 1 
 class GraphType(Enum):
 	Line = 1
 	StackedBargraph = 2
@@ -214,7 +238,8 @@ if __name__ == "__main__":
 	visualizer = Visualizer()
 	reader = DataReader()
 
-	dirty = reader.Load_Splits(ApplicationConstants.all_articles, None, number_of_articles=500, clean=False, save=False, shouldRandomize=False)
-	#splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2_cleaned, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
-	visualizer.run_visualization(dirty)
-#	visualizer.run_visualization(splits)
+	dirty = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
+	splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2_cleaned, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
+	all_the_news = reader.Load_ATN(ApplicationConstants.all_the_news_path)
+	visualizer.run_visualization(dirty, all_the_news)
+	#visualizer.run_visualization(splits)

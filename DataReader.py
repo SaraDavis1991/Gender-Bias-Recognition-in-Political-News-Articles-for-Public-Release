@@ -9,6 +9,7 @@ import ApplicationConstants
 import copy
 from preprocessor import Preprocessor
 import random
+import sqlite3
 
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
@@ -112,6 +113,22 @@ class DataReader():
         with open(filePath, 'r') as read_file:
             data = json.load(read_file, object_hook=self.object_decoder)
         return data
+
+    def Load_ATN(self, filePath):
+
+        articles = []
+
+        #connect to the db file 
+        connection = sqlite3.connect(filePath) 
+
+        #we select all the articles
+        selection_query = "SELECT title, author, date, content, url from longform"
+
+        for row in connection.execute(selection_query):
+
+            articles.append(Article(row[0], row[4], None, row[1], row[3], row[2], None))
+
+        return articles
 
     def Load_Splits(self, filePath, savePath, number_of_articles=50, clean=True, save=False, shouldRandomize=True):
 

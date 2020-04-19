@@ -12,18 +12,22 @@ def get_count(articles) -> int:
 
 	return article_count
 
+def get_article_count(articles) -> int: 
+
+	return len(articles) 
+
 if __name__ == "__main__":
 
 	reader = DataReader()
-	splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, None, number_of_articles=50, clean=False, save=False, shouldRandomize=False)
+	splits = reader.Load_Splits(ApplicationConstants.all_articles_random_v2, None, number_of_articles=100, clean=False, save=False, shouldRandomize=False)
 	
 	for leaning in splits[0]:
 
 		print("Source:", leaning)
 
 		all_leaning_data = splits[0][leaning][ApplicationConstants.Train] + splits[0][leaning][ApplicationConstants.Validation] + splits[0][leaning][ApplicationConstants.Test]
-		all_content = list(map(lambda article: article.Content, all_leaning_data))
-		leaning_count = get_count(all_content)
+		all_content = list(map(lambda article: article, all_leaning_data))
+		leaning_count = get_article_count(all_content)
 
 		print("Total Count:", leaning_count)
 
@@ -31,8 +35,8 @@ if __name__ == "__main__":
 		male = list(filter(lambda article: article.Label.TargetGender == 1, all_leaning_data))
 		female = list(filter(lambda article: article.Label.TargetGender == 0, all_leaning_data))
 
-		print("Total male count:", get_count(list(map(lambda article: article.Content, male))))
-		print("Total female count:", get_count(list(map(lambda article: article.Content, female))))
+		print("Total male count:", get_article_count(list(map(lambda article: article, male))))
+		print("Total female count:", get_article_count(list(map(lambda article: article, female))))
 
 		#get candidate count
 		dt = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.DonaldTrump, all_leaning_data))
@@ -46,13 +50,13 @@ if __name__ == "__main__":
 		bd = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.BetsyDevos, all_leaning_data))
 		ew = list(filter(lambda article: article.Label.TargetName == ApplicationConstants.ElizabethWarren, all_leaning_data))
 
-		print("trump:", get_count(list(map(lambda article: article.Content, dt))))
-		print("joe biden:", get_count(list(map(lambda article: article.Content, jb))))
-		print("bernie:", get_count(list(map(lambda article: article.Content, bs))))
-		print("mitch:", get_count(list(map(lambda article: article.Content, mm))))
-		print("obama:", get_count(list(map(lambda article: article.Content, bo))))
-		print("hillary:", get_count(list(map(lambda article: article.Content, hc))))
-		print("sarah:", get_count(list(map(lambda article: article.Content, sp))))
-		print("aoc:", get_count(list(map(lambda article: article.Content, aoc))))
-		print("betsy:", get_count(list(map(lambda article: article.Content, bd))))
-		print("warren:", get_count(list(map(lambda article: article.Content, ew))))
+		print("trump:", get_article_count(list(map(lambda article: article, dt))))
+		print("joe biden:", get_article_count(list(map(lambda article: article, jb))))
+		print("bernie:", get_article_count(list(map(lambda article: article, bs))))
+		print("mitch:", get_article_count(list(map(lambda article: article, mm))))
+		print("obama:", get_article_count(list(map(lambda article: article, bo))))
+		print("hillary:", get_article_count(list(map(lambda article: article, hc))))
+		print("sarah:", get_article_count(list(map(lambda article: article, sp))))
+		print("aoc:", get_article_count(list(map(lambda article: article, aoc))))
+		print("betsy:", get_article_count(list(map(lambda article: article, bd))))
+		print("warren:", get_article_count(list(map(lambda article: article, ew))))

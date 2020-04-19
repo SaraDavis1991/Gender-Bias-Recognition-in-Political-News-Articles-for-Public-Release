@@ -9,6 +9,7 @@ fold_2 = "./folds/fold2.txt"
 fold_3 = "./folds/fold3.txt"
 fold_4 = "./folds/fold4.txt"
 fold_5 = "./folds/fold5.txt"
+all_the_news_path = './store/all-the-news.db'
 
 #leaning constants
 FarLeft = "Far_Left"
