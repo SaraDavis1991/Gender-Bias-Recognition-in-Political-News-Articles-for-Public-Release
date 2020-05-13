@@ -11,25 +11,25 @@ from Visualizer import Visualizer
 from Visualizer import GraphType
 from sklearn.metrics import accuracy_score
 
-
+import pickle
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt 
 import matplotlib
 import seaborn as sns
 import pandas as pd
 import numpy as np 
-
+import nltk
 from doc2vec import doc
 from DataReader import DataReader
 import ApplicationConstants
 from enum import Enum
 
-
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 class Sentiment():
 
 	def __init__(self):
-
+		self.SentAnalyzer = SentimentIntensityAnalyzer()
 		self.docEmbed = doc()
 		self.Visualizer = Visualizer() 
 
@@ -38,6 +38,66 @@ class Sentiment():
 		sentences = LabeledLineSentence(sources)
 		vectors, labels = sentences.generate_imdb_vec(model, label_path, vector_path)
 		return vectors, labels
+
+	def calculate_sent_score(self, article, polarities):
+ 	
+		tokenizer = nltk.RegexpTokenizer(r"\w+")
+		tokens = tokenizer.tokenize(article.Content) 
+		avg_polarity = [] 	
+		negations = ['not', 'isn\'t', 'wasn\'t', ]
+		#word_polarities = dict(polarities)
+		
+		for index, token in enumerate(tokens):
+			
+
+			if (token in polarities):
+
+				value = float(polarities[token])
+				if (tokens[index - 1] in negations):
+					value *= -1 
+
+				avg_polarity.append(value)
+
+		if len(avg_polarity) == 0:
+			return 0.5
+		
+		return sum(avg_polarity) / len(avg_polarity)
+	
+	def train_sent_customlexicon(self, all_articles, leanings, reader):
+
+		male = []
+		female = [] 
+		file = open('Data/polarities.txt', 'rb')
+		polarities = pickle.load(file)
+		file.close()
+		#polarities = reader.load_politics('store/politics.tsv')
+
+		for article_index, article in enumerate(all_articles):
+
+			sentiment_score = self.calculate_sent_score(article, polarities)
+
+			if (article.Label.TargetGender == ApplicationConstants.female_value):
+				female.append((leanings[article_index], sentiment_score, None))
+			else:
+				male.append((leanings[article_index], sentiment_score, None))
+
+		self.Visualizer.graph_sentiment(female, male, GraphType.StackedBargraph)
+		
+	def train_sent_vader(self, all_articles, leanings):
+
+		male = []
+		female = [] 
+
+		for article_index, article in enumerate(all_articles):
+
+			sentiment_score = self.SentAnalyzer.polarity_scores(article.Content)
+
+			if (article.Label.TargetGender == ApplicationConstants.female_value):
+				female.append((leanings[article_index], sentiment_score, None))
+			else:
+				male.append((leanings[article_index], sentiment_score, None))
+
+		self.Visualizer.graph_sentiment(female, male, GraphType.StackedBargraph)
 
 	def train_sent_models(self, all_articles, leanings, article_doc2vec_label_path, article_doc2vec_vector_path, article_doc2vec_model_path, imdb_label_path, imdb_vector_path):
 
@@ -265,8 +325,6 @@ if __name__ == "__main__":
 			leanings.append(leaning)
 
 	articles = [item for sublist in leanings_articles for item in sublist]
-	sentiment.train_sent_models(articles, leanings, ApplicationConstants.all_articles_doc2vec_labels_uncleaned_path,
-	 												ApplicationConstants.all_articles_doc2vec_vector_uncleaned_path,
-													ApplicationConstants.all_articles_doc2vec_model_uncleaned_path,
-													ApplicationConstants.imdb_sentiment_label_uncleaned_path,
-													ApplicationConstants.imdb_sentiment_vector_uncleaned_path)
+	#sentiment.train_sent_vader(articles, leanings)
+
+	sentiment.train_sent_customlexicon(articles, leanings, reader)

@@ -10,6 +10,7 @@ import copy
 from preprocessor import Preprocessor
 import random
 import sqlite3
+import csv
 
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
@@ -113,6 +114,20 @@ class DataReader():
         with open(filePath, 'r') as read_file:
             data = json.load(read_file, object_hook=self.object_decoder)
         return data
+
+    def load_politics(self, filepath):
+
+        polarities = [] 
+
+        with open(filepath) as file: 
+
+            reader = csv.reader(file, delimiter="\t")
+
+            for row in reader: 
+                polarities.append((row[0], row[1]))
+
+        return polarities
+
 
     def Load_ATN(self, filePath):
 

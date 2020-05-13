@@ -3,9 +3,11 @@ from matplotlib import pyplot as plt
 import json
 import numpy as np
 
+from gensim.models.callbacks import CallbackAny2Vec
 import ApplicationConstants
 from DataReader import DataReader
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+from gensim.models.word2vec import Word2Vec
 import multiprocessing
 from nltk.tokenize import word_tokenize
 import random 
@@ -36,10 +38,13 @@ class doc():
 		#random.shuffle(tagged_doc_articles)
 
 		#dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
-		model = Doc2Vec(vector_size=vector_size, alpha = 0.001, min_alpha = 0.00025, min_count = 1, epochs=epochs, negative=1, dm = 0, workers = multiprocessing.cpu_count()) 
+		model = Doc2Vec(vector_size=vector_size, alpha = 0.001, min_alpha = 0.00025, min_count = 1, epochs=epochs, negative=1, dm = 0, workers = multiprocessing.cpu_count(), compute_loss=True) 
 		model.build_vocab(tagged_doc_articles)
-		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs= model.epochs)
+		logger = EpochLogger()
+		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs= model.epochs, callbacks=[logger])
 
+		
+		print("Loss:", model.get_latest_training_loss())
 		return model
 
 		#model.save("d2v.model")
@@ -57,6 +62,12 @@ class doc():
 		sents = tagged_doc_articles
 		targets, feature_vectors = zip(*[(doc.tags[0], model.infer_vector(doc.words, steps=20)) for doc in sents])
 		return targets, feature_vectors
+
+class EpochLogger(CallbackAny2Vec):
+	
+	def on_epoch_end(self, model): 
+		print("Loss:", model.get_latest_training_loss)
+
 
 
 

@@ -17,7 +17,7 @@ class NN(implements(IModel)):
 
     def Build_Model(self):
 
-        model = MLPClassifier( hidden_layer_sizes=(100,))
+        model = MLPClassifier()
         return model 
 
     def Train(self, trainFeatures, trainLabels, validationFeatures, validationLabels):

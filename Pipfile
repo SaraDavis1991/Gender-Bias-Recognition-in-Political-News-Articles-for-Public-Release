@@ -15,6 +15,9 @@ matplotlib = "*"
 gensim = "*"
 seaborn = "*"
 pandas = "*"
+theano = "==0.8.0"
+scipy = "==0.15.1"
+socialsent = "*"
 
 [requires]
 python_version = "3.6"

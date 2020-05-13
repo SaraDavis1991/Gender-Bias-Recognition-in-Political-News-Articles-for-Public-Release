@@ -95,13 +95,13 @@ class Visualizer():
 			maleVals = []
 			
 			for sentiment in female_leanings[leaning]:
-				result = self.calc_sent(sentiment[0], sentiment[1])
+				result = self.calc_sent_custom(sentiment)
 
 				if result is not None:
-					femaleVals.append(self.calc_sent(sentiment[0], sentiment[1]))
+					femaleVals.append(result)
 
 			for sentiment in male_leanings[leaning]:
-				result = self.calc_sent(sentiment[0], sentiment[1])
+				result = self.calc_sent_custom(sentiment)
 
 				if result is not None:
 					maleVals.append(result)
@@ -154,6 +154,22 @@ class Visualizer():
 		plt.title('Positive and Negative Sentiment by Leaning and Gender')
 		plt.show()
 
+	def calc_sent_custom(self, sentiment): 
+
+		if (sentiment[0] < 0.4): 
+			return 'neg'
+		elif (sentiment[0] > 0.6):
+			return 'pos'
+
+	def calc_sent_vader(self, sentiment):
+
+		compound_score = sentiment[0]['compound']
+
+		if compound_score > 0.5:
+			return 'pos'
+		elif compound_score < 0.5:
+			return 'neg'
+			
 	def calc_sent(self, sentiment, confidence):
 
 		# if (abs(confidence) < 0.25):
@@ -202,11 +218,11 @@ class Visualizer():
 					if (os.path.exists('store/pretrained_model.model')):
 						pretrained_article_model = self.docEmbed.Load_Model('store/pretrained_model.model')
 					else:
-						pretrained_article_model = self.docEmbed.Embed(atn_content, atn_labels, epochs=50)
+						pretrained_article_model = self.docEmbed.Embed(atn_content, atn_labels, vector_size=300, epochs=2)
 						pretrained_article_model.save('store/pretrained_model.model')
 
 					fine_tuned_model = self.docEmbed.fine_tune(articles, labels, pretrained_article_model)
-					article_labels, article_embeddings = self.docEmbed.gen_vec(fine_tuned_model, articles, labels)
+					article_labels, article_embeddings = self.docEmbed.gen_vec(pretrained_article_model, articles, labels)
 
 				else:
 					article_labels, article_embeddings, _ = self.docEmbed.embed_fold(articles, labels, leaning)
