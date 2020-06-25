@@ -4,12 +4,18 @@
 all_articles = "./Data/articles.updatedv2.json"
 all_articles_random_v2 = "./Data/articles_random_v2.json"
 all_articles_random_v2_cleaned = "./Data/articles_random_v2_cleaned.json"
+all_articles_random_v3 = "./Data/articles_random_v3.json"
+all_articles_random_nodups_v3 = "./Data/articles_random_v3_noduplicates.json"
+all_articles_random_nodups_nomccain_v3 = "./Data/articles_random_v3_noduplicates_nomccain.json"
+all_articles_random_v3_cleaned = "./Data/articles_random_v3_cleaned.json"
+all_articles_random_v4_cleaned = "./Data/articles_random_v4_cleaned.json"
 fold_1 = "./folds/fold1.txt"
 fold_2 = "./folds/fold2.txt"
 fold_3 = "./folds/fold3.txt"
 fold_4 = "./folds/fold4.txt"
 fold_5 = "./folds/fold5.txt"
 all_the_news_path = './store/all-the-news.db'
+all_the_news_newer_path = './store/all-the-news-2-1.csv'
 
 #leaning constants
 FarLeft = "Far_Left"
