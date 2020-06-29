@@ -11,6 +11,32 @@ from preprocessor import Preprocessor
 import random
 import sqlite3
 import csv
+import multiprocessing
+from multiprocessing import Value
+
+Preprocessor2 = Preprocessor()
+article_count = Value('i', 0) 
+global_clean = False 
+    
+def clean_fn(article): 
+
+    global article_count
+    with article_count.get_lock(): 
+        print("Cleaning article:", article_count.value)
+        article_count.value += 1 
+
+    #convert labels to ints
+    if (article.Label.TargetGender == ApplicationConstants.Female):
+        article.Label.TargetGender = 0
+    elif (article.Label.TargetGender == ApplicationConstants.Male):
+        article.Label.TargetGender = 1
+
+    # print(article.Title)
+    if (global_clean):
+        cleaned_content = Preprocessor2.Clean(article.Content)
+        article.Content = cleaned_content 
+
+    return article
 
 class DataReader():
     ''' This class is used to read and create json driven objects. ''' 
@@ -147,6 +173,8 @@ class DataReader():
 
     def Load_Splits(self, filePath, savePath, number_of_articles=50, clean=True, save=False, shouldRandomize=True):
 
+        global global_clean
+        global_clean = clean
         candidate_split_file_names = [ApplicationConstants.fold_1, ApplicationConstants.fold_2, ApplicationConstants.fold_3, ApplicationConstants.fold_4, ApplicationConstants.fold_5]
 
         split_list = [] 
@@ -182,6 +210,7 @@ class DataReader():
 
         sources = [(ApplicationConstants.Breitbart, breitbart), (ApplicationConstants.Fox, fox), (ApplicationConstants.usa_today, usa), (ApplicationConstants.HuffPost, huffpost), (ApplicationConstants.New_york_times, nyt)]
 
+        
         for source_index, source in enumerate(sources): 
 
             print(' . ', end='')
@@ -190,21 +219,11 @@ class DataReader():
             #get article content
             articles = source[1]
             
-            #clean, putting cleaned data back into the split dictionary
-            for article_index, article in enumerate(articles):
-
-                #convert labels to ints
-                if (article.Label.TargetGender == ApplicationConstants.Female):
-                    article.Label.TargetGender = 0
-                elif (article.Label.TargetGender == ApplicationConstants.Male):
-                    article.Label.TargetGender = 1
-
-                content = article.Content
-
-               # print(article.Title)
-                if (clean):
-                    cleaned_content = self.Preprocessor.Clean(content)
-                    sources[source_index][1][article_index].Content = cleaned_content 
+            #get article content
+            articles = source[1]
+            pool = multiprocessing.Pool()
+            cleaned_articles = pool.map(clean_fn, articles)
+            sources[source_index] = (sources[source_index][0], cleaned_articles)
 
         if (save and savePath is not None):
             reconstructed_dictionary = {} 
