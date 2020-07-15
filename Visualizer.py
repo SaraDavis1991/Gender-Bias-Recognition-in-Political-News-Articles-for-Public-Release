@@ -1,3 +1,4 @@
+#######This file generates TSNE visualizations and other neat plots #######
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt 
 import matplotlib
@@ -46,7 +47,8 @@ class Visualizer():
 		self.articles = articles
 
 		self.genders = list(map(lambda label: 'Male' if label == 1 else 'Female', true_labels))
-		tsne = TSNE(verbose=1)
+		#self.markers = list(map(lambda label: '+' if label == 1 else 'o', true_labels))
+		tsne = TSNE(verbose=1, perplexity=100)
 		results = tsne.fit_transform(weights)
 
 		self.fig, self.ax = plt.subplots()
@@ -57,15 +59,16 @@ class Visualizer():
 		self.annot.set_visible(False)
 
 		#self.sc = plt.scatter(x=results[:,0], y=results[0:,1], c=true_labels, cmap=matplotlib.colors.ListedColormap(cmap))
-		self.sc = sns.scatterplot(x=results[:,0], y=results[0:,1], palette=sns.color_palette("hls", 2), hue=self.genders)
+		#palette=sns.color_palette("hls", 2), hue=self.genders,
+		self.sc = sns.scatterplot(x=results[:,0], y=results[0:,1],  palette=sns.color_palette("colorblind", 2), hue=self.genders, style = self.genders)
 
 		#plt.setp(ax.get_legend().get_texts(), fontsize='40')
 		plt.legend( loc='best', prop={'size': 15})
 		#plt.legend(*self.sc.legend_elements(), loc='best', prop={'size': 20})
 		plt.title('t-SNE Article Distribution for ' + leaning, fontsize=20)
 		#self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
-		plt.show()
-		#plt.savefig("visualizations/" + leaning)
+		#plt.show()
+		plt.savefig("visualizations/" + leaning + "_finetuned_cleaned_heldOut_embed_all.png")
 
 	def graph_sentiment(self, Fsentiment, Msentiment, graphType):
 
@@ -218,7 +221,7 @@ class Visualizer():
 					if (os.path.exists('store/pretrained_model.model')):
 						pretrained_article_model = self.docEmbed.Load_Model('store/pretrained_model.model')
 					else:
-						pretrained_article_model = self.docEmbed.Embed(atn_content, atn_labels, vector_size=300, epochs=2)
+						pretrained_article_model = self.docEmbed.Embed(atn_content, atn_labels, vector_size=300, epochs=20) #started with 2. was not working. 20 worked well
 						pretrained_article_model.save('store/pretrained_model.model')
 
 					fine_tuned_model = self.docEmbed.fine_tune(articles, labels, pretrained_article_model)
