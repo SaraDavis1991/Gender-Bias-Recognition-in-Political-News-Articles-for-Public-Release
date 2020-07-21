@@ -2,14 +2,14 @@
 
 (1) Download the articles at the relevant links. We cannot provide them here, due to copyright concerns. Save the articles in .json format. Use our reader options to randomize the articles, and save the new randomized json in the Data directory as "articles_random_v3.json". You can change the name, but if you do so, you will need to update run_preprocessor.py
 (2) run run_preprocessor.py to generate the relevant .json files, including cleaned files, and adjective files
+
 ================================================================DOC2VEC EMBEDDING TESTS===========================================================================
-                                                        Doc2Vec Embedding Tests
+                                                       
 (3a) Download all the news 2.0 from https://components.one/datasets/all-the-news-2-news-articles-dataset/ to the store directory
 (3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains several options for pretraining and finetuning, including an option that skips pretraining for comparison to a baseline. Simply uncomment the line that you wish to run.  The default runs the parameters shown in our paper: cleaned all the news data, cleaned news bias data, pretraining enabled. All of the metrics are saved to the PretrainFinetuneMetrics directory.
 
 =================================================================BAG OF WORDS TESTS=============================================================================
 
-                                                          Bag of Words Tests
 (4) Run run_BOW.py to replicate our bag of word results. Four options are provided in this file. 
 To replicate the results found when run on all of the words, run OPTION 1. To replicate the results the results found when run on just adjectives, run OPTION 2.
 If print_vocab = True, vocabulary can be found in the vocabulary directory.
