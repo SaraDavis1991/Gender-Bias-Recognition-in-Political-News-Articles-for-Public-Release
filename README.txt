@@ -10,8 +10,8 @@
 
 =================================================================BAG OF WORDS TESTS=============================================================================
 
-(4) Run run_BOW.py to replicate our bag of word results. Four options are provided in this file. 
-To replicate the results found when run on all of the words, run OPTION 1. To replicate the results the results found when run on just adjectives, run OPTION 2.
+(4) Run run_BOW.py to replicate our bag of word results. Four options are provided in this file; uncomment the one you would like to replicate, or set a different combination.
+To replicate the results found when run on all of the words, run OPTION 1 (the default). To replicate the results the results found when run on just adjectives, run OPTION 2. 
 If print_vocab = True, vocabulary can be found in the vocabulary directory.
 
 =================================================================SENTIMENT ANALYSIS TESTS========================================================================
