@@ -1,7 +1,10 @@
-#This file gets article counts for various stats
+#################################
+# count_articles.py:
+# This file gets article counts for various stats
+#################################
+
 import time
 import json
-
 
 with open('articles_random_v3_noduplicates.json') as f:
   article_data = json.load(f)

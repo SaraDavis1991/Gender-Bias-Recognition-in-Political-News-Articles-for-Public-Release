@@ -1,3 +1,7 @@
+#################################
+# Bow.py:
+# This class is used to generate the most descriptive word list for a given set of empeddings. 
+#################################
 
 import os.path
 import random
@@ -5,14 +9,11 @@ import numpy as np
 import pickle
 from DataReader import DataReader
 import ApplicationConstants
-
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-
 from Models.SVM_engine import SVM
 import nltk
 
-#This class is used to generate the most descriptive word list for a given set of empeddings. 
 class Bow():
 
 	def calc_count_doc_count_vector(self, word_vector, article):

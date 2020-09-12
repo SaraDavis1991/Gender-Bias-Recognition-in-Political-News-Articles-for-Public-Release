@@ -1,4 +1,7 @@
-#######This file reads jsons (newsbias), csv (ATN), and SQL (ATN)  #######
+#################################
+# DataReader.py:
+# This file reads jsons (newsbias), csv (ATN), and SQL (ATN)
+#################################
 
 import json
 import sys
@@ -15,10 +18,7 @@ import sqlite3
 import csv
 import sys
 
-
 csv.field_size_limit(sys.maxsize)
-
-
 
 class DataReader():
     ''' This class is used to read and create json driven objects. '''

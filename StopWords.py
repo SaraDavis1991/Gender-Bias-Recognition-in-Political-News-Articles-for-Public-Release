@@ -1,4 +1,8 @@
-#######This file contains all stopwords (words fully removed) #######
+#################################
+# StopWords.py:
+# This file contains all stopwords (words fully removed)
+#################################
+
 StopWords = [
     'i',
     'me',

@@ -1,15 +1,9 @@
-# gensim modules
+
 from gensim import utils
 from gensim.models.doc2vec import LabeledSentence
 from gensim.models import Doc2Vec
-
-# numpy
 import numpy
-
-# shuffle
 from random import shuffle
-
-# logging
 import logging
 import os.path
 import sys
@@ -19,31 +13,16 @@ from Models.KNN_engine import KNN
 from Models.Naive_Bayes_engine import Naive_Bayes
 from Models.Linear_Classification_engine import Linear_Classifier 
 from Models.NN_engine import NN
-
-# gensim modules
-from gensim import utils
-from gensim.models.doc2vec import LabeledSentence
-from gensim.models import Doc2Vec
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-
 from nltk.tokenize import word_tokenize
-# numpy
-import numpy 
-# shuffle
-from random import shuffle
 import random
-
-# logging
-import logging
-import os.path
-import sys
 import _pickle as pickle
+
 program = os.path.basename(sys.argv[0])
 logger = logging.getLogger(program)
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s')
 logging.root.setLevel(level=logging.INFO)
 logger.info("running %s" % ' '.join(sys.argv))
-import os.path
 
 class LabeledLineSentence(object):
 

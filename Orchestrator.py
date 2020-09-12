@@ -1,6 +1,7 @@
-#######This file runs several processes #######
-#classes
-
+#################################
+# Orchestrator.py:
+# Runs various processes that are shared by numerous classes.
+#################################
 
 from DataReader import DataReader
 from DataContracts import Article
@@ -12,17 +13,12 @@ import ApplicationConstants
 import StopWords
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-
-#models
 from Models.SVM_engine import SVM
 from Models.KNN_engine import KNN
 from Models.Naive_Bayes_engine import Naive_Bayes
 from Models.Linear_Classification_engine import Linear_Classifier
 from Models.NN_engine import NN
 from Models.NN_engine import  Linear_NN
-
-
-#helpers
 import statistics
 import numpy as np 
 import matplotlib.pyplot as plt
@@ -56,8 +52,6 @@ class Orchestrator():
 		sentences = LabeledLineSentence(sources)
 		vectors, labels = sentences.generate_imdb_vec(model, label_path, vector_path)
 		return vectors, labels
-
-	
 
 	def print_sents(self, sents):
 
@@ -167,11 +161,7 @@ class Orchestrator():
 		else:
 			np = 0
 		
-
-
 		return breitbartneg, breitbartpos, foxneg, foxpos, usaneg, usapos, huffneg, huffpos, nytneg, nytpos
-
-
 
 	def print(self, fileName, allF, allM):
 		file = open(fileName, 'w')

@@ -1,4 +1,7 @@
-#Application Constants
+#################################
+# ApplicationConstants.py:
+# Used a constants holder for all application constants. 
+#################################
 
 #Filenames
 all_articles = "./Data/articles.updatedv2.json"
@@ -24,7 +27,6 @@ fold_5 = "./folds/fold5.txt"
 all_the_news_path = './store/all-the-news.db'
 all_the_news_newer_path = './store/all-the-news-2-1.csv'
 all_the_news_cleaned_path = './store/all-the-news_cleaned_merged_final.csv'
-
 
 #leaning constants
 FarLeft = "Far_Left"

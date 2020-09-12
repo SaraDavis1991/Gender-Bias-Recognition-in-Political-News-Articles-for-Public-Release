@@ -1,11 +1,14 @@
-#######This file generates TSNE visualizations and other neat plots #######
+#################################
+# Visualizer.py:
+# This file generates TSNE visualizations and other neat plots
+#################################
+
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt 
 import matplotlib
 import seaborn as sns
 import pandas as pd
 import numpy as np 
-
 from doc2vec import doc
 from DataReader import DataReader
 import ApplicationConstants

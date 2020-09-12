@@ -1,3 +1,8 @@
+#################################
+# doc2vec.py:
+# This file serves as an interface to use gensim's doc 2 vec models.
+#################################
+
 from __future__ import print_function, division
 from matplotlib import pyplot as plt
 import json

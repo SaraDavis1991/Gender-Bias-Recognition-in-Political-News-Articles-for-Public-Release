@@ -1,3 +1,8 @@
+#################################
+# DataContracts.py:
+# This file provides the data definition for articles, labels, and sources. Used to transform json into object instances.
+#################################
+
 from typing import List
 
 class Article():

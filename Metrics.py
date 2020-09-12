@@ -1,4 +1,8 @@
-#######This file calculates accuracy, fmeasre, recall, and precision #######
+#################################
+# model_orchestration.py:
+# This file calculates accuracy, f-measure, recall, and precision
+#################################
+
 from sklearn.metrics import accuracy_score
 
 class Metrics():
