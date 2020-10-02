@@ -1,3 +1,8 @@
+#################################
+# run_BOW.py:
+# This file will generate the different BOW findings.
+#################################
+
 import Orchestrator
 
 orchestrator = Orchestrator()
@@ -14,8 +19,6 @@ print_vocab is a bool that determines if all of the vocab from the BOW is printe
 
 NOTE: to run this file, articles must have been collected and run_preprocessor.py must have been run
 '''
-
-
 
 #OPTION 1: run run_bow on all words in vocab, without lemma, print vocab to confirm data is cleaned properly
 orchestrator.run_bow( "store/np_cumulative_vec_ALLnoL.npy", "store/np_count_vec_ALLnoL.npy", "store/perceptron_ALLnoL.sav",True, False, True) #notPos, lemmad, printvocab

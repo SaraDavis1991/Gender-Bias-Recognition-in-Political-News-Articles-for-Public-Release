@@ -1,3 +1,4 @@
+
 #######This file contains all of the regex patterns for substitution #######
 Patterns = [
 

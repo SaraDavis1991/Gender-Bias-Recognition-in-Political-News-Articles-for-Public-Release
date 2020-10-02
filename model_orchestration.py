@@ -1,3 +1,8 @@
+#################################
+# model_orchestration.py:
+# This class is used for training various models on the embedding data. 
+#################################
+
 from Models.SVM_engine import SVM
 from Models.KNN_engine import KNN
 from Models.Naive_Bayes_engine import Naive_Bayes
@@ -10,8 +15,6 @@ import ApplicationConstants
 from doc2vec import doc
 from Metrics import Metrics
 
-#This class is used for training various models on the embedding data. 
-#what this class is NOT: visualization, sentiment training, or anything outside of utilizing the models
 class ModelOrchestration():
 	
 	def __init__(self):

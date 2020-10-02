@@ -1,10 +1,14 @@
-#######This file will generate various versions (see below) of jsons after gathering them using links #######
+#################################
+# run_pretrain_and_finetune.py:
+# This file will generate various versions (see below) of jsons after gathering them using links
+#################################
 
 from Orchestrator import *
 import ApplicationConstants
 from parse_sentences import run
 
 orchestrator = Orchestrator()
+
 #Clean the articles
 orchestrator.read_data(path = "Data/articles_random_v3.json", save = True,
                        savePath = "Data/articles_random_v4_cleaned.json", random = True, number_of_articles=1000)

@@ -1,4 +1,7 @@
-#This file runs pretrain_and_finetune.py
+#################################
+# run_pretrain_and_finetune.py:
+# This file runs pretrain_and_finetune.py
+#################################
 
 import pretrain_and_finetune as pretrain
 pf = pretrain()

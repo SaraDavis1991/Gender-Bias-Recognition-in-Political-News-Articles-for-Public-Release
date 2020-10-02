@@ -1,9 +1,12 @@
-'''This file calculates sentiment of each article, and graphs/leaning
+#################################
+# Visualizer.py:
+# This file calculates sentiment of each article, and graphs/leaning
 #NOTE: articles need to be gathered, and run_preprocessor.py needs to have been run prior to using this, and the Hu and
-Liu, 2004 sentiment dataset needs to be downloaded. It can be found here: http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar
-The words "trump, vice, and right" must be removed to remain consistent with our cleaning, and then saved using
-the naming convention found on line 39.
-'''
+#Liu, 2004 sentiment dataset needs to be downloaded. It can be found here: http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar
+#The words "trump, vice, and right" must be removed to remain consistent with our cleaning, and then saved using
+#the naming convention found on line 39.
+#################################
+
 import numpy as np
 import json
 from matplotlib import pyplot as plt

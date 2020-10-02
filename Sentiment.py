@@ -1,4 +1,8 @@
-#######This file calculates sentiment (OLD)#######
+#################################
+# Visualizer.py:
+# This file calculates sentiment. Obsolete.
+#################################
+
 from DataReader import DataReader
 from Models.SVM_engine import SVM
 from Models.NN_engine import NN
@@ -10,7 +14,6 @@ from imdb_data import LabeledLineSentence
 from Visualizer import Visualizer
 from Visualizer import GraphType
 from sklearn.metrics import accuracy_score
-
 import pickle
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt 
@@ -24,12 +27,9 @@ from DataReader import DataReader
 import ApplicationConstants
 from enum import Enum
 
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
-
 class Sentiment():
 
 	def __init__(self):
-		self.SentAnalyzer = SentimentIntensityAnalyzer()
 		self.docEmbed = doc()
 		self.Visualizer = Visualizer() 
 
@@ -75,22 +75,6 @@ class Sentiment():
 		for article_index, article in enumerate(all_articles):
 
 			sentiment_score = self.calculate_sent_score(article, polarities)
-
-			if (article.Label.TargetGender == ApplicationConstants.female_value):
-				female.append((leanings[article_index], sentiment_score, None))
-			else:
-				male.append((leanings[article_index], sentiment_score, None))
-
-		self.Visualizer.graph_sentiment(female, male, GraphType.StackedBargraph)
-		
-	def train_sent_vader(self, all_articles, leanings):
-
-		male = []
-		female = [] 
-
-		for article_index, article in enumerate(all_articles):
-
-			sentiment_score = self.SentAnalyzer.polarity_scores(article.Content)
 
 			if (article.Label.TargetGender == ApplicationConstants.female_value):
 				female.append((leanings[article_index], sentiment_score, None))
@@ -325,6 +309,5 @@ if __name__ == "__main__":
 			leanings.append(leaning)
 
 	articles = [item for sublist in leanings_articles for item in sublist]
-	#sentiment.train_sent_vader(articles, leanings)
 
 	sentiment.train_sent_customlexicon(articles, leanings, reader)
