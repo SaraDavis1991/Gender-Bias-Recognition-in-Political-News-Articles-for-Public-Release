@@ -59,8 +59,8 @@ Male words including their plural form:<br/>
 "dude"<br/>
 "salesman"<br/>
 "god"<br/>
-"lion"<br/>
-female list (also removed "women" and "woman" forms):<br/>
+"lion"<br/> <br/>
+female list (also removed "women" and "woman" forms):<br/><br/>
 "female_ejaculation"<br/>
 "hair_salon"<br/>
 "viagra"<br/>
