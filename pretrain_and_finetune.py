@@ -58,6 +58,8 @@ class pretrain():
         return content
     def pretrain_and_fineTune(self, dirty=True, notBaseline = True, cleanatn = True):
         reader = DataReader()  # adds 2 G
+        if os.path.exists("./store/") == False:
+            os.mkdir("./store/")
         #input("Press Enter to continue...")
         portionToLoad = 0.15
         print("Dirty Finetune: ", dirty, " Not Baseline: ", notBaseline, " Clean Atn", cleanatn)

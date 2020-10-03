@@ -422,6 +422,9 @@ class Orchestrator():
 								if len(word) >= 2 and word != "\n" and ":" not in word:
 									word_vector.add(word)
 
+			if os.path.exists("./vocabulary/") == False:
+				os.mkdir("./vocabulary/")
+
 			if print_vocab:
 				printed_word_vec = sorted(word_vector)
 				if not_pos and lemmad:
@@ -516,6 +519,8 @@ class Orchestrator():
 
 	def run_bow(self, file_name_1, file_name_2, model_name, not_pos = True, lemmad = True, print_vocab = False):
 		label_name = file_name_2[:-4] + "_labels.npy"
+		if os.path.exists("./store/") == False:
+			os.mkdir("./store/")
 		#if file_name_2 exists, then all np arrays exists. load them and do BOW
 		if os.path.isfile(file_name_2):
 			numpy_counts = np.load(file_name_2)
@@ -540,6 +545,8 @@ class Orchestrator():
 				#create the cumulative word vec for all articles, and save it as numpy array in store directory
 				cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
 				numpy_cumulative = np.array(cumulative_word_vec)
+
+
 				np.save(file_name_1, numpy_cumulative)
 				print("store/total num words = " + str(len(cumulative_word_vec)))
 

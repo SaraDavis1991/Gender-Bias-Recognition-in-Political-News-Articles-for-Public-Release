@@ -3,7 +3,7 @@
 # This file will generate the different BOW findings.
 #################################
 
-import Orchestrator
+from Orchestrator import Orchestrator
 
 orchestrator = Orchestrator()
 
@@ -21,10 +21,10 @@ NOTE: to run this file, articles must have been collected and run_preprocessor.p
 '''
 
 #OPTION 1: run run_bow on all words in vocab, without lemma, print vocab to confirm data is cleaned properly
-orchestrator.run_bow( "store/np_cumulative_vec_ALLnoL.npy", "store/np_count_vec_ALLnoL.npy", "store/perceptron_ALLnoL.sav",True, False, True) #notPos, lemmad, printvocab
+#orchestrator.run_bow( "store/np_cumulative_vec_ALLnoL.npy", "store/np_count_vec_ALLnoL.npy", "store/perceptron_ALLnoL.sav",True, False, True) #notPos, lemmad, printvocab
 
 #OPTION 2: run run_bow on adjectives in vocab, without lemma, print vocab to confirm proper cleaning
-#orchestrator.run_bow( "store/np_cumulative_vec_ADJnoL.npy", "store/np_count_vec_ADJnoL.npy", "store/perceptron_ADJnoL.sav",False, False, True) #Pos, lemmad, printvocab
+orchestrator.run_bow( "store/np_cumulative_vec_ADJnoL.npy", "store/np_count_vec_ADJnoL.npy", "store/perceptron_ADJnoL.sav",False, False, True) #Pos, lemmad, printvocab
 
 
 #OPTION 3: run run_bow on all words in vocab, with lemma, print vocab to confirm data is cleaned properly
@@ -33,3 +33,5 @@ orchestrator.run_bow( "store/np_cumulative_vec_ALLnoL.npy", "store/np_count_vec_
 #OPTION 4: run run_bow on adjectives in vocab, with lemma, print vocab to confirm proper cleaning
 #orchestrator.run_bow( "store/np_cumulative_vec_ADJl.npy", "store/np_count_vec_ADJl.npy", "store/perceptron_ADJl.sav",False, True, True) #Pos, lemmad, printvocab
 
+#OPTION 5: run run_bow on all words in vocab without lemma, print vocab to confirm that data is cleaned properly, run it on data in folds
+#orchestrator.run_bow("store/np_cumulative_vec_ALLnoLFolds.")
