@@ -375,12 +375,12 @@ class Orchestrator():
 									word = token.orth_.lower()
 								else:
 									word = token.lemma_.lower()
-								for i, char in enumerate(word):
-									if len(word) > 1:
-										if word[0] in punctuation:
-											word = word[1:]
-										if word[-1] in punctuation:
-											word = word[:-1]
+
+								if len(word) > 1:
+									if word[0] in punctuation:
+										word = word[1:]
+									if word[-1] in punctuation:
+										word = word[:-1]
 								for punct in punctuation:
 									if punct in word:
 										word = '.'
@@ -393,34 +393,35 @@ class Orchestrator():
 										word_vector.add(word)
 
 					else:
-						#ms = [' M. ', ' m. ']
 						for token in document:
-							if token.pos_ is "ADJ" and token.orth_.lower() not in word_vector and token.text not in punctuation:# and token.text not in ms:
+							if token.pos_ is "ADJ" and token.orth_.lower() not in word_vector and token.text not in punctuation:
 								if not lemmad:
 									word = token.orth_.lower()
 								else:
 									word = token.lemma_.lower()
-								for i, char in enumerate(word):
-									if len(word) > 1:
-										if word[0] in punctuation:
-											word = word[1:]
 
-										if word[-1] in punctuation:
-											word = word[:-1]
+								if len(word) > 1:
+									if word[0] in punctuation:
+										word = word[1:]
+
+									if word[-1] in punctuation:
+										word = word[:-1]
 
 								for punct in punctuation:
 									if punct in word:
 										word = '.'
 								if "gpe" in word and "gpe" not in word_vector:
 									word = "gpe"
-								else:
+
+								elif "gpe" in word:
 									break
 								if "norp" in word and "norp" not in word_vector:
 									word = "norp"
-								else:
+								elif "norp" in word:
 									break
 								if len(word) >= 2 and word != "\n" and ":" not in word:
 									word_vector.add(word)
+
 
 			if os.path.exists("./vocabulary/") == False:
 				os.mkdir("./vocabulary/")
