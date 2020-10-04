@@ -53,7 +53,7 @@ with open(ApplicationConstants.all_articles_random_v4_cleaned) as f:
 
 curated_data = {}
 
-news_sources = article_data.keys()
+news_sources = [ApplicationConstants.HuffPost, ApplicationConstants.New_york_times, ApplicationConstants.usa_today, ApplicationConstants.Fox, ApplicationConstants.Breitbart]
 
 pos_female = {}
 pos_female_score = {}
@@ -199,12 +199,21 @@ for g in ['f','m']:
     fout.write(g + " " + a + " " + str(data[g][a]) + "\n")
     print(g, a, data[g][a])
   for source in news_sources:
-    percentages[g]['neg'][source] = data[g]['neg'][source]/(data[g]['neg'][source] + data[g]['pos'][source])
-    percentages[g]['pos'][source] = data[g]['pos'][source]/(data[g]['neg'][source] + data[g]['pos'][source])
+    div = (data[g]['neg'][source] + data[g]['pos'][source])
+
+    if (div > 0):
+      percentages[g]['neg'][source] = data[g]['neg'][source]/div
+      percentages[g]['pos'][source] = data[g]['pos'][source]/div
+    else:
+
+      percentages[g]['neg'][source] = 0
+      percentages[g]['pos'][source] = 0
+
 fout.close()
 
-
 news_source_list = list(news_sources)
+news_source_labels = ["Huffpost", "New York Times", "USA Today", "Fox", "Breitbart"]
+
 #PLOTTING
 ind = np.arange(len(news_sources))    # the x locations for the groups
 width = 0.35       # the width of the bars: can also be len(x) sequence
@@ -220,16 +229,17 @@ for i in ind:
   neg_female.append(percentages['f']['neg'][source])
   pos_male.append(percentages['m']['pos'][source])
   neg_male.append(percentages['m']['neg'][source])
-p1 = plt.bar((ind - width / 2) - offset, neg_female, width, color='crimson')
-p2 = plt.bar((ind - width / 2) - offset, pos_female, width, bottom=neg_female, color='slateblue')
-p3 = plt.bar((ind + width / 2) + offset, neg_male, width, color='crimson', hatch='////'),
-p4 = plt.bar((ind + width / 2) + offset, pos_male, width, bottom=neg_male, color='slateblue', hatch='////')
+p1 = plt.bar((ind - width / 2) - offset, neg_female, width, color='goldenrod', edgecolor='black')
+p2 = plt.bar((ind - width / 2) - offset, pos_female, width, bottom=neg_female, color='tab:blue', edgecolor='black')
+p3 = plt.bar((ind + width / 2) + offset, neg_male, width, color='goldenrod', hatch='//', edgecolor='black'),
+p4 = plt.bar((ind + width / 2) + offset, pos_male, width, bottom=neg_male, color='tab:blue', hatch='//', edgecolor='black')
 
-plt.xticks(ind, (news_source_list))
+plt.xticks(ind, (news_source_labels), fontsize=8)
 plt.yticks(np.arange(0, 1, 0.1))
 plt.legend((p1[0], p2[0], p3[0], p4[0]), ('Female Negative', 'Female Positve', 'Male Negative', 'Male Positive'))
 
 plt.ylabel('Mean Leaning Sentiment Positive:Negative Ratio')
 plt.title('Positive and Negative Sentiment by Leaning and Gender')
 #plt.show()
-plt.savefig('./visualizations/sentiment_output_percentages_' + str(PER_THRESH) + '.png')
+plt.savefig('./Results/visualizations/all_articles_random_v4_cleaned_' + str(PER_THRESH) + '.png')
+

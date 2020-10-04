@@ -72,13 +72,13 @@ def run():
         paragraph = ''
         sent_cnt = 0
         for sentence in sentences:
-          if target in sentence:
+          if target.lower() in sentence.lower():
             paragraph = paragraph + ' ' + sentence
             sent_cnt += 1
-          elif target_split[0] in sentence:
+          elif target_split[0].lower() in sentence.lower():
             paragraph = paragraph + ' ' + sentence
             sent_cnt += 1
-          elif target_split[1] in sentence:
+          elif target_split[1].lower() in sentence.lower():
             paragraph = paragraph + ' ' + sentence
             sent_cnt += 1
           elif target.startswith('Alex'):
