@@ -24,7 +24,7 @@ NOTE: to run this file, articles must have been collected and run_preprocessor.p
 #orchestrator.run_bow( "store/np_cumulative_vec_ALLnoL.npy", "store/np_count_vec_ALLnoL.npy", "store/perceptron_ALLnoL.sav",True, False, True) #notPos, lemmad, printvocab
 
 #OPTION 2: run run_bow on adjectives in vocab, without lemma, print vocab to confirm proper cleaning
-orchestrator.run_bow( "store/np_cumulative_vec_ADJnoL_3_all.npy", "store/np_count_vec_ADJnoL_3_all.npy", "store/perceptron_ADJnoL_3_all.sav",False, False, True, False) #Pos, lemmad, printvocab
+orchestrator.run_bow( "store/np_cumulative_vec_ADJnoL_4_all.npy", "store/np_count_vec_ADJnoL_4_all.npy", "store/perceptron_ADJnoL_4_all.sav",False, False, True, False) #Pos, lemmad, printvocab
 
 
 #OPTION 3: run run_bow on all words in vocab, with lemma, print vocab to confirm data is cleaned properly
