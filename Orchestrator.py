@@ -560,7 +560,7 @@ class Orchestrator():
 			list_labels = []
 			for i, split in enumerate(articles):
 				for j, leaning in enumerate(split):
-					if i == 3:
+					if i == 4:
 						training_dataset = split[leaning][ApplicationConstants.Train]
 						validation_dataset = split[leaning][ApplicationConstants.Validation]
 						test_dataset = split[leaning][ApplicationConstants.Test]
@@ -572,7 +572,7 @@ class Orchestrator():
 						list_labels.append(labels)
 					else:
 						break
-				if i > 3:
+				if i > 4:
 					break
 			articles_list = [j for sub in list_articles_list for j in sub]
 			labels = [j for sub in list_labels for j in sub]
@@ -632,7 +632,7 @@ class Orchestrator():
 			resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
 			model_name_amp = model_name + "_" + str(acc) + "_.sav"
 			pickle.dump(net, open(model_name_amp, 'wb'))
-			fout = open('output_words_4_all.txt', 'w')
+			fout = open('output_words_5_all.txt', 'w')
 			fout.write("Male Top Words: \n")
 			for index in resTop:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
