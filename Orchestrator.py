@@ -518,8 +518,12 @@ class Orchestrator():
 		print("accuracy is: " + str(acc))
 
 
-	def run_bow(self, file_name_1, file_name_2, model_name, not_pos = True, lemmad = True, print_vocab = False):
+	def run_bow(self, file_name_1, file_name_2, model_name, not_pos = True, lemmad = True, print_vocab = False, balanced = True):
 		label_name = file_name_2[:-4] + "_labels.npy"
+		if balanced:
+			numArticles = 50
+		else:
+			numArticles = 1000
 		if os.path.exists("./store/") == False:
 			os.mkdir("./store/")
 		#if file_name_2 exists, then all np arrays exists. load them and do BOW
@@ -527,7 +531,7 @@ class Orchestrator():
 			numpy_counts = np.load(file_name_2)
 			numpy_cum_labels = np.load(label_name)
 			count_vectors = numpy_counts.tolist()
-			list_labels = numpy_cum_labels.tolist()
+			labels = numpy_cum_labels.tolist() #was list_labels
 			numpy_cumulative = np.load(file_name_1)
 			cumulative_word_vec = numpy_cumulative.tolist()
 		else:
@@ -537,11 +541,11 @@ class Orchestrator():
 
 			else: #otherwise, load the correct json
 				if not_pos:
-					articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=1000
+					articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=numArticles
 											  ,save=False)
 				else:
 					articles = self.read_data(path = ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names,
-											  number_of_articles =1000, save = False)
+											  number_of_articles =numArticles, save = False)
 
 				#create the cumulative word vec for all articles, and save it as numpy array in store directory
 				cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
@@ -555,9 +559,8 @@ class Orchestrator():
 			list_articles_list = []
 			list_labels = []
 			for i, split in enumerate(articles):
-				print("Fold " + str(i + 1))
 				for j, leaning in enumerate(split):
-					if i is 0:
+					if i == 4:
 						training_dataset = split[leaning][ApplicationConstants.Train]
 						validation_dataset = split[leaning][ApplicationConstants.Validation]
 						test_dataset = split[leaning][ApplicationConstants.Test]
@@ -569,38 +572,39 @@ class Orchestrator():
 						list_labels.append(labels)
 					else:
 						break
-				if i > 0:
+				if i > 4:
 					break
 			articles_list = [j for sub in list_articles_list for j in sub]
 			labels = [j for sub in list_labels for j in sub]
+			print(len(articles_list), len(labels))
 
 			#zip and shuffle the list of articles
-			print("zipping and shuffling")
-			zippedArticles = list(zip(articles_list, labels))
-			random.shuffle(zippedArticles)
+			#print("zipping and shuffling")
+			#zippedArticles = list(zip(articles_list, labels))
+			#random.shuffle(zippedArticles)
 
-			list_articles = []
-			list_labels = []
-			print("unzipping")
-			for article, label in zippedArticles:
-				list_articles.append(article)
-				list_labels.append(label)
+			#list_articles = []
+			#list_labels = []
+			#print("unzipping")
+			#for article, label in zippedArticles:
+			#	list_articles.append(article)
+			#	list_labels.append(label)
 
 			#change the 0 labels to -1 for easier training
 			print("enumerating")
-			for i, label in enumerate(list_labels):
+			for i, label in enumerate(labels): #was list_labels
 				if label == 0:
-					list_labels[i] = -1
+					labels[i] = -1 #was list_labels
 
 			#Create a word count vector for every article in the dataset and save the count vector in numpy array
 			print("appending")
 			count_vectors = []
 			i = 0
 			nlp = spacy.load("en_core_web_lg")
-			for article in list_articles:
+			for article in articles_list: #may need to change back to list_articles and uncomment lines 581-590
 				count_vectors.append(self.calc_count_doc_count_vector(cumulative_word_vec, article, nlp, lemmad))
 			numpy_count = np.array(count_vectors)
-			numpy_label = np.array(list_labels)
+			numpy_label = np.array(labels) #was list_labels
 			np.save(file_name_2, numpy_count)
 			np.save(label_name, numpy_label)
 
@@ -610,25 +614,25 @@ class Orchestrator():
 		print("building net")
 		net = SVM()
 		print("training")
-		net.Train(count_vectors[:trainLen], list_labels[:trainLen], count_vectors[trainLen:], list_labels[trainLen:])
+		net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[trainLen:], labels[trainLen:]) #was list_labels
 		weights = net.Get_Weights()
 		predictions = net.Predict(count_vectors[trainLen:])
 
-		acc = accuracy_score(list_labels[trainLen:], predictions)
+		acc = accuracy_score(labels[trainLen:], predictions) #was list_labels
 		target_names = ['Female', 'Male']
 		print("accuracy is: " + str(acc))
 
 		#if the accuracy is high enough, print the metrics, and print top words to a file
 		if acc >= 0.60:
-			print(classification_report(list_labels[trainLen:], predictions, target_names=target_names))
+			print(classification_report(labels[trainLen:], predictions, target_names=target_names)) #was list_labels
 
 			weights = weights[0]
 
-			resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-21:]
-			resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:21]
+			resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-25:]
+			resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
 			model_name_amp = model_name + "_" + str(acc) + "_.sav"
 			pickle.dump(net, open(model_name_amp, 'wb'))
-			fout = open('output_words.txt', 'w')
+			fout = open('output_words_5_50.txt', 'w')
 			fout.write("Male Top Words: \n")
 			for index in resTop:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
