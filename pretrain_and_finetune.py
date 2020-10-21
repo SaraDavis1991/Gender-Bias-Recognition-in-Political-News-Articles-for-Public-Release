@@ -82,7 +82,7 @@ class pretrain():
                         time.sleep(10) #pause to allow to see message
                         reader.Load_ATN_csv(1.0, clean=True, save=True)
                 print("Cleaned pretrained atn model does not exist, loading data")
-                all_the_news = reader.Load_newer_ATN(appConst)
+                all_the_news = reader.Load_newer_ATN(appConst, 1.0)
                 print("Number articles loaded: ", str(len(all_the_news)))
                 cleaned_articles = list(map(lambda article: article.Content, all_the_news))
                 pretrain_labels = list(map(lambda article: article.Label, all_the_news))

@@ -134,17 +134,17 @@ class DataReader():
 
         return polarities
 
-    def Load_newer_ATN(self, filepath):
+    def Load_newer_ATN(self, filepath, portion):
         articles = []
-        #numtoload = portion * 2700000
+        numtoload = portion * 2700000
         count = 0
         with open(filepath) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
-                #if count < numtoload:
-                articles.append(Article(row[7], row[9], 2, row[6], row[8], row[2], 2))
-                #else:
-                #    break
+                if count < numtoload:
+                    articles.append(Article(row[7], row[9], 2, row[6], row[8], row[2], 2))
+                else:
+                    break
                 count += 1
 
         return articles
