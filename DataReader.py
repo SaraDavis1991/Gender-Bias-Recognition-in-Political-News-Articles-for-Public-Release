@@ -134,31 +134,32 @@ class DataReader():
 
         return polarities
 
-    def Load_newer_ATN(self, filepath, portion):
+    def Load_newer_ATN(self, filepath):
         articles = []
-        numtoload = portion * 2700000
+        #numtoload = portion * 2700000
         count = 0
         with open(filepath) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
-                if count < numtoload:
-                    articles.append(Article(row[7], row[9], 2, row[6], row[8], row[2], 2))
-                else:
-                    break
+                #if count < numtoload:
+                articles.append(Article(row[7], row[9], 2, row[6], row[8], row[2], 2))
+                #else:
+                #    break
                 count += 1
 
         return articles
 
-    def Load_ATN_csv(self, filePath, savePath, number_of_articles=50, clean=True, save=False, shouldRandomize=True):
+    def Load_ATN_csv(self, portion, clean=True, save=False):
 
         in_file = open('store/all-the-news-2-1.csv')
-        out_file = open('store/all-the-news_cleaned.csv', 'w')
-        out_writer = csv.writer(out_file, delimiter=',')
+        #out_file = open('store/all-the-news_cleaned.csv', 'a')
+        #out_writer = csv.writer(out_file, delimiter=',')
         in_reader = csv.reader(in_file, delimiter=',')
         row_cnt = 0
         for row in in_reader:
-            if row_cnt > 300000 and row_cnt <= 480000:
-
+            out_file = open('store/all-the-news_cleaned_' + str(portion) + '.csv', 'a') #save by portion cleaned
+            out_writer = csv.writer(out_file, delimiter=',')
+            if row_cnt < (2700000 * portion): #clean only the data you need because this takes a long time
                 content = row[8]
                 if clean:
                     cleaned_content = self.Preprocessor.Clean(content)
@@ -168,9 +169,10 @@ class DataReader():
                     out_writer.writerow(out_row)
             print(row_cnt)
             sys.stdout.flush()
+            out_file.close()
             row_cnt += 1
         in_file.close()
-        out_file.close()
+
 
     def Load_ATN(self, filePath):
 
