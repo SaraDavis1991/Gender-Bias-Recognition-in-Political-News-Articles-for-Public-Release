@@ -26,7 +26,8 @@ fold_5 = "./folds/fold5.txt"
 #all the news files- all_the_news_newer is 2.0, and cleaned has been cleaned using our process
 all_the_news_path = './store/all-the-news.db'
 all_the_news_newer_path = './store/all-the-news-2-1.csv'
-all_the_news_cleaned_path = './store/all-the-news_cleaned_merged_final.csv'
+all_the_news_cleaned_path_20 = './store/all-the-news_cleaned_0.2.csv'
+all_the_news_cleaned_path_all = './store/all-the-news_cleaned_1.0.csv'
 
 #leaning constants
 FarLeft = "Far_Left"
