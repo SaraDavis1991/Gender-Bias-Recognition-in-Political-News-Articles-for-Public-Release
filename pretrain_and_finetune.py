@@ -21,7 +21,9 @@ import numpy as np
 from preprocessor import Preprocessor
 
 import os.path
-import copy 
+import copy
+import time
+import random
 
 
 class pretrain():
@@ -56,99 +58,132 @@ class pretrain():
         content = re.sub(" ing ", '', content)
 
         return content
-    def pretrain_and_fineTune(self, dirty=True, notBaseline = True, cleanatn = True):
+    def pretrain_and_fineTune(self, atnPortion = 0.2, dirty=True, notBaseline = True, cleanatn = True):
         reader = DataReader()  # adds 2 G
         if os.path.exists("./store/") == False:
             os.mkdir("./store/")
         #input("Press Enter to continue...")
-        portionToLoad = 0.15
+        portionToLoad = atnPortion
         print("Dirty Finetune: ", dirty, " Not Baseline: ", notBaseline, " Clean Atn", cleanatn)
+        if os.path.exists("./metrics/") == False:
+            os.mkdir("./metrics/")
         if notBaseline:
-            if (os.path.exists('store/pretrained_cleaned_model.model')) == False and cleanatn:
-                print("Cleaned atn model does not exist, loading data")
-                print("Loading 100% All The News cleaned")
-                all_the_news = reader.Load_newer_ATN(ApplicationConstants.all_the_news_cleaned_path, 1.0)
-                print(len(all_the_news))
+            if (os.path.exists('store/model_pretrained_cleaned_atn.model')) == False and cleanatn:
+                if atnPortion == 0.2:
+                    appConst = ApplicationConstants.all_the_news_cleaned_path_20
+                    if (os.path.exists(appConst)) == False:
+                        print("The all the news dataset needs to be cleaned. This will take a LONG time...")
+                        time.sleep(10)  #pause to allow to see message
+                        reader.Load_ATN_csv(0.20, clean=True, save=True)
+                elif atnPortion == 1.0: #note: ALL OF THE DATA REQUIRES A HUGE AMOUNT OF RAM- we used .2 for our exp
+                    appConst = ApplicationConstants.all_the_news_cleaned_path_all
+                    if (os.path.exists(appConst)) == False:
+                        print("The all the news dataset needs to be cleaned. This will take a LONG time...")
+                        time.sleep(10) #pause to allow to see message
+                        reader.Load_ATN_csv(1.0, clean=True, save=True)
+                print("Cleaned pretrained atn model does not exist, loading data")
+                all_the_news = reader.Load_newer_ATN(appConst)
+                print("Number articles loaded: ", str(len(all_the_news)))
                 cleaned_articles = list(map(lambda article: article.Content, all_the_news))
-                print(cleaned_articles[0])
                 pretrain_labels = list(map(lambda article: article.Label, all_the_news))
-                del all_the_news
-            elif (os.path.exists('store/pretrained_model.model')) == False and cleanatn == False:
-                print("dirty atn model does not exist, loading data")
+                del all_the_news #delete the object
+            #if dirty == False:
+            #    avFile = "metrics/cleanPretrainATN_cleanFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+            #    allfile = "metrics/cleanPretrainATN_cleanFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
+            #else:
+            #    avFile = "metrics/cleanPretrainATN_dirtyFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+            #    allfile = "metrics/cleanPretrainATN_dirtyFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
+
+            elif (os.path.exists('store/model_pretrained_dirty_atn.model')) == False and cleanatn == False: #load the dirty atn
+                print("Dirty pretrained atn model does not exist, loading data")
                 print("Loading %.2f All The News" % portionToLoad)
                 all_the_news = reader.Load_newer_ATN(ApplicationConstants.all_the_news_newer_path, portionToLoad)
 
-                dirty_pretrain_content = list(map(lambda article: article.Content,
-                                                  all_the_news))  # grabbing only half cuz my computer can't fit training all this in memory
-
+                dirty_pretrain_content = list(map(lambda article: article.Content, all_the_news))
 
                 cleaned_articles = []
-                print("Cleaning All The News")
+                print("Removing twitter tags and emails from All The News")
                 for article in dirty_pretrain_content:
-                    cleaned_articles.append(self.filter_ATN_content(article))
+                    cleaned_articles.append(self.filter_ATN_content(article)) #only remove twitter tags (not full clean)
 
 
                 dirty_pretrain_content.clear()
-                del dirty_pretrain_content
-                pretrain_labels = list(map(lambda article: article.Label,
-                                           all_the_news))
+                del dirty_pretrain_content #delete the object
+                pretrain_labels = list(map(lambda article: article.Label, all_the_news))
                 del all_the_news# these values are null since ATN doesn't have gender labels
-            #pretrain_labels = list(map(lambda article: article.Label, all_the_news))  # these values are null since ATN doesn't have gender labels
+                #if dirty == False:
+                #    avFile = "metrics/dirtyPretrainATN_cleanFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+                #    allfile = "metrics/dirtyPretrainATN_cleanFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
+                #else:
+                #    avFile = "metrics/dirtyPretrainATN_dirtyFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+                #    allfile = "metrics/dirtyPretrainATN_dirtyFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
 
             del reader
 
-            print("Opening file to append to")
+            pretrain_epochs = [25]
+            fineTune_epochs = [100]
+            vector_sizes = [100]
+            if cleanatn:
+                if dirty == False:
+                    avFile = "metrics/cleanPretrainATN_cleanFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+                    allfile = "metrics/cleanPretrainATN_cleanFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
+                else:
+                    avFile = "metrics/cleanPretrainATN_dirtyFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+                    allfile = "metrics/cleanPretrainATN_dirtyFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
+            else:
+                if dirty == False:
+                    avFile = "metrics/dirtyPretrainATN_cleanFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+                    allfile = "metrics/dirtyPretrainATN_cleanFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
+                else:
+                    avFile = "metrics/dirtyPretrainATN_dirtyFineTuneNewsBias_averages.txt"  # "pretrain_and_fineTune_atnClean_av.txt"
+                    allfile = "metrics/dirtyPretrainATN_dirtyFineTuneNewsBias_byFold.txt"  # "pretrain_and_fineTune_atnClean.txt"
 
-            pretrain_epochs = [25]#[25, 50, 100]#, 200] #fix the next 5 lines
-            fineTune_epochs = [100]#[ 25, 50, 100]#, 200]
-            vector_sizes = [100]#[20, 100, 300]
-            avFile = "pretrain_and_cleaned_fineTune_av_cleanedatn_v4_cleanatn.txt"#"pretrain_and_fineTune_atnClean_av.txt"
-            allfile = "pretrain_and_cleaned_fineTune_cleanedatn_v4_cleanatn.txt"#"pretrain_and_fineTune_atnClean.txt"
+
 
         else:
             pretrain_epochs = [0]
             fineTune_epochs = [200]
             vector_sizes =[100]
-            avFile = "pretrain_and_fineTune_nopretrain_av_v4.txt"
-            allfile = "pretrain_and_fineTune_nopretrain_v4.txt"
+            if dirty == False:
+                avFile = "noPretrain_cleanFineTuneNewsBias_averages.txt"
+                allfile = "noPretrain_cleanFineTuneNewsBias_byFold.txt"
+            else:
+                avFile = "noPretrain_dirtyFineTuneNewsBias_averages.txt"
+                allfile = "noPretrain_dirtyFineTuneNewsBias_byFold.txt"
 
         for pretrain_epoch in pretrain_epochs:
             for fineTune_epoch in fineTune_epochs:
                 for vector_size in vector_sizes:
-
-                    print("doing")
 
                     with open(avFile, "a+") as f_av:
                         with open(allfile, "a+") as f:
 
                             # else:
                             if notBaseline:
-                                print("Pretraining")
+                                print("PRETRAINING DOC2VEC MODEL")
 
                                 docEmbed = doc()
                                 if cleanatn ==False and notBaseline:
-                                    if (os.path.exists('store/pretrained_model.model')):
+                                    if (os.path.exists('store/model_pretrained_dirty_atn.model')):
                                         print("loading uncleaned atn model")
-                                        pretrained_article_model = docEmbed.Load_Model('store/pretrained_model.model')
+                                        pretrained_article_model = docEmbed.Load_Model('store/model_pretrained_dirty_atn.model')
                                     else:
                                         print("Generating uncleaned atn model")
                                         pretrained_article_model = docEmbed.Embed(cleaned_articles, pretrain_labels,
                                                                                        vector_size=vector_size,
-                                                                                       epochs=pretrain_epoch,
-                                                                                       lower=False)  # started with 2. was not working. 20 worked well
-                                        pretrained_article_model.save('store/pretrained_model.model')
+                                                                                       epochs=pretrain_epoch)
+                                        pretrained_article_model.save('store/model_pretrained_dirty_atn.model')
                                 elif notBaseline:
-                                    if (os.path.exists('store/pretrained_cleaned_model.model')):
+                                    if (os.path.exists('store/model_pretrained_cleaned_atn.model')):
                                         print("loading cleaned atn model")
-                                        pretrained_article_model = docEmbed.Load_Model('store/pretrained_cleaned_model.model')
+                                        pretrained_article_model = docEmbed.Load_Model('store/model_pretrained_cleaned_atn.model')
                                     else:
                                         print("Generating cleaned atn model")
                                         pretrained_article_model = docEmbed.Embed(cleaned_articles, pretrain_labels,
                                                                                        vector_size=vector_size,
-                                                                                       epochs=pretrain_epoch,
-                                                                                       lower=False)  # started with 2. was not working. 20 worked well
+                                                                                       epochs=pretrain_epoch)
                                         print("saving cleaned embed atn")
-                                        pretrained_article_model.save('store/pretrained_cleaned_model.model')
+                                        pretrained_article_model.save('store/model_pretrained_cleaned_atn.model')
 
                                 del docEmbed
                             reader = DataReader()
@@ -166,12 +201,7 @@ class pretrain():
                             breitbartTtlRecall, foxTtlRecall, usaTtlRecall, huffTtlRecall, nytTtlRecall = 0, 0, 0, 0, 0
                             breitbartTtlF1, foxTtlF1, usaTtlF1, huffTtlF1, nytTtlF1 = 0, 0, 0, 0, 0
                             if notBaseline:
-                                print("Fine tuning folds")
-
-                            #f.write("Training vector size " + str(vector_size) + " pretrain " + str(
-                            #    pretrain_epoch) + " finetune " + str(fineTune_epoch) + "\n")
-                            #f_av.write("Training vector size " + str(vector_size) + " pretrain " + str(
-                            #    pretrain_epoch) + " finetune " + str(fineTune_epoch) + "\n")
+                                print("FINE TUNING DOC2VEC MODEL SEPARATELY ON EACH FOLD")
 
                             print("Training vector size " + str(vector_size) + " pretrain " + str(
                                 pretrain_epoch) + " finetune " + str(fineTune_epoch))
@@ -181,6 +211,7 @@ class pretrain():
                             tsneHuff = False
                             tsneNYT = False
                             for i, split in enumerate(finetuneSet):
+                                foldNum = str(i+1)
                                 print("Fold " + str (i+1))
                                 for j, leaning in enumerate(split):
                                     training_dataset = split[leaning][ApplicationConstants.Train]
@@ -198,22 +229,51 @@ class pretrain():
                                     if notBaseline:
                                         fine_tuned_model = docEmbed.fine_tune(fineTune_train_articles ,fineTune_train_labels,
                                                                                     pretrained_article_model, fineTune_epoch)
+
+                                        #One model per fold, since they're trained on different people
+                                        if dirty == False and cleanatn == True:
+                                            fine_tuned_model.save('store/model_pretrainedCleanATN_finetunedClean_fold' + str(foldNum) + '_' + leaning + '.model')
+                                        elif dirty == False and cleanatn == False:
+                                            fine_tuned_model.save('store/model_pretrainedDirtyATN_finetunedClean_fold' + str(foldNum) + '_' + leaning +'.model')
+                                        elif dirty == True and cleanatn == True:
+                                            fine_tuned_model.save(
+                                                'store/model_pretrainedCleanATN_finetunedDirty_fold' + str(foldNum) + '_' + leaning + '.model')
+                                        elif dirty == True and cleanatn == False:
+                                            fine_tuned_model.save(
+                                                'store/model_pretrainedDirtyATN_finetunedDirty_fold' + str(foldNum) + '_' + leaning + '.model')
+
                                     else:
 
                                         fine_tuned_model = docEmbed.Embed(fineTune_train_articles, fineTune_train_labels, vector_size=vector_size, epochs=fineTune_epoch, lower=True)
+
+                                        if dirty == False :
+                                            fine_tuned_model.save('store/model_notPretrained_finetunedClean.model')
+                                        elif dirty == True :
+                                            fine_tuned_model.save(
+                                                'store/model_notPretrained_finetunedDirty.model')
+
                                     FT_Train_labels, FT_train_embeddings = docEmbed.gen_vec(fine_tuned_model,
                                                                                          fineTune_train_articles,
                                                                                           fineTune_train_labels)
+                                    shuffledList = list(zip(FT_Train_labels, FT_train_embeddings))
+                                    random.shuffle(shuffledList)
+                                    FT_Train_labels, FT_train_embeddings = zip(*shuffledList)
+
                                     FT_Test_labels, TF_Test_embeddings = docEmbed.gen_vec(fine_tuned_model,
                                                                                           fineTune_test_articles,
                                                                                         fineTune_test_labels)
-                                    #FT_labels = list(FT_labels) #train + val
+                                    shuffledList = list(zip(FT_Test_labels, TF_Test_embeddings))
+                                    random.shuffle(shuffledList)
+                                    FT_Test_labels, TF_Test_embeddings = zip (*shuffledList)
+
                                     FT_labels = list(FT_Train_labels)
                                     FT_test_labels = list(FT_Test_labels) #test labels
                                     del docEmbed
 
                                     model = NN()
-                                    model.Train(FT_train_embeddings[:len(training_dataset)], FT_labels[:len(training_dataset)], FT_train_embeddings[len(training_dataset):], FT_labels[len(training_dataset):])
+                                    #modify to incorporate len val
+                                    model.Train(FT_train_embeddings[:len(training_dataset) + len(validation_dataset)], FT_labels[:len(training_dataset) + len(validation_dataset)],
+                                                FT_train_embeddings[len(training_dataset) + len(validation_dataset):], FT_labels[len(training_dataset) + len(validation_dataset):])
                                     prediction = model.Predict(TF_Test_embeddings)
 
                                     Met = Metrics()
@@ -244,33 +304,33 @@ class pretrain():
                                         nytTtlRecall += Met.Recall(prediction,  FT_test_labels)
                                         nytTtlF1 += Met.Fmeasure(prediction,  FT_test_labels)
 
-                                    print("Leaning:", lean, "precision:",
-                                          Met.Precision(prediction,FT_test_labels), "recall:",
-                                          Met.Recall(prediction,FT_test_labels),  "F-Measure:",
+                                    print("Leaning: ", lean, " precision: ",
+                                          Met.Precision(prediction,FT_test_labels), " recall: ",
+                                          Met.Recall(prediction,FT_test_labels),  " F-Measure: ",
                                           Met.Fmeasure(prediction,FT_test_labels))
 
-                                    f.write("Leaning:" + lean + "precision:" +
-                                          str(Met.Precision(prediction, FT_test_labels)) + "recall:"+
-                                          str(Met.Recall(prediction, FT_test_labels))+ "F-Measure:" +
+                                    f.write("Leaning: " + lean + " precision: " +
+                                          str(Met.Precision(prediction, FT_test_labels)) + " recall: "+
+                                          str(Met.Recall(prediction, FT_test_labels))+ " F-Measure: " +
                                           str(Met.Fmeasure(prediction, FT_test_labels)) + "\n")
                                     del model
 
 
                                     if Met.Fmeasure(prediction, FT_test_labels) > 0.70 and Met.Fmeasure(prediction, FT_test_labels) < 0.90:
                                         if leaning == 'breitbart' and not tsneBreit:
-                                            self.visualize_all(fine_tuned_model, leaning)
+                                            self.visualize_all(fine_tuned_model, leaning, foldNum)
                                             tsneBreit = True
                                         if leaning == 'fox' and not tsneFox:
-                                            self.visualize_all(fine_tuned_model, leaning)
+                                            self.visualize_all(fine_tuned_model, leaning, foldNum)
                                             tsneFox = True
                                         if leaning == 'usa_today' and not tsneUSA:
-                                            self.visualize_all(fine_tuned_model, leaning)
+                                            self.visualize_all(fine_tuned_model, leaning, foldNum)
                                             tsneUSA = True
                                         if leaning == 'huffpost' and not tsneHuff:
-                                            self.visualize_all(fine_tuned_model, leaning)
+                                            self.visualize_all(fine_tuned_model, leaning, foldNum)
                                             tsneHuff = True
                                         if leaning == 'new_york_times' and not tsneNYT:
-                                            self.visualize_all(fine_tuned_model, leaning)
+                                            self.visualize_all(fine_tuned_model, leaning, foldNum)
                                             tsneNYT = True
                                     del Met
 
@@ -308,22 +368,7 @@ class pretrain():
 
 
 
-
-
-
-
-    # article_labels, article_embeddings = self.docEmbed.gen_vec(pretrained_article_model, articles, labels)
-    #
-    def print_all_the_news(self):
-        reader = DataReader()
-        all_the_news = reader.Load_newer_ATN(ApplicationConstants.all_the_news_newer_path, .2)
-        pretrain_content = list(map(lambda article: article.Content, all_the_news))[:int(
-            len(all_the_news) * 0.2)]  # grabbing only half cuz my computer can't fit training all this in memory
-        print(len(pretrain_content))
-        #or article in pretrain_content:
-        #    print(article)
-        #    input("Press Enter to continue...")
-    def visualize_all(self, fine_tuned_model, lean):
+    def visualize_all(self, fine_tuned_model, lean, foldNum):
         from Orchestrator import Orchestrator
         orchestrator = Orchestrator()
         articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned,
@@ -341,7 +386,7 @@ class pretrain():
                     docEmbed = doc()
                     labels, embeddings = docEmbed.gen_vec(fine_tuned_model, articles, labels)
                     labels = list(labels)
-                    self.Visualizer.plot_TSNE(leaning, embeddings, labels, training_dataset + validation_dataset + test_dataset)
+                    self.Visualizer.plot_TSNE(leaning, embeddings, labels, training_dataset + validation_dataset + test_dataset, foldNum)
 
 
 

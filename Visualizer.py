@@ -45,8 +45,9 @@ class Visualizer():
 	   # self.annot.get_bbox_patch().set_facecolor(cmap(norm(c[ind["ind"][0]])))
 		self.annot.get_bbox_patch().set_alpha(0.4) 
 
-	def plot_TSNE(self, leaning, weights, true_labels, articles):
-		
+	def plot_TSNE(self, leaning, weights, true_labels, articles, foldNum):
+		if(os.path.exists('./visualizations')) == False:
+			os.mkdir("./visualizations/")
 		self.articles = articles
 
 		self.genders = list(map(lambda label: 'Male' if label == 1 else 'Female', true_labels))
@@ -71,7 +72,7 @@ class Visualizer():
 		plt.title('t-SNE Article Distribution for ' + leaning, fontsize=20)
 		#self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
 		#plt.show()
-		plt.savefig("visualizations/" + leaning + "_finetuned_cleaned_heldOut_embed_all.png")
+		plt.savefig("visualizations/" + leaning + "_fold" + str(foldNum) + "_finetuned_cleaned_heldOut_embed_all.png")
 
 	def graph_sentiment(self, Fsentiment, Msentiment, graphType):
 
