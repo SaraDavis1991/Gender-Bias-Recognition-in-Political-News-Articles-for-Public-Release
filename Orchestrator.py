@@ -632,7 +632,7 @@ class Orchestrator():
 			resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
 			model_name_amp = model_name + "_" + str(acc) + "_.sav"
 			pickle.dump(net, open(model_name_amp, 'wb'))
-			fout = open('output_words_4_all_adj.txt', 'w')
+			fout = open('store/old_one/output_words_4_all_adj.txt', 'w')
 			fout.write("Male Top Words: \n")
 			for index in resTop:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
