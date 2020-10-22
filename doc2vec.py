@@ -43,9 +43,8 @@ class doc():
 		#random.shuffle(tagged_doc_articles)
 
 		#dm 1 is pv-dm, dm 0 is pv-dbow size is feature vec size, alpha is lr, negative is noise words, sample is thresh for down smample
-		model = Doc2Vec(vector_size=vector_size, alpha = 0.01, min_alpha = 0.0025, min_count = 1, epochs=epochs, negative=1, dm = 0, workers = multiprocessing.cpu_count(), compute_loss=True)
+		model = Doc2Vec(vector_size=vector_size, alpha = 0.01, min_alpha = 0.0025, min_count = 1, epochs=epochs, negative=1, dm = 0, workers = multiprocessing.cpu_count())
 		model.build_vocab(tagged_doc_articles)
-		logger = EpochLogger()
 		model.train(tagged_doc_articles, total_examples = model.corpus_count, epochs= model.epochs)
 
 		return model
