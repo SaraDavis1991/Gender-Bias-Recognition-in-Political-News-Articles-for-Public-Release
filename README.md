@@ -9,9 +9,8 @@ you do so, you will need to update run_preprocessor.py <br/>
 <p align="center">DOC2VEC EMBEDDING TESTS </p>
                                                        
 (3a) Download all the news 2.0 from https://components.one/datasets/all-the-news-2-news-articles-dataset/ to the store directory<br/>
-(3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains several options for pretraining and finetuning, including
-an option that skips pretraining for comparison to a baseline. Simply uncomment the line that you wish to run.  The default runs the parameters shown in our
-paper: cleaned all the news data, cleaned news bias data, pretraining enabled. All of the metrics are saved to the PretrainFinetuneMetrics directory.
+(3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains the option to pretrain on dirty or clean all the news data and fine tune on dirty of clean news-bias data. Simply uncomment the line that you wish to run.  The default runs the parameters shown in our
+paper: cleaned all the news data, cleaned news bias data, pretraining enabled. All of the metrics (precision, recall, f1) are saved to the metrics directory. All of the models are saved to the PretrainFinetuneStorage directory. All TSNE visualizations are saved to the visualizations directory. 
 
 <p align="center">BAG OF WORDS TESTS</p>
 
