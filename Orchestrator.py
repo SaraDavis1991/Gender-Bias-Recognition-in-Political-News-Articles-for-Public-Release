@@ -520,12 +520,14 @@ class Orchestrator():
 
 	def run_bow(self, file_name_1, file_name_2, model_name, not_pos = True, lemmad = True, print_vocab = False, balanced = True):
 		label_name = file_name_2[:-4] + "_labels.npy"
+		if os.path.exists("./vocabulary/") == False:
+			os.mkdir("./vocabulary/")
 		if balanced:
 			numArticles = 50
 		else:
 			numArticles = 1000
-		if os.path.exists("./store/") == False:
-			os.mkdir("./store/")
+		if os.path.exists("./BOW_models/") == False:
+			os.mkdir("./BOW_models/")
 		#if file_name_2 exists, then all np arrays exists. load them and do BOW
 		if os.path.isfile(file_name_2):
 			numpy_counts = np.load(file_name_2)
@@ -609,34 +611,42 @@ class Orchestrator():
 			np.save(label_name, numpy_label)
 
 		#Build and train an SVM BOW
-		trainLen = int(len(count_vectors) * 0.8)
+		trainLen = len(training_dataset) + len(validation_dataset)
 		acc = 0
 		print("building net")
 		net = SVM()
 		print("training")
-		net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[trainLen:], labels[trainLen:]) #was list_labels
+		net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[:trainLen], labels[:trainLen]) #no validation occurs here, so last 2 params do nothing
 		weights = net.Get_Weights()
-		predictions = net.Predict(count_vectors[trainLen:])
+		predictions = net.Predict(count_vectors[trainLen:]) #pred on test counts
 
-		acc = accuracy_score(labels[trainLen:], predictions) #was list_labels
+		acc = accuracy_score(labels[trainLen:], predictions) #get accuracy
 		target_names = ['Female', 'Male']
 		print("accuracy is: " + str(acc))
 
 		#if the accuracy is high enough, print the metrics, and print top words to a file
-		if acc >= 0.60:
-			print(classification_report(labels[trainLen:], predictions, target_names=target_names)) #was list_labels
+		#if acc >= 0.60:
+		print(classification_report(labels[trainLen:], predictions, target_names=target_names)) #was list_labels
 
-			weights = weights[0]
+		weights = weights[0]
 
-			resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-25:]
-			resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
-			model_name_amp = model_name + "_" + str(acc) + "_.sav"
-			pickle.dump(net, open(model_name_amp, 'wb'))
-			fout = open('store/old_one/output_words_4_all_adj.txt', 'w')
-			fout.write("Male Top Words: \n")
-			for index in resTop:
-				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
-			fout.write("Female Top Words: \n")
-			for index in resBottom:
-				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+		resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-25:]
+		resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
+		model_name_amp = model_name + "_" + str(acc) + "_.sav"
+		pickle.dump(net, open(model_name_amp, 'wb'))
+		if not_pos and balanced:
+			fout = open('vocabulary/output_words_50Articles_allwords.txt', 'w')
+		if not not_pos and balanced:
+			fout = open('vocabulary/output_words_50Articles_adj.txt', 'w')
+		if not_pos and not balanced:
+			fout = open('vocabulary/output_words_allArticles_allwords.txt', 'w')
+		if not not_pos and not balanced:
+			fout = open('vocabulary/output_words_allArticles_adj.txt', 'w')
+
+		fout.write("Male Top Words: \n")
+		for index in resTop:
+			fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+		fout.write("Female Top Words: \n")
+		for index in resBottom:
+			fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
 

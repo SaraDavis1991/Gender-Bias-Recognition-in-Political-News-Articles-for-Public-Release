@@ -69,6 +69,8 @@ class pretrain():
         print("Dirty Finetune: ", dirtyNewsBias, " Clean Atn", cleanatn)
         if os.path.exists("./metrics/") == False:
             os.mkdir("./metrics/")
+        if os.path.exists("./PretrainFinetuneStorage/") == False:
+            os.mkdir("./PretrainFinetuneStorage/")
 
         if (os.path.exists('store/model_pretrained_cleaned_atn.model')) == False and cleanatn:
             if atnPortion == 0.2:
@@ -207,15 +209,15 @@ class pretrain():
 
                         #One model per fold, since they're trained on different people
                         if dirtyNewsBias == False and cleanatn == True:
-                            fine_tuned_model.save('store/model_pretrainedCleanATN_finetunedClean_fold' + str(foldNum) + '_' + leaning + '.model')
+                            fine_tuned_model.save('PretrainFinetuneStorage/model_pretrainedCleanATN_finetunedClean_fold' + str(foldNum) + '_' + leaning + '.model')
                         elif dirtyNewsBias == False and cleanatn == False:
-                            fine_tuned_model.save('store/model_pretrainedDirtyATN_finetunedClean_fold' + str(foldNum) + '_' + leaning +'.model')
+                            fine_tuned_model.save('PretrainFinetuneStorage/model_pretrainedDirtyATN_finetunedClean_fold' + str(foldNum) + '_' + leaning +'.model')
                         elif dirtyNewsBias == True and cleanatn == True:
                             fine_tuned_model.save(
-                                'store/model_pretrainedCleanATN_finetunedDirty_fold' + str(foldNum) + '_' + leaning + '.model')
+                                'PretrainFinetuneStorage/model_pretrainedCleanATN_finetunedDirty_fold' + str(foldNum) + '_' + leaning + '.model')
                         elif dirtyNewsBias == True and cleanatn == False:
                             fine_tuned_model.save(
-                                'store/model_pretrainedDirtyATN_finetunedDirty_fold' + str(foldNum) + '_' + leaning + '.model')
+                                'PretrainFinetuneStorage/model_pretrainedDirtyATN_finetunedDirty_fold' + str(foldNum) + '_' + leaning + '.model')
 
                         FT_Train_labels, FT_train_embeddings = docEmbed.gen_vec(fine_tuned_model,
                                                                              fineTune_train_articles,
@@ -251,7 +253,8 @@ class pretrain():
                             F1 = self.metric_calculation(j, prediction, FT_labels, training_dataset, validation_dataset, Met, FT_val_labels, f, file_write = False)
                             if F1 > maxF1:
                                 maxF1 = F1
-                                filename= "store/" + leaning + "_" + str(i) + "_NN.sav"
+
+                                filename= "PretrainFinetuneStorage/" + leaning + "_" + str(i) + "_NN.sav"
                                 pickle.dump(model, open(filename, 'wb'))
                             del Met
                         with open(filename, 'rb') as pickleF:

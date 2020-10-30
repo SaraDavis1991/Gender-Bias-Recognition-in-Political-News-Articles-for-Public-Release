@@ -259,7 +259,7 @@ class DataReader():
 
                 content = article.Content
 
-                # print(article.Title)
+
                 if (clean and not pos_tagged):
                     cleaned_content = self.Preprocessor.Clean(content)
                     sources[source_index][1][article_index].Content = cleaned_content
