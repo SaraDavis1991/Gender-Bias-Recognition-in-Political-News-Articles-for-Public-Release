@@ -45,34 +45,25 @@ class Visualizer():
 	   # self.annot.get_bbox_patch().set_facecolor(cmap(norm(c[ind["ind"][0]])))
 		self.annot.get_bbox_patch().set_alpha(0.4) 
 
-	def plot_TSNE(self, leaning, weights, true_labels, articles, foldNum):
+	def plot_TSNE(self, leaning, weights, true_labels, articles, fname):
 		if(os.path.exists('./visualizations')) == False:
 			os.mkdir("./visualizations/")
 		self.articles = articles
 
 		self.genders = list(map(lambda label: 'Male' if label == 1 else 'Female', true_labels))
-		#self.markers = list(map(lambda label: '+' if label == 1 else 'o', true_labels))
 		tsne = TSNE(verbose=1, perplexity=100)
 		results = tsne.fit_transform(weights)
 
 		self.fig, self.ax = plt.subplots()
-
 		self.annot = self.ax.annotate("", xy=(0,0), xytext=(20,20),textcoords="offset points",
 					bbox=dict(boxstyle="round", fc="w"),
 					arrowprops=dict(arrowstyle="->"))
 		self.annot.set_visible(False)
-
-		#self.sc = plt.scatter(x=results[:,0], y=results[0:,1], c=true_labels, cmap=matplotlib.colors.ListedColormap(cmap))
-		#palette=sns.color_palette("hls", 2), hue=self.genders,
 		self.sc = sns.scatterplot(x=results[:,0], y=results[0:,1],  palette=sns.color_palette("colorblind", 2), hue=self.genders, style = self.genders)
 
-		#plt.setp(ax.get_legend().get_texts(), fontsize='40')
 		plt.legend( loc='best', prop={'size': 15})
-		#plt.legend(*self.sc.legend_elements(), loc='best', prop={'size': 20})
 		plt.title('t-SNE Article Distribution for ' + leaning, fontsize=20)
-		#self.fig.canvas.mpl_connect("motion_notify_event", self.hover)
-		#plt.show()
-		plt.savefig("visualizations/" + leaning + "_fold" + str(foldNum) + "_finetuned_cleaned_heldOut_embed_all.png")
+		plt.savefig(fname)
 
 	def graph_sentiment(self, Fsentiment, Msentiment, graphType):
 
