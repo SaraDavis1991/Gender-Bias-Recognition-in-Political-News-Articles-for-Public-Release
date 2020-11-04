@@ -366,6 +366,7 @@ class Orchestrator():
 				validation_dataset = split[leaning][ApplicationConstants.Validation]
 				test_dataset = split[leaning][ApplicationConstants.Test]
 				all_articles = list(map(lambda art: art.Content, training_dataset + validation_dataset + test_dataset))
+				print("num articles to calc word vec", str(len(all_articles)))
 				for article in all_articles:
 					document = nlp(article)
 					if not_pos:
@@ -388,7 +389,8 @@ class Orchestrator():
 									word = "gpe"
 								if "norp" in word:
 									word = "norp"
-								if word not in punctuation and word not in word_vector and word not in stops:
+								replacement_words = ["norp", "gpe", "loc", "person", "people"]
+								if word not in punctuation and word not in word_vector and word not in stops and word:
 									if len(word) >= 2 and word != "\n" and ":" not in word:
 										word_vector.add(word)
 
@@ -528,6 +530,7 @@ class Orchestrator():
 			numArticles = 1000
 		if os.path.exists("./BOW_models/") == False:
 			os.mkdir("./BOW_models/")
+		trainLen = 0
 		#if file_name_2 exists, then all np arrays exists. load them and do BOW
 		if os.path.isfile(file_name_2):
 			numpy_counts = np.load(file_name_2)
@@ -536,48 +539,82 @@ class Orchestrator():
 			labels = numpy_cum_labels.tolist() #was list_labels
 			numpy_cumulative = np.load(file_name_1)
 			cumulative_word_vec = numpy_cumulative.tolist()
+			#approximate train + val length using .8 because we already have files and can't get exact without reloading all data
+			#which takes a long time
+			trainLen = int(len(labels) * .8)
 		else:
 			if os.path.isfile(file_name_1) : #check if file_name 1 exists, and load if it does
 				numpy_cumulative = np.load(file_name_1)
 				cumulative_word_vec = numpy_cumulative.tolist()
 
-			else: #otherwise, load the correct json
-				if not_pos:
-					articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=numArticles
-											  ,save=False)
-				else:
-					articles = self.read_data(path = ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names,
-											  number_of_articles =numArticles, save = False)
+			#else: #otherwise, load the correct json
+			if not_pos:
+				articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=numArticles
+										  ,save=False)
+			else:
+				articles = self.read_data(path = ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names,
+										  number_of_articles =numArticles, save = False)
 
-				#create the cumulative word vec for all articles, and save it as numpy array in store directory
+			#create the cumulative word vec for all articles, and save it as numpy array in store directory
+			if os.path.isfile(file_name_1) == False:
 				cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
 				numpy_cumulative = np.array(cumulative_word_vec)
 
 
-				np.save(file_name_1, numpy_cumulative)
-				print("store/total num words = " + str(len(cumulative_word_vec)))
+			np.save(file_name_1, numpy_cumulative)
+			print("store/total num words = " + str(len(cumulative_word_vec)))
 
-				#get all articles in a list
-			list_articles_list = []
-			list_labels = []
-			for i, split in enumerate(articles):
-				for j, leaning in enumerate(split):
-					if i == 4:
-						training_dataset = split[leaning][ApplicationConstants.Train]
-						validation_dataset = split[leaning][ApplicationConstants.Validation]
-						test_dataset = split[leaning][ApplicationConstants.Test]
-						articles_list = list(map(lambda article: article.Content, training_dataset +
-												 validation_dataset + test_dataset))
-						list_articles_list.append(articles_list)
-						labels = list(map(lambda article: article.Label.TargetGender, training_dataset +
-										  validation_dataset +test_dataset))
-						list_labels.append(labels)
-					else:
-						break
-				if i > 4:
-					break
-			articles_list = [j for sub in list_articles_list for j in sub]
-			labels = [j for sub in list_labels for j in sub]
+			#get all articles in a list
+			list_articles_list_train = []
+			list_articles_list_val = []
+			list_articles_list_test = []
+			list_labels_train = []
+			list_labels_test = []
+			list_labels_val = []
+
+			#need to do for each leaning to get all of the articles from each leaning
+			#currently only doing it using first fold split
+			for j, leaning in enumerate(articles[0]):
+
+				training_dataset = articles[0][leaning][ApplicationConstants.Train] #load all train for fold
+				validation_dataset = articles[0][leaning][ApplicationConstants.Validation] #load all val for fold
+				test_dataset = articles[0][leaning][ApplicationConstants.Test] #load all test for fold
+
+				train_articles = list(map(lambda article: article.Content, training_dataset))
+				test_articles = list(map(lambda article: article.Content, test_dataset))
+				validation_articles = list(map(lambda article: article.Content, validation_dataset))
+
+				#append the articles for the leaning to a master list
+				list_articles_list_train.append(train_articles)
+				list_articles_list_val.append(validation_articles)
+				list_articles_list_test.append(test_articles)
+
+				train_labels = list(map(lambda article: article.Label.TargetGender, training_dataset))
+				test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset ))
+				validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
+
+				#append the labels for the leaning to a master list
+				list_labels_train.append(train_labels)
+				list_labels_test.append(test_labels)
+				list_labels_val.append(validation_labels)
+
+			#convert 2d list into 1d
+			train_articles = [j for sub in list_articles_list_train for j in sub]
+			print(train_articles[0])
+			validation_articles = [j for sub in list_articles_list_val for j in sub]
+			test_articles = [j for sub in list_articles_list_test for j in sub]
+			train_labels = [j for sub in list_labels_train for j in sub]
+			print(train_labels[0])
+			validation_labels = [j for sub in list_labels_val for j in sub]
+			test_labels = [j for sub in list_labels_test for j in sub]
+
+			#combine all articles and all labels into one list
+			articles_list = train_articles + validation_articles + test_articles
+			labels = train_labels + validation_labels + test_labels
+
+			print(len(validation_articles) ) #should be 6 * 10 * 5 = 100
+			print(len(train_articles)) #should be 2 * 10 * 5 = 300
+			print(len(test_articles)) # should be 2 * 10 * 5 = 100
 			print(len(articles_list), len(labels))
 
 			#zip and shuffle the list of articles
@@ -601,7 +638,6 @@ class Orchestrator():
 			#Create a word count vector for every article in the dataset and save the count vector in numpy array
 			print("appending")
 			count_vectors = []
-			i = 0
 			nlp = spacy.load("en_core_web_lg")
 			for article in articles_list: #may need to change back to list_articles and uncomment lines 581-590
 				count_vectors.append(self.calc_count_doc_count_vector(cumulative_word_vec, article, nlp, lemmad))
@@ -611,7 +647,9 @@ class Orchestrator():
 			np.save(label_name, numpy_label)
 
 		#Build and train an SVM BOW
-		trainLen = len(training_dataset) + len(validation_dataset)
+		if trainLen == 0:
+			trainLen = len(train_articles) + len(validation_articles) #train on train and val since we're not tuning hyperparams
+		print("TRAIN LEN:", str(trainLen))
 		acc = 0
 		print("building net")
 		net = SVM()
