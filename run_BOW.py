@@ -30,7 +30,7 @@ NOTE: to run this file, articles must have been collected and run_preprocessor.p
 orchestrator.run_bow( "BOW_models/np_cumulative_vec_ALLnoL_notbalanced.npy", "BOW_models/np_count_vec_ALLnoL_notbalanced.npy", "BOW_models/perceptron_ALLnoL_notbalanced",True, False, True, False) #notPos, lemmad, printvocab
 
 #OPTION 4: run run_bow on adjectives in vocab, without lemma, print vocab to confirm proper cleaning, on all articles (unbalanced)
-orchestrator.run_bow( "BOW_models/np_cumulative_vec_ADJnoL_notbalanced.npy", "BOW_models/np_count_vec_ADJnoL_notbalanced.npy", "BOW_models/perceptron_ADJnoL_notbalanced",False, False, True, False) #Pos, lemmad, printvocab
+#orchestrator.run_bow( "BOW_models/np_cumulative_vec_ADJnoL_notbalanced.npy", "BOW_models/np_count_vec_ADJnoL_notbalanced.npy", "BOW_models/perceptron_ADJnoL_notbalanced",False, False, True, False) #Pos, lemmad, printvocab
 
 
 
