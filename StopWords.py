@@ -207,6 +207,8 @@ StopWords = [
     'russia',
     'russian',
     'White House',
+    'right',
+    'left',
     
 
     #male list based on  Zhao + Bulakbasi
