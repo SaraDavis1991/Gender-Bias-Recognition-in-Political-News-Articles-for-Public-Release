@@ -22,7 +22,7 @@ when run on just adjectives, run OPTION 2. If print_vocab = True, vocabulary can
                                                     
 (5a) Download the Hu and Liu 2004 sentiment lexicon from http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar, and remove 'trump', 'vice', and 
 'right' to remain consistent with our cleaning methods. Save the newly cleaned file as "positive-words-notrump.txt" and "negative-words-notrump.txt"
-in the same folder. <br/>
+in the same folder that they were downloaded in. <br/>
 (5b) Run run_sentiment.py<br/>
 
 
