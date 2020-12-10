@@ -222,7 +222,7 @@ def run_sentiment(thresh, ratio, filetouse):
   #  print("**********", source, "***********")
   #  print(extreme[source]['neg']['male']['article'])
 
-  news_source_list = list(news_sources)
+  news_source_list = ['huffpost', 'new_york_times', 'usa_today', 'fox', 'breitbart']
   news_source_labels = ["Huffpost", "New York Times", "USA Today", "Fox News", "Breitbart"]
   # PLOTTING
   ind = np.arange(len(news_sources))  # the x locations for the groups
@@ -257,6 +257,6 @@ def run_sentiment(thresh, ratio, filetouse):
 #on clean data
 #run_sentiment(0.05, 0.2, ApplicationConstants.all_articles_random_v4_cleaned)
 #on data sentences containing candidate names only
-run_sentiment(0.055, .2, ApplicationConstants.all_articles_random_v4_candidate_names)
+run_sentiment(0.1, .2, ApplicationConstants.all_articles_random_v4_candidate_names_cleaned)
 #on data pos where sentences contain candidate names
 #run_sentiment(0.25, 0.2, ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names)
