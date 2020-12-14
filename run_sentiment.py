@@ -252,11 +252,12 @@ def run_sentiment(thresh, ratio, filetouse):
   plt.title('Positive and Negative Sentiment by Leaning and Gender')
   # plt.show()
   plt.savefig('Results/visualizations/sentiment_output_percentages_' + str(thresh) + '.png')
+
 #on dirty data
-#run_sentiment(0.025, 0.2, ApplicationConstants.all_articles_random_v4)
+run_sentiment(0.025, 0.2, ApplicationConstants.all_articles_random_v4)
 #on clean data
-#run_sentiment(0.05, 0.2, ApplicationConstants.all_articles_random_v4_cleaned)
+run_sentiment(0.05, 0.2, ApplicationConstants.all_articles_random_v4_cleaned)
 #on data sentences containing candidate names only
-run_sentiment(0.1, .2, ApplicationConstants.all_articles_random_v4_candidate_names_cleaned)
+run_sentiment(0.1, 0.2, ApplicationConstants.all_articles_random_v4_candidate_names_cleaned)
 #on data pos where sentences contain candidate names
-#run_sentiment(0.25, 0.2, ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names)
+run_sentiment(0.25, 0.2, ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names)

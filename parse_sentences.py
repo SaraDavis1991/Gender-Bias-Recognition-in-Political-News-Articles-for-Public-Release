@@ -46,7 +46,7 @@ def split_into_sentences(text):
     return sentences
 
 
-def run():
+def run(len, const):
     with open(ApplicationConstants.all_articles_random_v4) as f:
       article_data = json.load(f)
 
@@ -85,7 +85,7 @@ def run():
             if 'aoc' in sentence or 'AOC' in sentence:
               paragraph = paragraph + ' ' + sentence
               sent_cnt += 1
-        if sent_cnt < 2:
+        if sent_cnt < len:
           paragraph = ''
           removed += 1
         sentence_data[source]['articles'][index]['content'] = paragraph
@@ -93,5 +93,5 @@ def run():
       print(source, removed)
 
 
-    with open(ApplicationConstants.all_articles_random_v4_candidate_names, 'w') as outfile:
+    with open(const, 'w') as outfile:
       article_data = json.dump(sentence_data, outfile, indent=2)
