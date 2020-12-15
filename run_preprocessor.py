@@ -34,6 +34,7 @@ orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_candidat
                         random=True, number_of_articles=1000, pos_tagged=True)
 
 #Clean all of the sentences (regardless of if candidate name is there), then do POS tagging, save ADJ
+#not used in any of our reported testing, but here if interested
 #orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4, save=True,
 #                       savePath=ApplicationConstants.all_articles_random_v4_cleaned_pos, clean=True,
 #                        random=True, number_of_articles = 1000, pos_tagged=True)
