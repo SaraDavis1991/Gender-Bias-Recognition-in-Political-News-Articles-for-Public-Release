@@ -146,7 +146,7 @@ class pretrain():
                         print("loading uncleaned atn model")
                         pretrained_article_model = docEmbed.Load_Model('store/model_pretrained_dirty_atn.model')
                     else:
-                        print("Generating uncleaned atn model")
+                        print("Doing pretrain and generating uncleaned atn model... This will take a while.")
                         pretrained_article_model = docEmbed.Embed(cleaned_articles, pretrain_labels,
                                                                        vector_size=vector_size,
                                                                        epochs=pretrain_epoch)
@@ -156,7 +156,7 @@ class pretrain():
                         print("loading cleaned atn model")
                         pretrained_article_model = docEmbed.Load_Model('store/model_pretrained_cleaned_atn.model')
                     else:
-                        print("Generating cleaned atn model")
+                        print("Doing pretrain and generating cleaned atn model... This will take a while. ")
                         pretrained_article_model = docEmbed.Embed(cleaned_articles, pretrain_labels,
                                                                        vector_size=vector_size,
                                                                        epochs=pretrain_epoch)
