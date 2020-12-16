@@ -2,7 +2,7 @@
 </p>
 
 (1) Download the articles at the relevant links. We cannot provide them here, due to copyright concerns. Save the articles in .json format under the Data drector as "articles_random_v4.json". You can change the name, but if you do so, you will need to update run_preprocessor.py <br/>
-(2) run run_preprocessor.py to generate the json files necessary for consequent tests. This will take a while: <br/>
+(2) run run_preprocessor.py to generate the json files necessary for consequent tests. This will take a while, and the following json will be generated: <br/>
 
 (a) articles_random_v4.json - a randomized version of the articles in v3<br/>
 (b) articles_random_v4_cleaned.json - a randomized version with our cleaning implemented (no gendered pronouns/personally identifiable information)<br/>
