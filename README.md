@@ -19,7 +19,7 @@ All files will be saved to the Data directory. <br/><br/>
 (3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains several options for pretraining and finetuning, including
 an option that skips pretraining for comparison to a baseline. Simply uncomment the line that you wish to run.  The default runs the parameters shown in our
 paper: cleaned all the news data, cleaned news bias data, using .2 of all the news due to RAM constrains. All of the metrics are saved to the PretrainFinetuneMetrics directory.
-TSNE visualizations are saved in the visualizations directory.
+TSNE visualizations are saved in the visualizations directory. <br/>
 
 **NOTE**: We run a linear neural net model and validate it 10 times, selecting the best validation model before testing and averaging the best neural net results across five folds. Linear neural nets are not optimal, so the average results that you achieve **may** be slightly different than the results we report. 
  <br/>
