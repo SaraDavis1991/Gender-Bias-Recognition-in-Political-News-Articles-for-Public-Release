@@ -97,17 +97,17 @@ RegexSearchPatterns.py
 
 <p align="center">PACKAGES</p>
 We recommend using a conda environment for installs unless noted in "". We have tested everything in Ubuntu 18.04 and 20.04
-python 3.7 (because of gensim)
-scikit-learn 
-nltk
-"In a python terminal-> import nltk nltk.download('stopwords')"
-spacy 
-spacy en_core_web_lg "python3 -m spacy download en_core_web_lg"
-matplotlib
-gensim
-smart_open 2.0.0
-seaborn
-"pip3 install python-interface"
+python 3.7 (because of gensim) <br/>
+scikit-learn <br/>
+nltk<br/>
+"In a python terminal-> import nltk nltk.download('stopwords')"<br/>
+spacy <br/>
+spacy en_core_web_lg "python3 -m spacy download en_core_web_lg"<br/>
+matplotlib<br/>
+gensim<br/>
+smart_open 2.0.0<br/>
+seaborn<br/>
+"pip3 install python-interface"<br/>
 
 <p align="center">OTHER NOTES</p>
 There are still superfluous functions and files that Sara has not yet removed. We've got a lot of code that needs to be tracked before deletion, so I'm kind of scared to delete it -Sara
