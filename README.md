@@ -29,8 +29,8 @@ TSNE visualizations are saved in the visualizations directory. <br/>
 
 (4) Run run_BOW.py to replicate our bag of word results. Four options are provided in this file; uncomment the one you would like to replicate, or set a
 different combination. To replicate the results found when run on all of the words, run OPTION 1 (the default). To replicate the results the results found
-when run on just adjectives, run OPTION 2. If print_vocab = True, vocabulary can be found in the vocabulary directory. 
-**note: these results are currently no bueno-- going to try ngrams next** 
+when run on just adjectives, run OPTION 2. If print_vocab = True, vocabulary can be found in the vocabulary directory. <br/>
+**NOTE: these results are currently no bueno-- going to try ngrams next** <br/>
 Vocabulary is saved to the vocabulary directory. <br/>
 
 <p align="center">SENTIMENT ANALYSIS TESTS</p>
