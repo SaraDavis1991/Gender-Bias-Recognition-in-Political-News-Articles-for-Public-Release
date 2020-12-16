@@ -3,14 +3,14 @@
 
 (1) Download the articles at the relevant links. We cannot provide them here, due to copyright concerns. Save the articles in .json format under the Data drector as "articles_random_v4.json". You can change the name, but if you do so, you will need to update run_preprocessor.py <br/>
 (2) run run_preprocessor.py to generate the json files necessary for consequent tests. This will take a while: <br/>
-<p align="center">
+
 (a) articles_random_v4.json - a randomized version of the articles in v3<br/>
 (b) articles_random_v4_cleaned.json - a randomized version with our cleaning implemented (no gendered pronouns/personally identifiable information)<br/>
 (c) articles_random_v4_sentences_candidate_names.json - a randomized version that only contains the sentences with the target's name in it<br/>
 (d) articles_random_v4_sentences_candidate_names_cleaned.json - a randomized version that only contains the sentences with the target's name in it that has been cleaned (see above)<br/>
 (e) articles_random_v4_sentences_len2.json - a randomized version that contains sentences with the target's name in it, where the article must be at least 2 sentences long<br/>
 (f) articles_random_v4_cleaned_pos_candidate_names.json - a randomized version that contains articles with the adjectives in sentences containing the target's name<br/>
-</p>
+
 All files will be saved to the Data directory. <br/><br/>
 
 <p align="center">DOC2VEC EMBEDDING TESTS </p>
