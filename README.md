@@ -1,4 +1,4 @@
-<p align="center"> Gender-Bias-Recognition-in-Political-News-Articles is run using Python3 in the following way:
+<p align="center"> **Gender-Bias-Recognition-in-Political-News-Articles is run using Python3 in the following way**:
 </p>
 
 (1) Download the articles at the relevant links. We cannot provide them here, due to copyright concerns. Save the articles in .json format under the Data drector as "articles_random_v4.json". You can change the name, but if you do so, you will need to update run_preprocessor.py <br/>
@@ -13,7 +13,7 @@
 
 All files will be saved to the Data directory. <br/><br/>
 
-<p align="center">DOC2VEC EMBEDDING TESTS </p>
+<p align="center">**DOC2VEC EMBEDDING TESTS** </p>
                                                        
 (3a) Download all the news 2.0 from https://components.one/datasets/all-the-news-2-news-articles-dataset/ to the store directory<br/>
 (3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains several options for pretraining and finetuning, including
@@ -33,7 +33,7 @@ when run on just adjectives, run OPTION 2. If print_vocab = True, vocabulary can
 **NOTE: these results are currently no bueno-- going to try ngrams next** <br/>
 Vocabulary is saved to the vocabulary directory. <br/>
 
-<p align="center">SENTIMENT ANALYSIS TESTS</p>
+<p align="center">**SENTIMENT ANALYSIS TESTS**</p>
                                                     
 (5a) Download the Hu and Liu 2004 sentiment lexicon from http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar
 Remove 'vice' and change the blank line at the top of the file below the comments to a semicolon to remain consistent with our cleaning methods and save it as "negative-words-novice.txt" in the opinion-lexicon-English directory.
@@ -45,7 +45,7 @@ Models for ALL tests are saved to the store directory.
 
 
 
-<p align="center">DATA CLEANING</p>
+<p align="center">**DATA CLEANING**</p>
 
 
 We use a combination of Bolukbasi et al. (2016) and Zhao et al. (2018) to create our stopwords list. We remove the following terms, as well 
@@ -95,7 +95,7 @@ A full list of all stopwords can be found in StopWords.py<br/>
 Anything with "man" in the word  as the regex changes this to "person". I.e. -> Cameraman becomes "cameraperson". Our full substitution list can be seen in
 RegexSearchPatterns.py
 
-<p align="center">PACKAGES</p>
+<p align="center">**PACKAGES**</p>
 We recommend using a conda environment for installs unless noted in "". We have tested everything in Ubuntu 18.04 and 20.04
 python 3.7 (because of gensim)
 scikit-learn 
@@ -109,5 +109,5 @@ smart_open 2.0.0
 seaborn
 "pip3 install python-interface"
 
-<p align="center">OTHER NOTES</p>
+<p align="center">**OTHER NOTES**</p>
 There are still superfluous functions and files that Sara has not yet removed. We've got a lot of code that needs to be tracked before deletion, so I'm kind of scared to delete it -Sara
