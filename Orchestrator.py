@@ -600,34 +600,17 @@ class Orchestrator():
 
 			#convert 2d list into 1d
 			train_articles = [j for sub in list_articles_list_train for j in sub]
-			print(train_articles[0])
+
 			validation_articles = [j for sub in list_articles_list_val for j in sub]
 			test_articles = [j for sub in list_articles_list_test for j in sub]
 			train_labels = [j for sub in list_labels_train for j in sub]
-			print(train_labels[0])
+
 			validation_labels = [j for sub in list_labels_val for j in sub]
 			test_labels = [j for sub in list_labels_test for j in sub]
 
 			#combine all articles and all labels into one list
 			articles_list = train_articles + validation_articles + test_articles
 			labels = train_labels + validation_labels + test_labels
-
-			print(len(validation_articles) ) #should be 6 * 10 * 5 = 100
-			print(len(train_articles)) #should be 2 * 10 * 5 = 300
-			print(len(test_articles)) # should be 2 * 10 * 5 = 100
-			print(len(articles_list), len(labels))
-
-			#zip and shuffle the list of articles
-			#print("zipping and shuffling")
-			#zippedArticles = list(zip(articles_list, labels))
-			#random.shuffle(zippedArticles)
-
-			#list_articles = []
-			#list_labels = []
-			#print("unzipping")
-			#for article, label in zippedArticles:
-			#	list_articles.append(article)
-			#	list_labels.append(label)
 
 			#change the 0 labels to -1 for easier training
 			print("enumerating")

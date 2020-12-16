@@ -13,9 +13,7 @@ reader = DataReader()
 
 
 #Randomize the articles that were scraped from the links (UPDATE THIS ONCE WE HAVE A FILE WITH LINKS)
-orchestrator.read_data(path = "Data/articles_v3.json", save=True,
-                       savePath=ApplicationConstants.all_articles_random_v4, random=True, clean=False, number_of_articles=1000)
-
+#we provide with random v3 (which is no dups)
 #Clean the randomized articles
 orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4, save=True,
                        savePath=ApplicationConstants.all_articles_random_v4_cleaned, random=True, clean=True, number_of_articles=1000)

@@ -30,7 +30,6 @@ def run_sentiment(thresh, ratio, filetouse):
       NEG_WORDS.append(line)
   f.close()
   NEG_WORDS = set(NEG_WORDS)
-
   f = open('opinion-lexicon-English/positive-words-notrump.txt', 'rb')
   for line in f:
     line = line.decode('ascii', 'ignore')
@@ -196,31 +195,6 @@ def run_sentiment(thresh, ratio, filetouse):
         percentages[g]['neg'][source] = 0
         percentages[g]['pos'][source] = 0
   fout.close()
-
-  # print("FEMALE +")
-  # print(pos_female)
-  ##print(pos_female_score)
-  # print("FEMALE -")
-  # print(neg_female)
-  ##print(neg_female_score)
-  #
-  # print("MALE +")
-  # print(pos_male)
-  ##print(pos_male_score)
-  # print("MALE -")
-  # print(neg_male)
-  ##print(neg_male_score)
-
-  # for source in news_sources:
-  #  print(source, "F+", pos_female_score[source]/pos_female[source], pos_female[source])
-  #  print(source, "F-", neg_female_score[source]/neg_female[source], neg_female[source])
-  #  print(source, "M+", pos_male_score[source]/pos_male[source], pos_male[source])
-  #  print(source, "M-", neg_male_score[source]/neg_male[source], neg_male[source])
-
-  # for source in news_source:
-  #  print(source, extreme[source]['pos']['female']['score'], extreme[source]['neg']['female']['score'], extreme[source]['pos']['male']['score'], extreme[source]['neg']['male']['score'])
-  #  print("**********", source, "***********")
-  #  print(extreme[source]['neg']['male']['article'])
 
   news_source_list = ['huffpost', 'new_york_times', 'usa_today', 'fox', 'breitbart']
   news_source_labels = ["Huffpost", "New York Times", "USA Today", "Fox News", "Breitbart"]
