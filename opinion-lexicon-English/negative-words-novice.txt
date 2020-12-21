@@ -28,7 +28,7 @@
 ;       frequently in social media content. 
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;
 2-faced
 2-faces
 abnormal
@@ -3036,7 +3036,7 @@ nauseate
 nauseates
 nauseating
 nauseatingly
-naï¿½ve
+naïve
 nebulous
 nebulously
 needless
