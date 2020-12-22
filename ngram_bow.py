@@ -286,36 +286,80 @@ def run_loop(files, train = True):
             save_corpus(pos_gram_corpus_counts, i, "pos", train = train)
         del pos_gram_corpus_counts
 
-def driver():
-    if os.path.exists("./store/") == False:
-        os.mkdir("./store")
-    if os.path.exists("./store/train_filenames_usernames_combos.npy"):
-        print("Files exist! Loading")
-        trainFiles = np.load("./store/train_filenames_usernames_combos.npy")
-
+def driver(ngram_type):
+    print("Loading Articles...")
+    #testFiles, trainFiles, trainUsernames, testUsernames, trainTestNamesCombos = get_splits()
+    if ngram_type != "pos":
+        articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
+                                  , save=False)
     else:
-        print("Files don't exist, creating...")
-        testFiles, trainFiles, trainUsernames, testUsernames, trainTestNamesCombos = get_splits()
+        articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names,
+                                  number_of_articles=50, save=False)
 
-        trainUsernamesElongation = []
-        #need to extend train names so that there are 4 to match each file in root
-        for name in trainUsernames:
-            trainUsernamesElongation.extend([name for i in range(4)])
-        trainUsernamesElongation = np.asarray(trainUsernamesElongation)
 
-        del trainUsernames
 
-        save_names(trainUsernamesElongation, "train")
-        save_names(testUsernames, "test")
-        save_names(trainTestNamesCombos, "doesn't matter", combos = True)
+    list_articles_list_train = []
+    list_articles_list_val = []
+    list_articles_list_test = []
+    list_labels_train = []
+    list_labels_test = []
+    list_labels_val = []
 
-        del trainUsernamesElongation
-        del testUsernames
-        del trainTestNamesCombos
+    for j, leaning in enumerate(articles[0]):
+        training_dataset = articles[0][leaning][ApplicationConstants.Train]  # load all train for fold
+        validation_dataset = articles[0][leaning][ApplicationConstants.Validation]  # load all val for fold
+        test_dataset = articles[0][leaning][ApplicationConstants.Test]  # load all test for fold
 
-        save_files(trainFiles, "train")
-        save_files(testFiles, "test")
-        del testFiles
+        train_articles = list(map(lambda article: article.Content, training_dataset))
+        test_articles = list(map(lambda article: article.Content, test_dataset))
+        validation_articles = list(map(lambda article: article.Content, validation_dataset))
+
+        # append the articles for the leaning to a master list
+        list_articles_list_train.append(train_articles)
+        list_articles_list_val.append(validation_articles)
+        list_articles_list_test.append(test_articles)
+
+        train_labels = list(map(lambda article: article.Label.TargetGender, training_dataset))
+        test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset))
+        validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
+
+        # append the labels for the leaning to a master list
+        list_labels_train.append(train_labels)
+        list_labels_test.append(test_labels)
+        list_labels_val.append(validation_labels)
+    # convert 2d list into 1d
+    train_articles = [j for sub in list_articles_list_train for j in sub]
+
+    validation_articles = [j for sub in list_articles_list_val for j in sub]
+    test_articles = [j for sub in list_articles_list_test for j in sub]
+    train_labels = [j for sub in list_labels_train for j in sub]
+
+    validation_labels = [j for sub in list_labels_val for j in sub]
+    test_labels = [j for sub in list_labels_test for j in sub]
+
+    # combine all articles and all labels into one list
+    articles_list = train_articles + validation_articles + test_articles
+    labels = train_labels + validation_labels + test_labels
+
+    # change the 0 labels to -1 for easier training
+    print("enumerating")
+    for i, label in enumerate(labels):  # was list_labels
+        if label == 0:
+            labels[i] = -1  # was list_labels
+
+    del trainUsernames
+
+    save_names(trainUsernamesElongation, "train")
+    save_names(testUsernames, "test")
+    save_names(trainTestNamesCombos, "doesn't matter", combos = True)
+
+    del trainUsernamesElongation
+    del testUsernames
+    del trainTestNamesCombos
+
+    save_files(trainFiles, "train")
+    save_files(testFiles, "test")
+    del testFiles
 
     run_loop(trainFiles, train=True)
     print(len(trainFiles))
@@ -334,5 +378,3 @@ def driver():
 
 driver()
 
-#train_files = np.load("./store/train_filenames_usernames_combos.npy")
-#print(train_files[0])
