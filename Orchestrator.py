@@ -624,7 +624,7 @@ class Orchestrator():
 		print("accuracy is: " + str(acc))
 
 
-	def run_bow(self, file_name_1, file_name_2, model_name, ngrams = False, not_pos = True, lemmad = True, print_vocab = False, balanced = True):
+	def run_bow(self, file_name_1, file_name_2, model_name, do_ngrams = False, not_pos = True, lemmad = True, print_vocab = False, balanced = True):
 		label_name = file_name_2[:-4] + "_labels.npy"
 		if os.path.exists("./vocabulary/") == False:
 			os.mkdir("./vocabulary/")
@@ -647,7 +647,7 @@ class Orchestrator():
 			#which takes a long time
 			trainLen = int(len(labels) * .8)
 		else:
-			if os.path.isfile(file_name_1) and not ngrams : #check if file_name 1 exists, and load if it does
+			if os.path.isfile(file_name_1) and not do_ngrams : #check if file_name 1 exists, and load if it does
 				numpy_cumulative = np.load(file_name_1)
 				cumulative_word_vec = numpy_cumulative.tolist()
 
@@ -663,13 +663,13 @@ class Orchestrator():
 
 			#create the cumulative word vec for all articles, and save it as numpy array in store directory
 			if os.path.isfile(file_name_1) == False:
-				if ngrams == False:
+				if do_ngrams == False:
 					cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
 				else:
 					cumulative_word_vec = self.calc_ngram_vectors(articles, pos)
 				numpy_cumulative = np.array(cumulative_word_vec)
 
-			if ngrams == False:
+			if do_ngrams == False:
 				np.save(file_name_1, numpy_cumulative)
 				print("store/total num words = " + str(len(cumulative_word_vec)))
 
@@ -728,7 +728,7 @@ class Orchestrator():
 					labels[i] = -1 #was list_labels
 
 			#Create a word count vector for every article in the dataset and save the count vector in numpy array
-			if ngrams == False:
+			if do_ngrams == False:
 				print("appending")
 				count_vectors = []
 				nlp = spacy.load("en_core_web_lg")
@@ -739,7 +739,7 @@ class Orchestrator():
 				numpy_label = np.array(labels) #was list_labels
 				np.save(file_name_2, numpy_count)
 				np.save(label_name, numpy_label)
-		if ngram ==False:
+		if do_ngrams ==False:
 			loop = 2
 		else:
 			loop = 5
