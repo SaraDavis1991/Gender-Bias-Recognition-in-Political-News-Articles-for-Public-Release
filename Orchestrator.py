@@ -367,7 +367,7 @@ class Orchestrator():
 		vocab = {}
 
 		for word, count in ngram_dict.items():
-			if count > 2:
+			if count > 1:
 				vocab[word] = count
 		return vocab
 
@@ -391,66 +391,84 @@ class Orchestrator():
 		for i, text in enumerate(corpus):
 			vocab_counter = dict.fromkeys(keys, 0)
 			self.build_bow(vocab_counter, text)
-			counted_set.append(vocab_counter)
+			#print(len(vocab_counter.values()))
+			lencounts = len(vocab_counter.values())
+			values =np.asarray(list(vocab_counter.values()))
+			#print(np.shape(values))
+			counted_set.append(values) #make an array out of vocab_counter
 		# print(i)
-
-		corpus_numpy_save = "./store/" + type + "_" + str(n) + "gram_Corpus.npy"
-		np.save(corpus_numpy_save, corpus)
-		return np.asarray(counted_set)
+		counted_set = np.asarray(counted_set) #make an array out of counted set
+		print(np.shape(counted_set))
+		corpus_numpy_save = "./store/" + type + "_" + str(n) + "gram_CorpusCounts.npy"
+		np.save(corpus_numpy_save, counted_set) #save the array
 	def run_vocab_construction(self,type, n,  vocabulary, grams):
 		self.construct_vocabulary(vocabulary, grams)
-		if len(vocabulary) > 100000:
+		if len(vocabulary) > 300000:
+			print("winnnowing")
 			char_vocab = self.winnow_vocab(vocabulary)
 			char_vocab['UNK'] = 1
 		else:
 			char_vocab = vocabulary
 			char_vocab['UNK'] = 1
 
-		vocab_numpy_save = "./store/"+ type + "_" + str(n) + "gram_vocab_.pkl"
-		f = open(vocab_numpy_save, "wb")
-		pickle.dump(char_vocab, f)
-		f.close()
+
+		print("VOCAB", len(char_vocab))
 		return char_vocab
 	def calc_ngram_vectors(self, all_articles_const, pos):
 		#get all articles
-		for i, split in enumerate(all_articles_const):
-			print("Fold " + str(i + 1))
-			for j, leaning in enumerate(split):
-				print("calc word vec", leaning)
-				training_dataset = split[leaning][ApplicationConstants.Train]
-				validation_dataset = split[leaning][ApplicationConstants.Validation]
-				test_dataset = split[leaning][ApplicationConstants.Test]
-				all_articles = list(map(lambda art: art.Content, training_dataset + validation_dataset + test_dataset))
+		all_articles_complete = []
+		#for i, split in enumerate(all_articles_const):
+			#print("Fold " + str(i + 1))
+		for j, leaning in enumerate(all_articles_const[0]):
+			print("calc word vec", leaning)
+			training_dataset = all_articles_const[0][leaning][ApplicationConstants.Train]
+			validation_dataset = all_articles_const[0][leaning][ApplicationConstants.Validation]
+			test_dataset = all_articles_const[0][leaning][ApplicationConstants.Test]
+			all_articles = list(map(lambda art: art.Content, training_dataset + validation_dataset + test_dataset))
+			all_articles_complete.append(all_articles)
+		all_articles = [j for sub in all_articles_complete for j in sub]
 		if not pos:
 			#do char grams
-			for i in range(2, 5):
-				char_gram_vocab = {}
+			for i in range(2, 6):
+				#char_gram_vocab = {}
 				word_gram_vocab = {}
-				char_gram_corpus = []
+				#char_gram_corpus = []
 				word_gram_corpus = []
-				for filecontents in all_articles:
-					filecontent_char_gram = ngram.doc_char_ngram(i, filecontents)
-					char_gram_vocab = self.run_vocab_construction("char", i,  char_gram_vocab, filecontent_char_gram)
-					char_gram_corpus.append(filecontent_char_gram)
-					char_corpus_counts = self.construct_counts("char",i, char_gram_vocab, char_gram_corpus)
-				del char_gram_corpus
-				del char_gram_vocab
+				#for filecontents in all_articles:
+					#filecontent_char_gram = ngram.doc_char_ngram(i, filecontents)
+					#char_gram_vocab = self.run_vocab_construction("char", i,  char_gram_vocab, filecontent_char_gram)
+					#char_gram_corpus.append(filecontent_char_gram)
+					#char_corpus_counts = self.construct_counts("char",i, char_gram_vocab, char_gram_corpus)
+				#del char_gram_corpus
+				#del char_gram_vocab
 				for filecontents in all_articles:
 					filecontent_word_gram = ngram.doc_word_ngram(i, filecontents)
 					word_gram_vocab = self.run_vocab_construction("word",i,  word_gram_vocab, filecontent_word_gram)
 					word_gram_corpus.append(filecontent_word_gram)
-					word_corpus_counts = self.construct_counts("word", i, word_gram_vocab, word_gram_corpus)
+				self.construct_counts("word", i, word_gram_vocab, word_gram_corpus)
+				if pos:
+					type = "pos"
+				else:
+					type = "word"
+				vocab_numpy_save = "./store/" + type + "_" + str(i) + "gram_vocab.pkl"
+				f = open(vocab_numpy_save, "wb")
+				pickle.dump(word_gram_vocab, f)
+				f.close()
 				del word_gram_corpus
 				del word_gram_vocab
 		else:
-			for i in range(1, 5):
+			for i in range(2, 6):
 				pos_gram_vocab = {}
 				pos_gram_corpus = []
 				for filecontents in all_articles:
 					filecontent_pos_gram = ngram.doc_pos_ngram(i, filecontents)
 					pos_gram_vocab = self.run_vocab_construction("pos", i, pos_gram_vocab, filecontent_pos_gram)
 					pos_gram_corpus.append(filecontent_pos_gram)
-					pos_corpus_counts = self.construct_counts("pos",i,  pos_gram_vocab, pos_gram_corpus)
+				self.construct_counts("pos",i,  pos_gram_vocab, pos_gram_corpus)
+				vocab_numpy_save = "./store/" + type + "_" + str(i) + "gram_vocab.pkl"
+				f = open(vocab_numpy_save, "wb")
+				pickle.dump(pos_gram_vocab, f)
+				f.close()
 				del pos_gram_corpus
 				del pos_corpus_counts
 
@@ -636,7 +654,7 @@ class Orchestrator():
 			os.mkdir("./BOW_models/")
 		trainLen = 0
 		#if file_name_2 exists, then all np arrays exists. load them and do BOW
-		if os.path.isfile(file_name_2):
+		if os.path.isfile(file_name_2) and not do_ngrams:
 			numpy_counts = np.load(file_name_2)
 			numpy_cum_labels = np.load(label_name)
 			count_vectors = numpy_counts.tolist()
@@ -652,7 +670,7 @@ class Orchestrator():
 				cumulative_word_vec = numpy_cumulative.tolist()
 
 			#else: #otherwise, load the correct json
-			if not_pos:
+			elif not_pos:
 				pos = False
 				articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=numArticles
 										  ,save=False)
@@ -662,13 +680,12 @@ class Orchestrator():
 										  number_of_articles =numArticles, save = False)
 
 			#create the cumulative word vec for all articles, and save it as numpy array in store directory
-			if os.path.isfile(file_name_1) == False:
-				if do_ngrams == False:
-					cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
-				else:
-					cumulative_word_vec = self.calc_ngram_vectors(articles, pos)
-				numpy_cumulative = np.array(cumulative_word_vec)
+			if os.path.isfile(file_name_1) == False and not do_ngrams:
+				cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
 
+			else:
+				cumulative_word_vec = self.calc_ngram_vectors(articles, pos)
+			numpy_cumulative = np.array(cumulative_word_vec)
 			if do_ngrams == False:
 				np.save(file_name_1, numpy_cumulative)
 				print("store/total num words = " + str(len(cumulative_word_vec)))
@@ -750,14 +767,19 @@ class Orchestrator():
 		print("TRAIN LEN:", str(trainLen))
 		acc = 0
 		print("building net")
-		for l in range(1, loop):
+		for l in range(2, loop):
 			multiple = False
-			print(ngram)
-			if ngram == True:
+			print(do_ngrams)
+			if do_ngrams == True:
 				multiple = True
-				count_vectors = np.load("./store/char" + "_" + str(l) + "gram_Corpus.npy")
-				print(len(count_vectors))
+				if pos:
+					type = "pos"
+				else:
+					type = "word"
+				count_vectors = np.load("./store/" + type + "_" + str(l) + "gram_CorpusCounts.npy", allow_pickle = True) #load the array
+				print("LEN", len(count_vectors))
 				fout = open('vocabulary/output_words_50Articles_char.txt', 'w')
+			print(np.shape(count_vectors))
 			net = SVM()
 			print("training")
 			net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[:trainLen], labels[:trainLen]) #no validation occurs here, so last 2 params do nothing
@@ -785,7 +807,7 @@ class Orchestrator():
 			for index in resBottom:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
 			if multiple:
-				if ngram == True:
+				if do_ngrams == True:
 					multiple = False
 					count_vectors = np.load("./store/word" + "_" + str(l) + "gram_Corpus.npy")
 					fout = open('vocabulary/output_words_50Articles_word.txt', 'w')
@@ -811,7 +833,7 @@ class Orchestrator():
 				resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
 				model_name_amp = model_name + "_" + str(acc) + "_.sav"
 				pickle.dump(net, open(model_name_amp, 'wb'))
-			if ngram == False:
+			if do_ngrams == False:
 				if not_pos and balanced:
 					fout = open('vocabulary/output_words_50Articles_allwords.txt', 'w')
 				if not not_pos and balanced:
