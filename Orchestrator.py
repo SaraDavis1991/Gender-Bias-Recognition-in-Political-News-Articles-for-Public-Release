@@ -350,13 +350,19 @@ class Orchestrator():
 		zipped = list(zip(bad_words, count_list))
 		print("total use: ",zipped)
 
-	def construct_vocabulary(self, ngram_dict, ngrams):
+	def construct_vocabulary(self, ngram_dict, ngrams, splittype):
 		for ngram in ngrams:
 			# print(ngram)
 			if ngram in ngram_dict.keys():
 				ngram_dict[ngram] += 1
-			else:
+			elif splittype == "train":
 				ngram_dict[ngram] = 1
+			elif "UNK" in ngram_dict.keys() and splittype == "test":
+				ngram_dict["UNK"] += 1
+			else:
+				ngram_dict["UNK"] = 1
+
+
 
 	# print(vocabulary)
 
@@ -367,7 +373,7 @@ class Orchestrator():
 		vocab = {}
 
 		for word, count in ngram_dict.items():
-			if count > 4:
+			if count > 1:
 				vocab[word] = count
 		return vocab
 
@@ -398,7 +404,7 @@ class Orchestrator():
 			counted_set.append(values) #make an array out of vocab_counter
 		# print(i)
 		counted_set = np.asarray(counted_set) #make an array out of counted set
-		print(np.shape(counted_set))
+		print("COUNTED SET SHAPE, SHOULD BE NUM ARTICLES * VOCAB", np.shape(counted_set))
 		corpus_numpy_save = "./store/" + type + "_" + str(n) + "gram_CorpusCounts" + savetype + ".npy"
 		np.save(corpus_numpy_save, counted_set) #save the array
 	def run_vocab_construction(self , vocabulary):
@@ -418,11 +424,12 @@ class Orchestrator():
 		for filecontents in all_articles:
 			filecontent_word_gram = ngram.doc_word_ngram(i, filecontents)
 			#gram_vocab = self.run_vocab_construction(ngramtype, i, gram_vocab, filecontent_word_gram)
-			if splittype == "train" or splittype == "":
-				self.construct_vocabulary(gram_vocab, filecontent_word_gram) #construct ngrams
+			self.construct_vocabulary(gram_vocab, filecontent_word_gram, splittype) #construct ngrams
 			corpus.append(filecontent_word_gram) #append to corpus
+		print("NUM ARTICLES ", splittype,  len(corpus))
 		if splittype == "train" or splittype == "":
 			gram_vocab = self.run_vocab_construction(gram_vocab) #get winnowed vocab
+		print("VOCAB LEN", len(gram_vocab))
 		if "UNK" not in gram_vocab.keys():
 			gram_vocab['UNK'] = 1
 		self.construct_counts(ngramtype, i, gram_vocab, corpus, splittype) #turn words into counts
@@ -435,7 +442,7 @@ class Orchestrator():
 			words = np.asarray(list(gram_vocab.keys()))
 			np.save(vocab_numpy_save, words)
 		del corpus
-		del gram_vocab
+		return gram_vocab
 
 	def calc_ngram_vectors(self, all_articles_const, pos):
 		#get all articles
@@ -450,22 +457,18 @@ class Orchestrator():
 			validation_dataset = all_articles_const[0][leaning][ApplicationConstants.Validation]
 			test_dataset = all_articles_const[0][leaning][ApplicationConstants.Test]
 			#all_articles = list(map(lambda art: art.Content, training_dataset + validation_dataset + test_dataset))
-			all_articles_train.append(list(map(lambda art: art.Content, training_dataset )))
+			all_articles_train.append(list(map(lambda art: art.Content, training_dataset)))
 			all_articles_test.append(list(map(lambda art: art.Content, test_dataset)))
 			all_articles_validation.append(list(map(lambda art: art.Content,  validation_dataset)))
 		all_articles_train = [j for sub in all_articles_train for j in sub]
 		all_articles_test = [j for sub in all_articles_test for j in sub]
 		all_articles_validation = [j for sub in all_articles_validation for j in sub]
 		all_articles = all_articles_train+all_articles_validation
-		print(len(all_articles))
-		print(len(all_articles_test))
+		print("TRAIN + VAL", len(all_articles))
+		print("TEST", len(all_articles_test))
 		if not pos:
 			#do char grams
 			for i in range(2, 6):
-				#char_gram_vocab = {}
-				word_gram_vocab = {}
-				#char_gram_corpus = []
-				word_gram_corpus = []
 				#for filecontents in all_articles:
 					#filecontent_char_gram = ngram.doc_char_ngram(i, filecontents)
 					#char_gram_vocab = self.run_vocab_construction("char", i,  char_gram_vocab, filecontent_char_gram)
@@ -493,13 +496,16 @@ class Orchestrator():
 				#self.do_trainTestValSplit( i, "word", word_gram_vocab, word_gram_corpus, all_articles_train, "train", pos)
 				#self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles_validation, "validation", pos)
 				#self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles_test, "test", pos)
-				self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles, "train", pos)
+				word_gram_vocab = {}
+				word_gram_corpus = []
+				word_gram_vocab = self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles, "train", pos)
+				word_gram_corpus = []
+				word_gram_vocab = dict.fromkeys(word_gram_vocab, 0) #reset values of dictionary to 0 but maintain words
 				self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles_test, "test", pos)
 
 		else:
 			for i in range(2, 6):
-				pos_gram_vocab = {}
-				pos_gram_corpus = []
+
 				'''
 				for filecontents in all_articles:
 					filecontent_pos_gram = ngram.doc_pos_ngram(i, filecontents)
@@ -516,7 +522,11 @@ class Orchestrator():
 				#self.do_trainTestValSplit( i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_train, "train", pos)
 				#self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_validation, "validation", pos)
 				#self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_test, "test", pos)
+				pos_gram_vocab = {}
+				pos_gram_corpus = []
 				self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles, "train", pos)
+				pos_gram_corpus = []
+				pos_gram_vocab = dict.fromkeys(pos_gram_vocab, 0) #reset values of dictionary to 0 but maintain words
 				self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_test, "test", pos)
 
 
@@ -807,7 +817,7 @@ class Orchestrator():
 		if do_ngrams ==False:
 			loop = 2
 		else:
-			loop = 5
+			loop = 6
 
 		#Build and train an SVM BOW
 		if trainLen == 0:
@@ -830,11 +840,12 @@ class Orchestrator():
 				#count_vectors = count_vectors_train + count_vectors_validation + count_vectors_test
 				#count_vectors_train = np.load("./store/" + type + "_" + str(l) + "gram_CorpusCounts.npy", allow_pickle = True)
 
-				model ="./store/" + type + "_"+ str(l) +"gram_vocab.npy"
-				print(os.path.exists(model))
-				cumulative_word_vec = np.load(model)
+				word_model ="./store/" + type + "_"+ str(l) +"gram_vocab.npy"
+				print(os.path.exists(word_model))
+				cumulative_word_vec = np.load(word_model)
 				#print("LEN", len(count_vectors_train))
-				fout = open('vocabulary/output_words_50Articles.txt', 'w')
+				foutval = "vocabulary/output_words_50Articles_" + type + "_" + str(l) + "gram_lesswinnow.txt"
+				fout = open(foutval, 'w')
 			print(np.shape(count_vectors_train), np.shape(count_vectors_test))
 			net = SVM()
 			print("training")
@@ -876,35 +887,40 @@ class Orchestrator():
 			fout.write("Female Top Words: \n")
 			for index in resBottom:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+			'''
 			if multiple:
 				if do_ngrams == True:
 					multiple = False
 					if not pos:
-						count_vectors = np.load("./store/word" + "_" + str(l) + "gram_Corpus.npy")
-
+						count_vectors_train = np.load("./store/word" + "_" + str(l) + "gram_CorpusCountstrain.npy")
+						count_vectors_test = np.load("./store/pos" + "_" + str(l) + "gram_CorpusCountstest.npy")
+						word_model = "./store/" + type + "_" + str(l) + "gram_vocab.npy"
+						print(os.path.exists(word_model))
+						cumulative_word_vec = np.load(word_model)
 						fout = open('vocabulary/output_words_50Articles_wordgram' + str(l) +'.txt', 'w')
 
 						model_name = str(l) + "wordgram"
 					else:
-						count_vectors = np.load("./store/pos" + "_" + str(l) + "gram_Corpus.npy")
+						count_vectors_train = np.load("./store/pos" + "_" + str(l) + "gram_CorpusCountstrain.npy")
+						count_vectors_test = np.load("./store/pos" + "_" + str(l) + "gram_CorpusCountstest.npy")
 
 						fout = open('vocabulary/output_words_50Articles_posgram' + str(l) + '.txt', 'w')
 
 						model_name = str(l) + "wordgram"
 				net = SVM()
 				print("training")
-				net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[:trainLen],
-						  labels[:trainLen])  # no validation occurs here, so last 2 params do nothing
+				net.Train(count_vectors_train, train_labels+validation_labels, count_vectors_train,
+						  train_labels+validation_labels)  # no validation occurs here, so last 2 params do nothing
 				weights = net.Get_Weights()
-				predictions = net.Predict(count_vectors[trainLen:])  # pred on test counts
-
-				acc = accuracy_score(labels[trainLen:], predictions)  # get accuracy
+				predictions = net.Predict(count_vectors_test)
+				acc = accuracy_score(test_labels, predictions)
+				class_rep = classification_report(test_labels, predictions)
 				target_names = ['Female', 'Male']
 				print("accuracy is: " + str(acc))
 
 				# if the accuracy is high enough, print the metrics, and print top words to a file
 				# if acc >= 0.60:
-				class_rep = classification_report(labels[trainLen:], predictions, target_names=target_names)  # was list_labels
+
 				print(class_rep)
 
 				weights = weights[0]
@@ -932,4 +948,5 @@ class Orchestrator():
 			fout.write("Female Top Words: \n")
 			for index in resBottom:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+			'''
 
