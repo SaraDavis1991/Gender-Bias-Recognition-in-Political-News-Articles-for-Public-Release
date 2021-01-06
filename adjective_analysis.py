@@ -161,9 +161,12 @@ def map_words(articles_corpus):
         dictionary_list.append(word_dict)
     return dictionary_list
 
-def print_words(word_counts, file_name):
+def print_words(word_counts, file_name, people = True):
     fout = open(file_name, 'w')
-    person_list = ["BIDEN", "OBAMA", "SANDERS", "TRUMP", "MCCONNELL", "CLINTON", "DEVOS", "WARREN", "CORTEZ", "PALIN"]
+    if people == True:
+        person_list = ["BIDEN", "OBAMA", "SANDERS", "TRUMP", "MCCONNELL", "CLINTON", "DEVOS", "WARREN", "CORTEZ", "PALIN"]
+    else:
+        person_list = ["MALE", "FEMALE"]
     for i, person in enumerate(word_counts):
         fout.write(person_list[i] + '\n')
         sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
@@ -179,5 +182,10 @@ def analyze_adjectives_per_person():
     word_counts = map_words(articles)
     print_words(word_counts, "adjective_analysis_by_person.txt")
     #print(articles.shape)
+def analyze_adjectives_per_gender():
+    articles = load_data(3)
+    word_counts = map_words(articles)
+    print_words(word_counts, "adjective_analysis_by_gender.txt", False)
 
-analyze_adjectives_per_person()
+#analyze_adjectives_per_person()
+analyze_adjectives_per_gender()
