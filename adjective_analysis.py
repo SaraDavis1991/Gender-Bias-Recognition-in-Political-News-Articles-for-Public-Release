@@ -26,25 +26,25 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetName == 'Joe_Biden':
-                    JoeBiden.append(article)
+                    JoeBiden.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Barack_Obama':
-                    BarrackObama.append(article)
+                    BarrackObama.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Bernie_Sanders':
-                    BernieSanders.append(article)
+                    BernieSanders.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Donald_Trump':
-                    DonaldTrump.append(article)
+                    DonaldTrump.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Mitch_Mcconnell':
-                    MitchMcconnell.append(article)
+                    MitchMcconnell.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Hillary_Clinton':
-                    HillaryClinton.append(article)
+                    HillaryClinton.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Betsy_Devos':
-                    BetsyDevos.append(article)
+                    BetsyDevos.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Elizabeth_Warren':
-                    ElizabethWarren.append(article)
+                    ElizabethWarren.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Alexandria_ocasio-cortez':
-                    AlexandriaOcasioCortez.append(article)
+                    AlexandriaOcasioCortez.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Sarah_Palin':
-                    SarahPalin.append(article)
+                    SarahPalin.append(list(map(lambda art: article.Content, allarticles)))
         allarticlesdata = []
         allarticlesdata.append(np.asarray(JoeBiden))
         allarticlesdata.append(np.asarray(BarrackObama))
@@ -70,25 +70,25 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetName == 'Joe_Biden':
-                    JoeBiden.append(article)
+                    JoeBiden.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Barack_Obama':
-                    BarrackObama.append(article)
+                    BarrackObama.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Bernie_Sanders':
-                    BernieSanders.append(article)
+                    BernieSanders.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Donald_Trump':
-                    DonaldTrump.append(article)
+                    DonaldTrump.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Mitch_Mcconnell':
-                    MitchMcconnell.append(article)
+                    MitchMcconnell.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Hillary_Clinton':
-                    HillaryClinton.append(article)
+                    HillaryClinton.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Betsy_Devos':
-                    BetsyDevos.append(article)
+                    BetsyDevos.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Elizabeth_Warren':
-                    ElizabethWarren.append(article)
+                    ElizabethWarren.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Alexandria_ocasio-cortez':
-                    AlexandriaOcasioCortez.append(article)
+                    AlexandriaOcasioCortez.append(list(map(lambda art: article.Content, allarticles)))
                 elif article.Label.TargetName == 'Sarah_Palin':
-                    SarahPalin.append(article)
+                    SarahPalin.append(list(map(lambda art: article.Content, allarticles)))
             leaning_articles.append(np.asarray(JoeBiden))
             leaning_articles.append(np.asarray(BarrackObama))
             leaning_articles.append(np.asarray(BernieSanders))
@@ -113,16 +113,14 @@ def load_data(testNum):
             allarticles = training_dataset + validation_dataset + test_dataset
 
             for article in allarticles:
-                print(article.Label.TargetGender)
                 if article.Label.TargetGender == 1:
-                    male.append(article)
+                    male.append(list(map(lambda art: article.Content, allarticles)))
                 else :
-                    female.append(article)
+                    female.append(list(map(lambda art: article.Content, allarticles)))
         allarticlesdata = []
         allarticlesdata.append(np.asarray(male))
         allarticlesdata.append(np.asarray(female))
         allarticlesdata = np.asarray(allarticlesdata)
-        print(len(allarticlesdata[0]))
     elif testNum == 4:
         allarticlesdata = []
         for j, leaning in enumerate(articles[0]):
@@ -135,9 +133,9 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetGender == 1:
-                    male.append(article)
+                    male.append(list(map(lambda art: article.Content, allarticles)))
                 else:
-                    female.append(article)
+                    female.append(list(map(lambda art: article.Content, allarticles)))
 
             leaning_articles.append(np.asarray(male))
             leaning_articles.append(np.asarray(female))
