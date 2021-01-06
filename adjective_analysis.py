@@ -26,25 +26,25 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetName == 'Joe_Biden':
-                    JoeBiden.append(list(map(lambda art: article.Content, allarticles)))
+                    JoeBiden.append(article.Content)
                 elif article.Label.TargetName == 'Barack_Obama':
-                    BarrackObama.append(list(map(lambda art: article.Content, allarticles)))
+                    BarrackObama.append(article.Content)
                 elif article.Label.TargetName == 'Bernie_Sanders':
-                    BernieSanders.append(list(map(lambda art: article.Content, allarticles)))
+                    BernieSanders.append(article.Content)
                 elif article.Label.TargetName == 'Donald_Trump':
-                    DonaldTrump.append(list(map(lambda art: article.Content, allarticles)))
+                    DonaldTrump.append(article.Content)
                 elif article.Label.TargetName == 'Mitch_Mcconnell':
-                    MitchMcconnell.append(list(map(lambda art: article.Content, allarticles)))
+                    MitchMcconnell.append(article.Content)
                 elif article.Label.TargetName == 'Hillary_Clinton':
-                    HillaryClinton.append(list(map(lambda art: article.Content, allarticles)))
+                    HillaryClinton.append(article.Content)
                 elif article.Label.TargetName == 'Betsy_Devos':
-                    BetsyDevos.append(list(map(lambda art: article.Content, allarticles)))
+                    BetsyDevos.append(article.Content)
                 elif article.Label.TargetName == 'Elizabeth_Warren':
-                    ElizabethWarren.append(list(map(lambda art: article.Content, allarticles)))
+                    ElizabethWarren.append(article.Content)
                 elif article.Label.TargetName == 'Alexandria_ocasio-cortez':
-                    AlexandriaOcasioCortez.append(list(map(lambda art: article.Content, allarticles)))
+                    AlexandriaOcasioCortez.append(article.Content)
                 elif article.Label.TargetName == 'Sarah_Palin':
-                    SarahPalin.append(list(map(lambda art: article.Content, allarticles)))
+                    SarahPalin.append(article.Content)
         allarticlesdata = []
         allarticlesdata.append(np.asarray(JoeBiden))
         allarticlesdata.append(np.asarray(BarrackObama))
@@ -70,25 +70,25 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetName == 'Joe_Biden':
-                    JoeBiden.append(list(map(lambda art: article.Content, allarticles)))
+                    JoeBiden.append(article.Content)
                 elif article.Label.TargetName == 'Barack_Obama':
-                    BarrackObama.append(list(map(lambda art: article.Content, allarticles)))
+                    BarrackObama.append(article.Content)
                 elif article.Label.TargetName == 'Bernie_Sanders':
-                    BernieSanders.append(list(map(lambda art: article.Content, allarticles)))
+                    BernieSanders.append(article.Content)
                 elif article.Label.TargetName == 'Donald_Trump':
-                    DonaldTrump.append(list(map(lambda art: article.Content, allarticles)))
+                    DonaldTrump.append(article.Content)
                 elif article.Label.TargetName == 'Mitch_Mcconnell':
-                    MitchMcconnell.append(list(map(lambda art: article.Content, allarticles)))
+                    MitchMcconnell.append(article.Content)
                 elif article.Label.TargetName == 'Hillary_Clinton':
-                    HillaryClinton.append(list(map(lambda art: article.Content, allarticles)))
+                    HillaryClinton.append(article.Content)
                 elif article.Label.TargetName == 'Betsy_Devos':
-                    BetsyDevos.append(list(map(lambda art: article.Content, allarticles)))
+                    BetsyDevos.append(article.Content)
                 elif article.Label.TargetName == 'Elizabeth_Warren':
-                    ElizabethWarren.append(list(map(lambda art: article.Content, allarticles)))
+                    ElizabethWarren.append(article.Content)
                 elif article.Label.TargetName == 'Alexandria_ocasio-cortez':
-                    AlexandriaOcasioCortez.append(list(map(lambda art: article.Content, allarticles)))
+                    AlexandriaOcasioCortez.append(article.Content)
                 elif article.Label.TargetName == 'Sarah_Palin':
-                    SarahPalin.append(list(map(lambda art: article.Content, allarticles)))
+                    SarahPalin.append(article.Content)
             leaning_articles.append(np.asarray(JoeBiden))
             leaning_articles.append(np.asarray(BarrackObama))
             leaning_articles.append(np.asarray(BernieSanders))
@@ -114,9 +114,9 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetGender == 1:
-                    male.append(list(map(lambda art: article.Content, allarticles)))
+                    male.append(article.Content)
                 else :
-                    female.append(list(map(lambda art: article.Content, allarticles)))
+                    female.append(article.Content)
         allarticlesdata = []
         allarticlesdata.append(np.asarray(male))
         allarticlesdata.append(np.asarray(female))
@@ -133,9 +133,9 @@ def load_data(testNum):
 
             for article in allarticles:
                 if article.Label.TargetGender == 1:
-                    male.append(list(map(lambda art: article.Content, allarticles)))
+                    male.append(article.Content)
                 else:
-                    female.append(list(map(lambda art: article.Content, allarticles)))
+                    female.append(article.Content)
 
             leaning_articles.append(np.asarray(male))
             leaning_articles.append(np.asarray(female))
@@ -145,8 +145,39 @@ def load_data(testNum):
 
     return allarticlesdata
 
+def map_words(articles_corpus):
+    dictionary_list = []
+    uninteresting = ["gpe", "person", "people", "-"]
+    for persons_articles in articles_corpus:
+        word_dict = {}
+        for article in persons_articles:
+            print(article)
+            words = article.lower().split()
+            for word in words:
+                if word not in word_dict and word not in uninteresting:
+                    word_dict[word] = 1
+                elif word in word_dict and word not in uninteresting:
+                    word_dict[word] += 1
+        dictionary_list.append(word_dict)
+    return dictionary_list
 
+def print_words(word_counts, file_name):
+    fout = open(file_name, 'w')
+    person_list = ["BIDEN", "OBAMA", "SANDERS", "TRUMP", "MCCONNELL", "CLINTON", "DEVOS", "WARREN", "CORTEZ", "PALIN"]
+    for i, person in enumerate(word_counts):
+        fout.write(person_list[i] + '\n')
+        sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
+        print(sorted_person[:1])
+        for word, count in sorted_person[:50]:
+            fout.write(word + " " + str(count) +'\n')
+        fout.write('\n')
 
+#load_data(4)
+def analyze_adjectives_per_person():
+    #order is biden, obama, sanders, trump, mcconnell, clinton, devos, warren cortez, palin
+    articles = load_data(1)
+    word_counts = map_words(articles)
+    print_words(word_counts, "adjective_analysis_by_person.txt")
+    #print(articles.shape)
 
-load_data(4)
-
+analyze_adjectives_per_person()
