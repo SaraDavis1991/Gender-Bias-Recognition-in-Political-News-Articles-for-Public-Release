@@ -145,47 +145,84 @@ def load_data(testNum):
 
     return allarticlesdata
 
-def map_words(articles_corpus):
-    dictionary_list = []
+def map_words(articles_corpus, leaning = True):
+
     uninteresting = ["gpe", "person", "people", "-"]
-    for persons_articles in articles_corpus:
-        word_dict = {}
-        for article in persons_articles:
-            print(article)
-            words = article.lower().split()
-            for word in words:
-                if word not in word_dict and word not in uninteresting:
-                    word_dict[word] = 1
-                elif word in word_dict and word not in uninteresting:
-                    word_dict[word] += 1
-        dictionary_list.append(word_dict)
+    if not leaning:
+        dictionary_list = []
+        for persons_articles in articles_corpus:
+            word_dict = {}
+            for article in persons_articles:
+                words = article.lower().split()
+                for word in words:
+                    if word not in word_dict and word not in uninteresting:
+                        word_dict[word] = 1
+                    elif word in word_dict and word not in uninteresting:
+                        word_dict[word] += 1
+            dictionary_list.append(word_dict)
+    else:
+        dictionary_list = []
+        for leaning in articles_corpus:
+            leaning_list = []
+            for persons_articles in leaning:
+                word_dict = {}
+                for article in persons_articles:
+                    words = article.lower().split()
+                    for word in words:
+                        if word not in word_dict and word not in uninteresting:
+                            word_dict[word] = 1
+                        elif word in word_dict and word not in uninteresting:
+                            word_dict[word] += 1
+                leaning_list.append(word_dict)
+            dictionary_list.append(leaning_list)
     return dictionary_list
 
-def print_words(word_counts, file_name, people = True):
+def print_words(word_counts, file_name, people = True, leanings = True):
     fout = open(file_name, 'w')
-    if people == True:
+    if people:
         person_list = ["BIDEN", "OBAMA", "SANDERS", "TRUMP", "MCCONNELL", "CLINTON", "DEVOS", "WARREN", "CORTEZ", "PALIN"]
     else:
         person_list = ["MALE", "FEMALE"]
-    for i, person in enumerate(word_counts):
-        fout.write(person_list[i] + '\n')
-        sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
-        print(sorted_person[:1])
-        for word, count in sorted_person[:50]:
-            fout.write(word + " " + str(count) +'\n')
-        fout.write('\n')
+    if leanings:
+        leanings = ["BREITBART", "FOX", "USA TODAY", "HUFFPOST", "NYT"]
+        for i, lean in enumerate(word_counts):
+            for j, person in enumerate(lean):
+                fout.write(person_list[j] + " " + leanings[i] + '\n')
+                sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
+                for word, count in sorted_person[:50]:
+                    fout.write(word + " " + str(count) + '\n')
+                fout.write('\n')
+    else:
+        for i, person in enumerate(word_counts):
+            fout.write(person_list[i] + '\n')
+            sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
+            for word, count in sorted_person[:50]:
+                fout.write(word + " " + str(count) +'\n')
+            fout.write('\n')
 
 #load_data(4)
 def analyze_adjectives_per_person():
     #order is biden, obama, sanders, trump, mcconnell, clinton, devos, warren cortez, palin
     articles = load_data(1)
-    word_counts = map_words(articles)
-    print_words(word_counts, "adjective_analysis_by_person.txt")
+    word_counts = map_words(articles, False)
+    print_words(word_counts, "adjective_analysis_by_person.txt", people =True, leanings=False)
     #print(articles.shape)
 def analyze_adjectives_per_gender():
     articles = load_data(3)
-    word_counts = map_words(articles)
-    print_words(word_counts, "adjective_analysis_by_gender.txt", False)
+    word_counts = map_words(articles, False)
+    print_words(word_counts, "adjective_analysis_by_gender.txt", people=False, leanings=False)
+
+def analyze_adjectives_per_person_per_leaning():
+    articles = load_data(2)
+    word_counts = map_words(articles, True)
+    print_words(word_counts, "adjective_analysis_by_person_per_leaning.txt", people = True, leanings = True)
+
+def analyze_adjectives_per_gender_per_leaning():
+    articles = load_data(4)
+    word_counts = map_words(articles, True)
+    print_words(word_counts, "adjective_analysis_by_gender_per_leaning.txt", people=False, leanings=True)
 
 #analyze_adjectives_per_person()
-analyze_adjectives_per_gender()
+#analyze_adjectives_per_gender()
+#analyze_adjectives_per_person_per_leaning()
+analyze_adjectives_per_gender_per_leaning()
