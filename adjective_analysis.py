@@ -9,7 +9,7 @@ In this set of analysis, we only consider adjectives that were in sentences cont
 from Orchestrator import Orchestrator
 import ApplicationConstants
 import numpy as np
-
+import string
 
 def load_data(testNum):
     #path, savePath = None, clean = True, save = False, random = False, number_of_articles = 50, pos_tagged = False
@@ -189,40 +189,94 @@ def print_words(word_counts, file_name, people = True, leanings = True):
             for j, person in enumerate(lean):
                 fout.write(person_list[j] + " " + leanings[i] + '\n')
                 sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
-                for word, count in sorted_person[:50]:
-                    fout.write(word + " " + str(count) + '\n')
+                if len(sorted_person) > 49:
+                    for word, count in sorted_person[:50]:
+                        fout.write(word + " " + str(count) + '\n')
+                else:
+                    for word, count in sorted_person:
+                        fout.write(word + " " + str(count) + '\n')
                 fout.write('\n')
     else:
         for i, person in enumerate(word_counts):
             fout.write(person_list[i] + '\n')
             sorted_person = sorted(person.items(), key = lambda x: x[1], reverse = True)
-            for word, count in sorted_person[:50]:
-                fout.write(word + " " + str(count) +'\n')
+            if len(sorted_person) > 49:
+                for word, count in sorted_person[:50]:
+                    fout.write(word + " " + str(count) +'\n')
+            else:
+                for word, count in sorted_person:
+                    fout.write(word + " " + str(count) + '\n')
             fout.write('\n')
 
-#load_data(4)
-def analyze_adjectives_per_person():
+def unique_adj(word_counts):
+    master_dict = {}
+    for person in word_counts:
+        for key, count in person.items():
+            if key not in master_dict:
+                master_dict[key] = True
+            else:
+                master_dict[key] = False
+    for person in word_counts:
+        personItems = list(person.items())
+        for key, count in personItems:
+            if master_dict[key] == False:
+                del person[key]
+    return word_counts
+
+def unique_adj_by_lean(word_counts):
+    master_dict = {}
+    for lean in word_counts:
+        for person in lean:
+            for key, count in person.items():
+                if key not in master_dict:
+                    master_dict[key] = True
+                else:
+                    master_dict[key] = False
+    for lean in word_counts:
+        for person in lean:
+            personItems = list(person.items())
+            for key, count in personItems:
+                if master_dict[key] == False:
+                    del person[key]
+    return word_counts
+
+def analyze_adjectives_per_person(unique = True):
     #order is biden, obama, sanders, trump, mcconnell, clinton, devos, warren cortez, palin
     articles = load_data(1)
     word_counts = map_words(articles, False)
-    print_words(word_counts, "adjective_analysis_by_person.txt", people =True, leanings=False)
-    #print(articles.shape)
-def analyze_adjectives_per_gender():
+    fname =  "adjective_analysis_by_person.txt"
+    if unique:
+        word_counts = unique_adj(word_counts)
+        fname =  "unique_adjective_analysis_by_person.txt"
+    print_words(word_counts, fname, people =True, leanings=False)
+def analyze_adjectives_per_gender(unique = True):
     articles = load_data(3)
     word_counts = map_words(articles, False)
-    print_words(word_counts, "adjective_analysis_by_gender.txt", people=False, leanings=False)
+    fname = "adjective_analysis_by_gender.txt"
+    if unique:
+        word_counts = unique_adj(word_counts)
+        fname=  "unique_adjective_analysis_by_gender.txt"
+    print_words(word_counts,fname, people=False, leanings=False)
 
-def analyze_adjectives_per_person_per_leaning():
+def analyze_adjectives_per_person_per_leaning(unique = True):
     articles = load_data(2)
     word_counts = map_words(articles, True)
-    print_words(word_counts, "adjective_analysis_by_person_per_leaning.txt", people = True, leanings = True)
+    fname = "adjective_analysis_by_person_per_leaning.txt"
+    if unique:
+        word_counts = unique_adj_by_lean(word_counts)
+        fname = "unique_adjective_analysis_by_person_per_leaning.txt"
+    print_words(word_counts, fname, people = True, leanings = True)
 
-def analyze_adjectives_per_gender_per_leaning():
+def analyze_adjectives_per_gender_per_leaning(unique = True):
     articles = load_data(4)
     word_counts = map_words(articles, True)
-    print_words(word_counts, "adjective_analysis_by_gender_per_leaning.txt", people=False, leanings=True)
+    fname = "adjective_analysis_by_gender_per_leaning.txt"
+    if unique:
+        word_counts = unique_adj_by_lean(word_counts)
+        fname = "unique_adjective_analysis_by_gender_per_leaning.txt"
+    print_words(word_counts, fname, people=False, leanings=True)
 
-#analyze_adjectives_per_person()
-#analyze_adjectives_per_gender()
-#analyze_adjectives_per_person_per_leaning()
-analyze_adjectives_per_gender_per_leaning()
+analyze_adjectives_per_gender(unique = True)
+analyze_adjectives_per_person(unique = True)
+analyze_adjectives_per_gender_per_leaning(unique=True)
+analyze_adjectives_per_person_per_leaning(unique=True)
