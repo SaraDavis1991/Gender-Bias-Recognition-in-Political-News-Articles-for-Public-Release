@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 def run_tfidf():
     orchestrator = Orchestrator()
-    articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
+    articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=1
                               , save=False)
     del orchestrator
     list_articles_list_train = []
@@ -16,10 +16,10 @@ def run_tfidf():
     list_labels_train = []
     list_labels_test = []
     list_labels_val = []
-    for j, leaning in enumerate(articles[0]):
-        training_dataset = articles[0][leaning][ApplicationConstants.Train]  # load all train for fold
-        validation_dataset = articles[0][leaning][ApplicationConstants.Validation]  # load all val for fold
-        test_dataset = articles[0][leaning][ApplicationConstants.Test]  # load all test for fold
+    for j, leaning in enumerate(articles[4]):
+        training_dataset = articles[4][leaning][ApplicationConstants.Train]  # load all train for fold
+        validation_dataset = articles[4][leaning][ApplicationConstants.Validation]  # load all val for fold
+        test_dataset = articles[4][leaning][ApplicationConstants.Test]  # load all test for fold
 
         train_articles = list(map(lambda article: article.Content, training_dataset))
         test_articles = list(map(lambda article: article.Content, test_dataset))
@@ -59,7 +59,7 @@ def run_tfidf():
     test_labels = np.asarray(test_labels)
     '''
 
-    tfidf_transformer = TfidfVectorizer() #can add params here
+    tfidf_transformer = TfidfVectorizer(use_idf =False) #can add params here
     #train_tfidf = tfidf_transformer.fit_transform(train_articles)
     #test_tfidf = tfidf_transformer.fit_transform(test_articles)
     #validation_tfidf = tfidf_transformer.fit_transform(validation_articles)
@@ -81,25 +81,29 @@ def run_tfidf():
     print("accuracy is: " + str(acc))
 
     print(class_rep)
-    '''
-    weights = net.Get_Weights()
-    
-    weights = weights[0]
-    
-    resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-25:]
-    resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
 
+    weights = net.Get_Weights()
+    #weights = weights[0]
+    #print(weights)
+    
+    #resTop = sorted(range(len(weights.toarray())), key=lambda sub: weights.toarray()[sub])[-25:]
+    #resBottom = sorted(range(len(weights.toarray())), key=lambda sub: weights.toarray()[sub])[:25]
+    sortednames = sort_coo(train_tfidf.tocoo())
+    revsorted = sort_coo(train_tfidf.tocoo(), reverse=True)
+    words = train_tfidf.get_feature_names()
+    resTop = extract_topn_from_vector(words, sortednames, 25)
+    resBottom = extract_topn_from_vector(words, revsorted, 25)
     foutval = "vocabulary/output_words_top50_tfidf.txt"
     fout = open(foutval, 'w')
     fout.write(class_rep)
     fout.write("\n")
     fout.write("Male Top Words: \n")
-    words = train_tfidf.get_feature_names()
+
     for index in resTop:
         fout.write(words[index] + ' ' + str(float(weights[index])) + '\n')
     fout.write("Female Top Words: \n")
     for index in resBottom:
         fout.write(words[index] + ' ' + str(float(weights[index])) + '\n')
-    '''
+
 
 run_tfidf()
