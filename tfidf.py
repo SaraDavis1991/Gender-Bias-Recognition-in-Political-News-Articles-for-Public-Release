@@ -5,9 +5,12 @@ import numpy as np
 from Models.SVM_engine import SVM
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
+import pandas as pd
 def run_tfidf():
     orchestrator = Orchestrator()
-    articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=1
+    #articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
+    #                          , save=False)
+    articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned_pos, number_of_articles=50
                               , save=False)
     del orchestrator
     list_articles_list_train = []
@@ -67,11 +70,13 @@ def run_tfidf():
     train_tfidf = tfidf_transformer.transform(train_articles +validation_articles)
     #validation_tfidf = tfidf_transformer.transform(validation_articles)
     test_tfidf = tfidf_transformer.transform(test_articles)
-    del tfidf_transformer
+
 
     net = SVM()
     #print(train_tfidf.shape, validation_tfidf.shape)
-
+    print("TRAIN TFIDF")
+    #print(train_tfidf)
+    #print(tfidf_transformer.vocabulary_)
     net.Train(train_tfidf, train_labels+validation_labels, train_tfidf, train_labels+validation_labels)
     predictions = net.Predict(test_tfidf)  # pred on test counts
     acc = accuracy_score(test_labels, predictions)  # get accuracy
@@ -81,29 +86,30 @@ def run_tfidf():
     print("accuracy is: " + str(acc))
 
     print(class_rep)
-
+    print("WEIGHTS")
     weights = net.Get_Weights()
-    #weights = weights[0]
+    weights = weights.todense()
     #print(weights)
-    
-    #resTop = sorted(range(len(weights.toarray())), key=lambda sub: weights.toarray()[sub])[-25:]
-    #resBottom = sorted(range(len(weights.toarray())), key=lambda sub: weights.toarray()[sub])[:25]
-    sortednames = sort_coo(train_tfidf.tocoo())
-    revsorted = sort_coo(train_tfidf.tocoo(), reverse=True)
-    words = train_tfidf.get_feature_names()
-    resTop = extract_topn_from_vector(words, sortednames, 25)
-    resBottom = extract_topn_from_vector(words, revsorted, 25)
-    foutval = "vocabulary/output_words_top50_tfidf.txt"
+    df_weights = pd.DataFrame(weights.T, index=tfidf_transformer.vocabulary_, columns = ["svm_weights"])
+    df_weights = df_weights.sort_values(by=["svm_weights"], ascending = False)
+    topMale = (df_weights.head(50))
+    topFemale = (df_weights.tail(50)).iloc[::-1]
+    print(topMale.shape)
+    print("TOP MALE WORDS: ")
+    print(topMale)
+    print("\n")
+    print("TOP FEMALE WORDS")
+    print(topFemale)
+    foutval = "vocabulary/output_words_top50_tfidf_POS_fold4.txt"
     fout = open(foutval, 'w')
     fout.write(class_rep)
     fout.write("\n")
     fout.write("Male Top Words: \n")
-
-    for index in resTop:
-        fout.write(words[index] + ' ' + str(float(weights[index])) + '\n')
+    fout.write(str(topMale))
+    fout.write("\n")
     fout.write("Female Top Words: \n")
-    for index in resBottom:
-        fout.write(words[index] + ' ' + str(float(weights[index])) + '\n')
+    fout.write(str(topFemale))
+    fout.write("\n")
 
 
 run_tfidf()
