@@ -1,6 +1,6 @@
 def wordOverlap(male = True):
-    filesToOpen = ["vocabulary/output_words_top50_tfidf_fold0.txt", "vocabulary/output_words_top50_tfidf_fold1.txt", "vocabulary/output_words_top50_tfidf_fold2.txt",
-                   "vocabulary/output_words_top50_tfidf_fold3.txt", "vocabulary/output_words_top50_tfidf_fold4.txt"]
+    filesToOpen = ["vocabulary/output_words_top50_tfidfNN_fold0.txt", "vocabulary/output_words_top50_tfidfNN_fold1.txt", "vocabulary/output_words_top50_tfidfNN_fold2.txt",
+                   "vocabulary/output_words_top50_tfidfNN_fold3.txt", "vocabulary/output_words_top50_tfidfNN_fold4.txt"]
     maleWordDict = {}
     femaleWordDict = {}
     wordDict = {}
@@ -40,10 +40,57 @@ def printDict(dictionary, fname):
     for key, value in dictionary.items():
         f.write(str(key) + ":" + str(value) + "\n")
 
-maleWordDict, femaleWordDict, wordDict = wordOverlap()
-print("female")
-printDict(maleWordDict, "vocabulary/maleFoldOverlap.txt")
-print("male")
-printDict(femaleWordDict, "vocabulary/FemaleFoldOverlap.txt")
-print("bothfold")
-printDict(wordDict, "vocabulary/occGenderOccurence.txt")
+def svm_NN_compare():
+    female_list = ["vocabulary/FemaleFoldOverlap.txt", "vocabulary/FemaleFoldOverlapNN.txt"]
+    male_list = ["vocabulary/maleFoldOverlap.txt", "vocabulary/maleFoldOverlapNN.txt"]
+
+    maleWordDict= {}
+    femaleWordDict = {}
+
+    for i, file in enumerate(female_list):
+        lineCounter = 1
+        f = open(file, "r")
+        for line in f:
+            if lineCounter != 1:
+                wordsAndFolds = line.split(':')
+                word = wordsAndFolds[0]
+                if word not in femaleWordDict.keys() and i == 1:
+                    femaleWordDict[word] = str(i) + " " + str(wordsAndFolds[1])
+                    femaleWordDict[word] = femaleWordDict[word].strip("\n")
+                elif word not in femaleWordDict.keys():
+                    femaleWordDict[word] = str(wordsAndFolds[1])
+                    femaleWordDict[word] = femaleWordDict[word].strip("\n")
+                else:
+                    femaleWordDict[word] += str(wordsAndFolds[1])
+                    femaleWordDict[word] = femaleWordDict[word].strip("\n")
+            lineCounter +=1
+    for i, file in enumerate(male_list):
+        lineCounter = 1
+        f = open(file, "r")
+        for line in f:
+            if lineCounter != 1:
+                wordsAndFolds = line.split(':')
+                word = wordsAndFolds[0]
+                if word not in maleWordDict.keys() and i == 1:
+                    maleWordDict[word] = str(i) + " " + str(wordsAndFolds[1])
+                    maleWordDict[word] = maleWordDict[word].strip("\n")
+                elif word not in maleWordDict.keys():
+                    maleWordDict[word] = str(wordsAndFolds[1])
+                    maleWordDict[word] = maleWordDict[word].strip("\n")
+                else:
+                    maleWordDict[word] += str(wordsAndFolds[1])
+                    maleWordDict[word] = maleWordDict[word].strip("\n")
+            lineCounter +=1
+    return maleWordDict, femaleWordDict
+
+#maleWordDict, femaleWordDict, wordDict = wordOverlap()
+#print("female")
+#printDict(maleWordDict, "vocabulary/maleFoldOverlapNN.txt")
+#print("male")
+#printDict(femaleWordDict, "vocabulary/FemaleFoldOverlapNN.txt")
+#print("bothfold")
+#printDict(wordDict, "vocabulary/occGenderOccurenceNN.txt")
+
+maleWordDict, femaleWordDict = svm_NN_compare()
+printDict(maleWordDict, "vocabulary/NN_SVM_Male_Overlap.txt")
+printDict(femaleWordDict, "vocabulary/NN_SVM_Female_Overlap.txt")

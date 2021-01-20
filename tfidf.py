@@ -2,17 +2,23 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from Orchestrator import Orchestrator
 import ApplicationConstants
 import numpy as np
-from Models.SVM_engine import SVM
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 import pandas as pd
-def run_tfidf(i, SVM = True):
-    orchestrator = Orchestrator()
-    articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
-                              , save=False, random = True)
-    #articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned_pos, number_of_articles=50
-    #                          , save=False)
-    del orchestrator
+
+def convert_label(labels):
+    lbls = []
+    for label in labels:
+        if label == 0:
+            label = -1
+        else:
+            label = label
+        lbls.append(label)
+    labels = lbls
+    return labels
+
+
+def run_tfidf(articles , i, svm = True):
     list_articles_list_train = []
     list_articles_list_val = []
     list_articles_list_test = []
@@ -49,93 +55,67 @@ def run_tfidf(i, SVM = True):
     validation_articles = [j for sub in list_articles_list_val for j in sub]
     test_articles = [j for sub in list_articles_list_test for j in sub]
     train_labels = [j for sub in list_labels_train for j in sub]
-    labels = []
-    for label in train_labels:
-        if label == 0:
-            label = -1
-        else:
-            label = label
-        labels.append(label)
-    train_labels = labels
+    train_labels = convert_label(train_labels)
 
     validation_labels = [j for sub in list_labels_val for j in sub]
-    labels = []
-    for label in validation_labels:
-        if label == 0:
-            label = -1
-        else:
-            label = label
-        labels.append(label)
-    validation_labels = labels
+    validation_labels = convert_label(validation_labels)
     test_labels = [j for sub in list_labels_test for j in sub]
-    labels = []
-    for label in test_labels:
-        if label == 0:
-            label = -1
-        else:
-            label = label
-        labels.append(label)
-    test_labels = labels
-    '''
-    train_articles = np.asarray(train_articles)
-    print(train_articles.shape)
-    validation_articles = np.asarray(validation_articles)
-    test_articles = np.asarray(test_articles)
-    train_labels = np.asarray(train_labels)
-    validation_labels = np.asarray(validation_labels)
-    test_labels = np.asarray(test_labels)
-    '''
+    test_labels = convert_label(test_labels)
+
 
     tfidf_transformer = TfidfVectorizer(use_idf =False) #can add params here
-    #train_tfidf = tfidf_transformer.fit_transform(train_articles)
-    #test_tfidf = tfidf_transformer.fit_transform(test_articles)
-    #validation_tfidf = tfidf_transformer.fit_transform(validation_articles)
     tfidf_transformer.fit(train_articles+validation_articles+test_articles)
     train_tfidf = tfidf_transformer.transform(train_articles +validation_articles)
-    #validation_tfidf = tfidf_transformer.transform(validation_articles)
     test_tfidf = tfidf_transformer.transform(test_articles)
 
-    if SVM:
+    if svm:
+        from Models.SVM_engine import SVM
         net = SVM()
-        #print(train_tfidf.shape, validation_tfidf.shape)
-        print("TRAIN TFIDF")
-        #print(train_tfidf)
-        #print(tfidf_transformer.vocabulary_)
-        net.Train(train_tfidf, train_labels+validation_labels, train_tfidf, train_labels+validation_labels)
-        predictions = net.Predict(test_tfidf)  # pred on test counts
-        acc = accuracy_score(test_labels, predictions)  # get accuracy
-        target_names = ['Female', 'Male']
-        class_rep = classification_report(test_labels, predictions,
-                                          target_names=target_names)
-        print("accuracy is: " + str(acc))
-
-        print(class_rep)
-        print("WEIGHTS")
+        net.Train(train_tfidf, train_labels + validation_labels, train_tfidf, train_labels + validation_labels)
         weights = net.Get_Weights()
         weights = weights.todense()
-        #print(weights)
-        df_weights = pd.DataFrame(weights.T, index=tfidf_transformer.get_feature_names(), columns = ["svm_weights"])
-        df_weights = df_weights.sort_values(by=["svm_weights"], ascending = False)
-        topMale = (df_weights.head(50))
-        topFemale = (df_weights.tail(50)).iloc[::-1]
-        print("TOP MALE WORDS: ")
-        print(topMale)
-        print("\n")
-        print("TOP FEMALE WORDS")
-        print(topFemale)
-        foutval = "vocabulary/output_words_top50_tfidf_fold" + str(i)+ ".txt"
-        fout = open(foutval, 'w')
-        fout.write(class_rep)
-        fout.write("\n")
-        fout.write("Male Top Words: \n")
-        fout.write(str(topMale))
-        fout.write("\n")
-        fout.write("Female Top Words: \n")
-        fout.write(str(topFemale))
-        fout.write("\n")
     else:
-        from simplePytorchNN import NeuralNet
-        net = NeuralNet()
+        from Models.NN_engine import Linear_NN
+        net = Linear_NN()
+        weights = net.Train(train_tfidf, train_labels + validation_labels, train_tfidf, train_labels + validation_labels)
 
+    #net.Train(train_tfidf, train_labels + validation_labels, train_tfidf, train_labels + validation_labels)
+    predictions = net.Predict(test_tfidf)  # pred on test counts
+    acc = accuracy_score(test_labels, predictions)  # get accuracy
+    target_names = ['Female', 'Male']
+    class_rep = classification_report(test_labels, predictions, target_names=target_names)
+    print("accuracy is: " + str(acc))
 
-run_tfidf(4)
+    print(class_rep)
+    print("WEIGHTS")
+    #weights = net.Get_Weights()
+    #weights = weights.todense()
+    df_weights = pd.DataFrame(weights.T, index=tfidf_transformer.get_feature_names(), columns=["svm_weights"])
+    df_weights = df_weights.sort_values(by=["svm_weights"], ascending=False)
+    topMale = (df_weights.head(50))
+    topFemale = (df_weights.tail(50)).iloc[::-1]
+    print("TOP MALE WORDS: ")
+    print(topMale)
+    print("\n")
+    print("TOP FEMALE WORDS")
+    print(topFemale)
+    if svm:
+        foutval = "vocabulary/output_words_top50_tfidf_fold" + str(i) + ".txt"
+    else:
+        foutval = "vocabulary/output_words_top50_tfidfNN_fold" + str(i) + ".txt"
+    fout = open(foutval, 'w')
+    fout.write(class_rep)
+    fout.write("\n")
+    fout.write("Male Top Words: \n")
+    fout.write(str(topMale))
+    fout.write("\n")
+    fout.write("Female Top Words: \n")
+    fout.write(str(topFemale))
+    fout.write("\n")
+
+orchestrator = Orchestrator()
+articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
+                            , save=False, random = True)
+del orchestrator
+for i in range(5):
+    run_tfidf(articles, i, False)
