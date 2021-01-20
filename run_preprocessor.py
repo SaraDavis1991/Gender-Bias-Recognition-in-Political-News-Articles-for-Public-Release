@@ -20,16 +20,16 @@ orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4, save=Tr
 
 
 #Create the candidate name sentence json using parse_sentences and the randomized (dirty) articles
-run(0, ApplicationConstants.all_articles_random_v4_candidate_names)
+#run(0, ApplicationConstants.all_articles_random_v4_candidate_names)
 #clean the candidate name json and save it
-orchestrator.read_data(path = ApplicationConstants.all_articles_random_v4_candidate_names, save = True, savePath = ApplicationConstants.all_articles_random_v4_candidate_names_cleaned
-                       , random = True, clean = True, number_of_articles=1000)
+#orchestrator.read_data(path = ApplicationConstants.all_articles_random_v4_candidate_names, save = True, savePath = ApplicationConstants.all_articles_random_v4_candidate_names_cleaned
+#                       , random = True, clean = True, number_of_articles=1000)
 
-run(2, ApplicationConstants.all_articles_random_v4_candidate_names_len2)
+#run(2, ApplicationConstants.all_articles_random_v4_candidate_names_len2)
 #Clean the dirty sentences containing the candidate name, then do POS tagging, save ADJ
-orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_candidate_names_len2, save=True,
-                       savePath=ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names, clean=True,
-                        random=True, number_of_articles=1000, pos_tagged=True)
+#orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_candidate_names_len2, save=True,
+#                       savePath=ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names, clean=True,
+#                        random=True, number_of_articles=1000, pos_tagged=True)
 
 #Clean all of the sentences (regardless of if candidate name is there), then do POS tagging, save ADJ
 #not used in any of our reported testing, but here if interested

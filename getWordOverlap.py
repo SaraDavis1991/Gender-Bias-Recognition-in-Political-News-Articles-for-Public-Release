@@ -22,7 +22,7 @@ def wordOverlap(male = True):
             if lineCounter < 114 and lineCounter > 63:
                 if wordList[0] not in femaleWordDict.keys() and 'Female' not in wordList[0] and 'svm' not in wordList[0]:
                     femaleWordDict[wordList[0]] = [i+1]
-                elif 'Female' not in wordList[0] and 'svm' not in wordList[0]:
+                elif 'Feale' not in wordList[0] and 'svm' not in wordList[0]:
                     femaleWordDict[wordList[0]].append(i+1)
                 if wordList[0] not in wordDict.keys() and 'Female' not in wordList[0] and 'svm' not in wordList[0]:
                     wordDict[wordList[0]] = 'F'
@@ -41,9 +41,9 @@ def printDict(dictionary, fname):
         f.write(str(key) + ":" + str(value) + "\n")
 
 maleWordDict, femaleWordDict, wordDict = wordOverlap()
-print("malefold")
+print("female")
 printDict(maleWordDict, "vocabulary/maleFoldOverlap.txt")
-print("femalefold")
+print("male")
 printDict(femaleWordDict, "vocabulary/FemaleFoldOverlap.txt")
 print("bothfold")
 printDict(wordDict, "vocabulary/occGenderOccurence.txt")
