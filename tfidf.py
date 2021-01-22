@@ -17,8 +17,11 @@ def convert_label(labels):
     labels = lbls
     return labels
 
-
-def run_tfidf(articles , i, svm = True):
+'''
+if svm =True, function trains and SVM to try to distinguish samples, else it uses a perceptron that holds a random 20% of the train as validation
+if all = True, all candidates are mixed together and 80% is used as train 20% as test, else 2 candidates are held as test and 8 are held as train
+'''
+def run_tfidf(articles , i, svm = True, all = True):
     list_articles_list_train = []
     list_articles_list_val = []
     list_articles_list_test = []
@@ -62,6 +65,16 @@ def run_tfidf(articles , i, svm = True):
     test_labels = [j for sub in list_labels_test for j in sub]
     test_labels = convert_label(test_labels)
 
+    if all:
+        articles = train_articles + validation_articles + test_articles
+        labels = train_labels + validation_labels + test_labels
+        articles, labels = zip(*sorted(zip(articles, labels)))
+        train_articles = articles[:int(len(articles) *.4)]
+        train_labels = labels[:int(len(labels) * .4)]
+        validation_articles = articles[int(len(articles) *.4):int(len(articles) *.8)]
+        validation_labels = labels[int(len(labels) * .4):int(len(labels) * .8)]
+        test_articles = articles[int(len(articles) *.8):]
+        test_labels = labels[int(len(labels) * .8):]
 
     tfidf_transformer = TfidfVectorizer(use_idf =False) #can add params here
     tfidf_transformer.fit(train_articles+validation_articles+test_articles)
@@ -103,6 +116,8 @@ def run_tfidf(articles , i, svm = True):
         foutval = "vocabulary/output_words_top50_tfidf_fold" + str(i) + ".txt"
     else:
         foutval = "vocabulary/output_words_top50_tfidfNN_fold" + str(i) + ".txt"
+    if all:
+        foutval = "vocabulary/output_words_top50_tfidfNN_ALL.txt"
     fout = open(foutval, 'w')
     fout.write(class_rep)
     fout.write("\n")
@@ -117,5 +132,11 @@ orchestrator = Orchestrator()
 articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
                             , save=False, random = True)
 del orchestrator
+#if running in loop, all should be false because you want to grab a chunk of candidates at a time
+
 for i in range(5):
-    run_tfidf(articles, i, False)
+    run_tfidf(articles, i, svm = False, all =False)
+
+
+#combine all candidates and do a shuffle to randomize them, then test on mix of all candidates articles (0 does not matter)
+run_tfidf(articles, 0, svm = False, all = True)
