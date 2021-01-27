@@ -129,14 +129,14 @@ def run_tfidf(articles , i, svm = True, all = True):
     fout.write("\n")
 
 orchestrator = Orchestrator()
-articles = orchestrator.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=50
-                            , save=False, random = True)
+articles = orchestrator.read_data(path="Data/articles_random_v4_cleaned_top50RandomtfidfTests_56.json", savePath = "Data/articles_random_v4_cleaned_top50RandomtfidfTests.json",
+                                  save = False, number_of_articles=50, random = False)
 del orchestrator
 #if running in loop, all should be false because you want to grab a chunk of candidates at a time
 
 for i in range(5):
-    run_tfidf(articles, i, svm = False, all =False)
+    run_tfidf(articles, i, svm = True, all =False)
 
 
 #combine all candidates and do a shuffle to randomize them, then test on mix of all candidates articles (0 does not matter)
-run_tfidf(articles, 0, svm = False, all = True)
+run_tfidf(articles, 0, svm = True, all = True)
