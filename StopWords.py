@@ -211,6 +211,17 @@ StopWords = [
     'White House',
     'right',
     'left',
+    'education',
+    'email',
+    'emails',
+    'student',
+    'students',
+    'teacher',
+    'teachers',
+    'educator',
+    'educators',
+    'don',
+    'donny',
     
 
     #male list based on  Zhao + Bulakbasi
@@ -349,7 +360,7 @@ StopWords = [
     'roosters',
     'prostatic_utricle',
     'priests',
-    'stailor',
+    'sailor',
     'busboy',
 
     #female words
