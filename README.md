@@ -16,14 +16,9 @@ All files will be saved to the Data directory. <br/><br/>
 <p align="center">DOC2VEC EMBEDDING TESTS </p>
                                                        
 (3a) Download all the news 2.0 from https://components.one/datasets/all-the-news-2-news-articles-dataset/ to the store directory<br/>
-<<<<<<< HEAD
 (3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains the option to pretrain on dirty or clean all the news data and fine tune on dirty of clean news-bias data. Simply uncomment the line that you wish to run.  The default runs the parameters shown in our
 paper: cleaned all the news data, cleaned news bias data. All of the metrics (precision, recall, f1) are saved to the metrics directory. All of the models are saved to the PretrainFinetuneStorage directory. All TSNE visualizations are saved to the visualizations directory. 
-=======
-(3b) Run run_pretrain_and_finetune.py to replicate our doc2vec embedding tests. This file contains several options for pretraining and finetuning, including
-an option that skips pretraining for comparison to a baseline. Simply uncomment the line that you wish to run.  The default runs the parameters shown in our
-paper: cleaned all the news data, cleaned news bias data, using .2 of all the news due to RAM constrains. All of the metrics are saved to the PretrainFinetuneMetrics directory.
-TSNE visualizations are saved in the visualizations directory. <br/>
+
 
 **NOTE**: We run a linear neural net model and validate it 10 times, selecting the best validation model before testing and averaging the best neural net results across five folds. Linear neural nets are not optimal, so the average results that you achieve **may** be slightly different than the results we report. 
  <br/>
@@ -40,15 +35,11 @@ Vocabulary is saved to the vocabulary directory. <br/>
 
 <p align="center">SENTIMENT ANALYSIS TESTS</p>
                                                     
-<<<<<<< HEAD
-(5a) Download the Hu and Liu 2004 sentiment lexicon from http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar, and remove 'trump', 'vice', and 
-'right' to remain consistent with our cleaning methods. Save the newly cleaned file as "positive-words-notrump.txt" and "negative-words-novice.txt"
-in the same folder that they were downloaded in. <br/>
-=======
+
 (5a) Download the Hu and Liu 2004 sentiment lexicon from http://www.cs.uic.edu/~liub/FBS/opinion-lexicon-English.rar
 Remove 'vice' and change the blank line at the top of the file below the comments to a semicolon to remain consistent with our cleaning methods and save it as "negative-words-novice.txt" in the opinion-lexicon-English directory.
 Remove 'trump', 'right',  and change the blank line at the top of the file below the comments to a semicolon to remain consistent with our cleaning methods and save it as "positive-words-notrump.txt" in the opinion-lexicon-English directory. <br/>
->>>>>>> rerunTests
+
 (5b) Run run_sentiment.py<br/>
 Sentiment visualizations are saved in the results/visualizations/ directory <br/>
 
