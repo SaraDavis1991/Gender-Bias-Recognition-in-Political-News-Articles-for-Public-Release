@@ -20,18 +20,18 @@ print_vocab is a bool that determines if all of the vocab from the BOW is printe
 NOTE: to run this file, articles must have been collected and run_preprocessor.py must have been run
 '''
 
-#OPTION 1: run run_bow on all words in vocab, without lemma, print vocab to confirm data is cleaned properly
-#orchestrator.run_bow( "store/np_cumulative_vec_ALLnoL.npy", "store/np_count_vec_ALLnoL.npy", "store/perceptron_ALLnoL.sav",True, False, True) #notPos, lemmad, printvocab
+#OPTION 1: run run_bow on all words in vocab, without lemma, print vocab to confirm data is cleaned properly, on balanced article count per person
+#orchestrator.run_bow( "BOW_models/np_cumulative_vec_ALLnoL_balanced.npy", "BOW_models/np_count_vec_ALLnoL_balanced.npy", "BOW_models/perceptron_ALLnoL_balanced",True, False, True, True) #notPos, lemmad, printvocab
 
-#OPTION 2: run run_bow on adjectives in vocab, without lemma, print vocab to confirm proper cleaning
-orchestrator.run_bow( "store/np_cumulative_vec_ADJnoL_4_all.npy", "store/np_count_vec_ADJnoL_4_all.npy", "store/perceptron_ADJnoL_4_all.sav",False, False, True, False) #Pos, lemmad, printvocab
+#OPTION 2: run run_bow on adjectives in vocab, without lemma, print vocab to confirm proper cleaning, on balanced article count per person
+#orchestrator.run_bow( "BOW_models/np_cumulative_vec_ADJnoL_balanced.npy", "BOW_models/np_count_vec_ADJnoL_balanced.npy", "BOW_models/perceptron_ADJnoL_balanced",False, False, True, True) #Pos, lemmad, printvocab
+
+#OPTION 3: run run_bow on all words in vocab, without lemma, print vocab to confirm data is cleaned properly, on all articles (unbalanced)
+#orchestrator.run_bow( "BOW_models/np_cumulative_vec_ALLnoL_notbalanced.npy", "BOW_models/np_count_vec_ALLnoL_notbalanced.npy", "BOW_models/perceptron_ALLnoL_notbalanced",True, False, True, False) #notPos, lemmad, printvocab
+
+#OPTION 4: run run_bow on adjectives in vocab, without lemma, print vocab to confirm proper cleaning, on all articles (unbalanced)
+#orchestrator.run_bow( "BOW_models/np_cumulative_vec_ADJnoL_notbalanced.npy", "BOW_models/np_count_vec_ADJnoL_notbalanced.npy", "BOW_models/perceptron_ADJnoL_notbalanced",False, False, True, False) #Pos, lemmad, printvocab
 
 
-#OPTION 3: run run_bow on all words in vocab, with lemma, print vocab to confirm data is cleaned properly
-#orchestrator.run_bow( "store/np_cumulative_vec_ALLl.npy", "store/np_count_vec_ALLl.npy", "store/perceptron_ALLl.sav",True, True, True) #notPos, lemmad, printvocab
+orchestrator.run_bow("BOW_models/np_cumulative_vec_ALL_balancedngram.npy", "BOW_models/np_count_vec_ALLngram_balanced.npy", "BOW_models/perceptron_ALLngram_balanced", True, True, False, True, True)
 
-#OPTION 4: run run_bow on adjectives in vocab, with lemma, print vocab to confirm proper cleaning
-#orchestrator.run_bow( "store/np_cumulative_vec_ADJl.npy", "store/np_count_vec_ADJl.npy", "store/perceptron_ADJl.sav",False, True, True) #Pos, lemmad, printvocab
-
-#OPTION 5: run run_bow on all words in vocab without lemma, print vocab to confirm that data is cleaned properly, run it on data in folds
-#orchestrator.run_bow("store/np_cumulative_vec_ALLnoLFolds.")

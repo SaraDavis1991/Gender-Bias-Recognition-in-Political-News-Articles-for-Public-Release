@@ -11,7 +11,10 @@ all_articles_random_v3 = "./Data/articles_random_v3.json"
 all_articles_random_v3_cleaned = "./Data/articles_random_v3_cleaned.json" #duplicates, mccain, and names fixed, also cleaned
 all_articles_random_v4= "./Data/articles_random_v4.json"
 all_articles_random_v4_cleaned = "./Data/articles_random_v4_cleaned.json"
-all_articles_random_v4_candidate_names = "./Data/articles_random_v4_sentences_len2.json" #json containing articles with target name and at least 2 sentences
+all_articles_random_v4_candidate_names = "./Data/articles_random_v4_sentences_candidate_names.json"
+all_articles_random_v4_candidate_names_cleaned = "./Data/articles_random_v4_sentences_candidate_names_cleaned.json"
+all_articles_random_v4_candidate_names_len2 = "./Data/articles_random_v4_sentences_len2.json" #json containing articles with target name and at least 2 sentences
+all_articles_random_v4_candidate_names_cleaned_len2 = "./Data/articles_random_v4_sentences_len2_cleaned.json"
 all_articles_random_v4_cleaned_pos = "./Data/articles_random_v4_cleaned_pos.json" #json containing articles with POS only
 all_articles_random_v4_cleaned_pos_candidate_names = "./Data/articles_random_v4_cleaned_pos_candidate_names.json" #json containing articles with POS surrounding target name
 all_articles_sentiment_counts = "./Data/articles_w_pos_neg_cnts.json" #json containing sentiment counts
@@ -26,7 +29,8 @@ fold_5 = "./folds/fold5.txt"
 #all the news files- all_the_news_newer is 2.0, and cleaned has been cleaned using our process
 all_the_news_path = './store/all-the-news.db'
 all_the_news_newer_path = './store/all-the-news-2-1.csv'
-all_the_news_cleaned_path = './store/all-the-news_cleaned_merged_final.csv'
+all_the_news_cleaned_path_20 = './store/all-the-news_cleaned_0.2.csv'
+all_the_news_cleaned_path_all = './store/all-the-news_cleaned_1.0.csv'
 
 #leaning constants
 FarLeft = "Far_Left"

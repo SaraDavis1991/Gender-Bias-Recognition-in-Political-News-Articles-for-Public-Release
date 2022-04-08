@@ -35,8 +35,8 @@ class Linear_NN(implements(IModel)):
         self.Model = self.Build_Model()
 
     def Build_Model(self):
-
-        model = Perceptron(eta0=0.8, n_jobs = -1, early_stopping = True, validation_fraction = .2, n_iter_no_change = 10)
+        #eta0 = 1
+        model = Perceptron(alpha = 0.0001, n_jobs = -1, early_stopping = True, validation_fraction = .2, n_iter_no_change = 100, max_iter = 10000, verbose = 10, penalty = 'l1')
 
         #return weights
 

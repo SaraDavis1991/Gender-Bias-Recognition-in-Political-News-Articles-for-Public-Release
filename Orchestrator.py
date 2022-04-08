@@ -29,6 +29,7 @@ import nltk
 import re
 import random
 import pickle
+import ngrams as ngram
 
 class Orchestrator():
 
@@ -349,6 +350,185 @@ class Orchestrator():
 		zipped = list(zip(bad_words, count_list))
 		print("total use: ",zipped)
 
+	def construct_vocabulary(self, ngram_dict, ngrams, splittype):
+		for ngram in ngrams:
+			# print(ngram)
+			if ngram in ngram_dict.keys():
+				ngram_dict[ngram] += 1
+			elif splittype == "train":
+				ngram_dict[ngram] = 1
+			elif "UNK" in ngram_dict.keys() and splittype == "test":
+				ngram_dict["UNK"] += 1
+			else:
+				ngram_dict["UNK"] = 1
+
+
+
+	# print(vocabulary)
+
+	def winnow_vocab(self, ngram_dict):
+		# sorted_dict = dict(sorted(ngram_dict.items(), key = lambda item : item[1], reverse = True))
+		# keys = list(sorted_dict.keys())[:300000]
+		# vocab_counter = dict.fromkeys(keys, 0)
+		vocab = {}
+
+		for word, count in ngram_dict.items():
+			if count > 1:
+				vocab[word] = count
+		return vocab
+
+	def build_bow(self, vocab_counter, article):
+		# print(len(vocab))
+		# vocab_counter = dict.fromkeys(vocab, 0)
+		# for i in range(len(vocab)):
+		#    vocab_counter.append(0)
+
+		for word in article:
+			# ind = vocab.index(word)
+			# vocab_counter[ind] +=1
+			if word not in vocab_counter:
+				word = 'UNK'
+			vocab_counter[word] += 1
+
+	def construct_counts(self,type, n, vocab_counter, corpus, savetype):
+		counted_set = []
+		keys = vocab_counter.keys()
+
+		for i, text in enumerate(corpus):
+			vocab_counter = dict.fromkeys(keys, 0)
+			self.build_bow(vocab_counter, text)
+			#print(len(vocab_counter.values()))
+			lencounts = len(vocab_counter.values())
+			values =np.asarray(list(vocab_counter.values()))
+			#print(np.shape(values))
+			counted_set.append(values) #make an array out of vocab_counter
+		# print(i)
+		counted_set = np.asarray(counted_set) #make an array out of counted set
+		print("COUNTED SET SHAPE, SHOULD BE NUM ARTICLES * VOCAB", np.shape(counted_set))
+		corpus_numpy_save = "./store/" + type + "_" + str(n) + "gram_CorpusCounts" + savetype + ".npy"
+		np.save(corpus_numpy_save, counted_set) #save the array
+	def run_vocab_construction(self , vocabulary):
+
+		if len(vocabulary) > 300000:
+			print("winnnowing")
+			char_vocab = self.winnow_vocab(vocabulary)
+			char_vocab['UNK'] = 1
+		else:
+			char_vocab = vocabulary
+			char_vocab['UNK'] = 1
+
+
+		print("VOCAB", len(char_vocab))
+		return char_vocab
+	def do_trainTestValSplit(self,i,ngramtype, gram_vocab, corpus, all_articles, splittype, pos):
+		for filecontents in all_articles:
+			filecontent_word_gram = ngram.doc_word_ngram(i, filecontents)
+			#gram_vocab = self.run_vocab_construction(ngramtype, i, gram_vocab, filecontent_word_gram)
+			self.construct_vocabulary(gram_vocab, filecontent_word_gram, splittype) #construct ngrams
+			corpus.append(filecontent_word_gram) #append to corpus
+		print("NUM ARTICLES ", splittype,  len(corpus))
+		if splittype == "train" or splittype == "":
+			gram_vocab = self.run_vocab_construction(gram_vocab) #get winnowed vocab
+		print("VOCAB LEN", len(gram_vocab))
+		if "UNK" not in gram_vocab.keys():
+			gram_vocab['UNK'] = 1
+		self.construct_counts(ngramtype, i, gram_vocab, corpus, splittype) #turn words into counts
+		if pos:
+			type = "pos"
+		else:
+			type = "word"
+		if splittype == "train" or "":
+			vocab_numpy_save = "./store/" + type + "_" + str(i) + "gram_vocab.npy"
+			words = np.asarray(list(gram_vocab.keys()))
+			np.save(vocab_numpy_save, words)
+		del corpus
+		return gram_vocab
+
+	def calc_ngram_vectors(self, all_articles_const, pos):
+		#get all articles
+		all_articles_train = []
+		all_articles_test = []
+		all_articles_validation = []
+		#for i, split in enumerate(all_articles_const):
+			#print("Fold " + str(i + 1))
+		for j, leaning in enumerate(all_articles_const[0]):
+			print("calc word vec", leaning)
+			training_dataset = all_articles_const[0][leaning][ApplicationConstants.Train]
+			validation_dataset = all_articles_const[0][leaning][ApplicationConstants.Validation]
+			test_dataset = all_articles_const[0][leaning][ApplicationConstants.Test]
+			#all_articles = list(map(lambda art: art.Content, training_dataset + validation_dataset + test_dataset))
+			all_articles_train.append(list(map(lambda art: art.Content, training_dataset)))
+			all_articles_test.append(list(map(lambda art: art.Content, test_dataset)))
+			all_articles_validation.append(list(map(lambda art: art.Content,  validation_dataset)))
+		all_articles_train = [j for sub in all_articles_train for j in sub]
+		all_articles_test = [j for sub in all_articles_test for j in sub]
+		all_articles_validation = [j for sub in all_articles_validation for j in sub]
+		all_articles = all_articles_train+all_articles_validation
+		print("TRAIN + VAL", len(all_articles))
+		print("TEST", len(all_articles_test))
+		if not pos:
+			#do char grams
+			for i in range(2, 6):
+				#for filecontents in all_articles:
+					#filecontent_char_gram = ngram.doc_char_ngram(i, filecontents)
+					#char_gram_vocab = self.run_vocab_construction("char", i,  char_gram_vocab, filecontent_char_gram)
+					#char_gram_corpus.append(filecontent_char_gram)
+					#char_corpus_counts = self.construct_counts("char",i, char_gram_vocab, char_gram_corpus)
+				#del char_gram_corpus
+				#del char_gram_vocab
+				'''
+				for filecontents in all_articles_train:
+					filecontent_word_gram = ngram.doc_word_ngram(i, filecontents)
+					word_gram_vocab = self.run_vocab_construction("word",i,  word_gram_vocab, filecontent_word_gram)
+					word_gram_corpus.append(filecontent_word_gram)
+				self.construct_counts("word", i, word_gram_vocab, word_gram_corpus, "train")
+				if pos:
+					type = "pos"
+				else:
+					type = "word"
+				vocab_numpy_save = "./store/" + type + "_" + str(i) + "gram_vocab_train.pkl"
+				f = open(vocab_numpy_save, "wb")
+				pickle.dump(word_gram_vocab, f)
+				f.close()
+				del word_gram_corpus
+				del word_gram_vocab
+				'''
+				#self.do_trainTestValSplit( i, "word", word_gram_vocab, word_gram_corpus, all_articles_train, "train", pos)
+				#self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles_validation, "validation", pos)
+				#self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles_test, "test", pos)
+				word_gram_vocab = {}
+				word_gram_corpus = []
+				word_gram_vocab = self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles, "train", pos)
+				word_gram_corpus = []
+				word_gram_vocab = dict.fromkeys(word_gram_vocab, 0) #reset values of dictionary to 0 but maintain words
+				self.do_trainTestValSplit(i, "word", word_gram_vocab, word_gram_corpus, all_articles_test, "test", pos)
+
+		else:
+			for i in range(2, 6):
+
+				'''
+				for filecontents in all_articles:
+					filecontent_pos_gram = ngram.doc_pos_ngram(i, filecontents)
+					pos_gram_vocab = self.run_vocab_construction("pos", i, pos_gram_vocab, filecontent_pos_gram)
+					pos_gram_corpus.append(filecontent_pos_gram)
+				self.construct_counts("pos",i,  pos_gram_vocab, pos_gram_corpus)
+				vocab_numpy_save = "./store/" + type + "_" + str(i) + "gram_vocab.pkl"
+				f = open(vocab_numpy_save, "wb")
+				pickle.dump(pos_gram_vocab, f)
+				f.close()
+				del pos_gram_corpus
+				del pos_corpus_counts
+				'''
+				#self.do_trainTestValSplit( i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_train, "train", pos)
+				#self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_validation, "validation", pos)
+				#self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_test, "test", pos)
+				pos_gram_vocab = {}
+				pos_gram_corpus = []
+				self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles, "train", pos)
+				pos_gram_corpus = []
+				pos_gram_vocab = dict.fromkeys(pos_gram_vocab, 0) #reset values of dictionary to 0 but maintain words
+				self.do_trainTestValSplit(i, "pos", pos_gram_vocab, pos_gram_corpus, all_articles_test, "test", pos)
+
 
 	def calc_word_vector(self, all_articles, not_pos = True, lemmad = True, print_vocab=False):
 		nlp = spacy.load("en_core_web_lg")
@@ -366,6 +546,7 @@ class Orchestrator():
 				validation_dataset = split[leaning][ApplicationConstants.Validation]
 				test_dataset = split[leaning][ApplicationConstants.Test]
 				all_articles = list(map(lambda art: art.Content, training_dataset + validation_dataset + test_dataset))
+				print("num articles to calc word vec", str(len(all_articles)))
 				for article in all_articles:
 					document = nlp(article)
 					if not_pos:
@@ -388,7 +569,8 @@ class Orchestrator():
 									word = "gpe"
 								if "norp" in word:
 									word = "norp"
-								if word not in punctuation and word not in word_vector and word not in stops:
+								replacement_words = ["norp", "gpe", "loc", "person", "people"]
+								if word not in punctuation and word not in word_vector and word not in stops and word:
 									if len(word) >= 2 and word != "\n" and ":" not in word:
 										word_vector.add(word)
 
@@ -518,77 +700,101 @@ class Orchestrator():
 		print("accuracy is: " + str(acc))
 
 
-	def run_bow(self, file_name_1, file_name_2, model_name, not_pos = True, lemmad = True, print_vocab = False, balanced = True):
+	def run_bow(self, file_name_1, file_name_2, model_name, do_ngrams = False, not_pos = True, lemmad = True, print_vocab = False, balanced = True):
 		label_name = file_name_2[:-4] + "_labels.npy"
+		if os.path.exists("./vocabulary/") == False:
+			os.mkdir("./vocabulary/")
 		if balanced:
 			numArticles = 50
 		else:
 			numArticles = 1000
-		if os.path.exists("./store/") == False:
-			os.mkdir("./store/")
+		if os.path.exists("./BOW_models/") == False:
+			os.mkdir("./BOW_models/")
+		trainLen = 0
 		#if file_name_2 exists, then all np arrays exists. load them and do BOW
-		if os.path.isfile(file_name_2):
+		if os.path.isfile(file_name_2) and not do_ngrams:
 			numpy_counts = np.load(file_name_2)
 			numpy_cum_labels = np.load(label_name)
 			count_vectors = numpy_counts.tolist()
 			labels = numpy_cum_labels.tolist() #was list_labels
 			numpy_cumulative = np.load(file_name_1)
 			cumulative_word_vec = numpy_cumulative.tolist()
+			#approximate train + val length using .8 because we already have files and can't get exact without reloading all data
+			#which takes a long time
+			trainLen = int(len(labels) * .8)
 		else:
-			if os.path.isfile(file_name_1) : #check if file_name 1 exists, and load if it does
+			if os.path.isfile(file_name_1) and not do_ngrams : #check if file_name 1 exists, and load if it does
 				numpy_cumulative = np.load(file_name_1)
 				cumulative_word_vec = numpy_cumulative.tolist()
 
-			else: #otherwise, load the correct json
-				if not_pos:
-					articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=numArticles
-											  ,save=False)
-				else:
-					articles = self.read_data(path = ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names,
-											  number_of_articles =numArticles, save = False)
+			#else: #otherwise, load the correct json
+			elif not_pos:
+				pos = False
+				articles = self.read_data(path=ApplicationConstants.all_articles_random_v4_cleaned, number_of_articles=numArticles
+										  ,save=False)
+			else:
+				pos = True
+				articles = self.read_data(path = ApplicationConstants.all_articles_random_v4_cleaned_pos_candidate_names,
+										  number_of_articles =numArticles, save = False)
 
-				#create the cumulative word vec for all articles, and save it as numpy array in store directory
+			#create the cumulative word vec for all articles, and save it as numpy array in store directory
+			if os.path.isfile(file_name_1) == False and not do_ngrams:
 				cumulative_word_vec = self.calc_word_vector(articles, not_pos, lemmad, print_vocab)
-				numpy_cumulative = np.array(cumulative_word_vec)
 
-
+			else:
+				cumulative_word_vec = self.calc_ngram_vectors(articles, pos)
+			numpy_cumulative = np.array(cumulative_word_vec)
+			if do_ngrams == False:
 				np.save(file_name_1, numpy_cumulative)
 				print("store/total num words = " + str(len(cumulative_word_vec)))
 
-				#get all articles in a list
-			list_articles_list = []
-			list_labels = []
-			for i, split in enumerate(articles):
-				for j, leaning in enumerate(split):
-					if i == 4:
-						training_dataset = split[leaning][ApplicationConstants.Train]
-						validation_dataset = split[leaning][ApplicationConstants.Validation]
-						test_dataset = split[leaning][ApplicationConstants.Test]
-						articles_list = list(map(lambda article: article.Content, training_dataset +
-												 validation_dataset + test_dataset))
-						list_articles_list.append(articles_list)
-						labels = list(map(lambda article: article.Label.TargetGender, training_dataset +
-										  validation_dataset +test_dataset))
-						list_labels.append(labels)
-					else:
-						break
-				if i > 4:
-					break
-			articles_list = [j for sub in list_articles_list for j in sub]
-			labels = [j for sub in list_labels for j in sub]
-			print(len(articles_list), len(labels))
+			#get all articles in a list
+			list_articles_list_train = []
+			list_articles_list_val = []
+			list_articles_list_test = []
+			list_labels_train = []
+			list_labels_test = []
+			list_labels_val = []
 
-			#zip and shuffle the list of articles
-			#print("zipping and shuffling")
-			#zippedArticles = list(zip(articles_list, labels))
-			#random.shuffle(zippedArticles)
+			#need to do for each leaning to get all of the articles from each leaning
+			#currently only doing it using first fold split
+			for j, leaning in enumerate(articles[0]):
 
-			#list_articles = []
-			#list_labels = []
-			#print("unzipping")
-			#for article, label in zippedArticles:
-			#	list_articles.append(article)
-			#	list_labels.append(label)
+				training_dataset = articles[0][leaning][ApplicationConstants.Train] #load all train for fold
+				validation_dataset = articles[0][leaning][ApplicationConstants.Validation] #load all val for fold
+				test_dataset = articles[0][leaning][ApplicationConstants.Test] #load all test for fold
+
+				train_articles = list(map(lambda article: article.Content, training_dataset))
+				test_articles = list(map(lambda article: article.Content, test_dataset))
+				validation_articles = list(map(lambda article: article.Content, validation_dataset))
+
+				#append the articles for the leaning to a master list
+				list_articles_list_train.append(train_articles)
+				list_articles_list_val.append(validation_articles)
+				list_articles_list_test.append(test_articles)
+
+				train_labels = list(map(lambda article: article.Label.TargetGender, training_dataset))
+				test_labels = list(map(lambda article: article.Label.TargetGender, test_dataset ))
+				validation_labels = list(map(lambda article: article.Label.TargetGender, validation_dataset))
+
+				#append the labels for the leaning to a master list
+				list_labels_train.append(train_labels)
+				list_labels_test.append(test_labels)
+				list_labels_val.append(validation_labels)
+
+			#convert 2d list into 1d
+			train_articles = [j for sub in list_articles_list_train for j in sub]
+
+			validation_articles = [j for sub in list_articles_list_val for j in sub]
+			test_articles = [j for sub in list_articles_list_test for j in sub]
+			train_labels = [j for sub in list_labels_train for j in sub]
+
+			validation_labels = [j for sub in list_labels_val for j in sub]
+			test_labels = [j for sub in list_labels_test for j in sub]
+
+			#combine all articles and all labels into one list
+			articles_list = train_articles + validation_articles + test_articles
+			labels = train_labels + validation_labels + test_labels
 
 			#change the 0 labels to -1 for easier training
 			print("enumerating")
@@ -597,46 +803,150 @@ class Orchestrator():
 					labels[i] = -1 #was list_labels
 
 			#Create a word count vector for every article in the dataset and save the count vector in numpy array
-			print("appending")
-			count_vectors = []
-			i = 0
-			nlp = spacy.load("en_core_web_lg")
-			for article in articles_list: #may need to change back to list_articles and uncomment lines 581-590
-				count_vectors.append(self.calc_count_doc_count_vector(cumulative_word_vec, article, nlp, lemmad))
-			numpy_count = np.array(count_vectors)
-			numpy_label = np.array(labels) #was list_labels
-			np.save(file_name_2, numpy_count)
-			np.save(label_name, numpy_label)
+			if do_ngrams == False:
+				print("appending")
+				count_vectors = []
+				nlp = spacy.load("en_core_web_lg")
+				for article in articles_list:
+					count_vectors.append(self.calc_count_doc_count_vector(cumulative_word_vec, article, nlp, lemmad))
+
+				numpy_count = np.array(count_vectors)
+				numpy_label = np.array(labels) #was list_labels
+				np.save(file_name_2, numpy_count)
+				np.save(label_name, numpy_label)
+		if do_ngrams ==False:
+			loop = 2
+		else:
+			loop = 6
 
 		#Build and train an SVM BOW
-		trainLen = int(len(count_vectors) * 0.8)
+		if trainLen == 0:
+			trainLen = len(train_articles) + len(validation_articles) #train on train and val since we're not tuning hyperparams
+		print("TRAIN LEN:", str(trainLen))
 		acc = 0
 		print("building net")
-		net = SVM()
-		print("training")
-		net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[trainLen:], labels[trainLen:]) #was list_labels
-		weights = net.Get_Weights()
-		predictions = net.Predict(count_vectors[trainLen:])
+		for l in range(2, loop):
+			multiple = False
+			print(do_ngrams)
+			if do_ngrams == True:
+				multiple = True
+				if pos:
+					type = "pos"
+				else:
+					type = "word"
+				count_vectors_train = np.load("./store/" + type + "_" + str(l) + "gram_CorpusCountstrain.npy", allow_pickle = True) #load the array
+				#count_vectors_validation = np.load("./store/" + type + "_" + str(l) + "gram_CorpusCountsvalidation.npy", allow_pickle = True)
+				count_vectors_test = np.load("./store/" + type + "_" + str(l) + "gram_CorpusCountstest.npy",allow_pickle=True)
+				#count_vectors = count_vectors_train + count_vectors_validation + count_vectors_test
+				#count_vectors_train = np.load("./store/" + type + "_" + str(l) + "gram_CorpusCounts.npy", allow_pickle = True)
 
-		acc = accuracy_score(labels[trainLen:], predictions) #was list_labels
-		target_names = ['Female', 'Male']
-		print("accuracy is: " + str(acc))
+				word_model ="./store/" + type + "_"+ str(l) +"gram_vocab.npy"
+				print(os.path.exists(word_model))
+				cumulative_word_vec = np.load(word_model)
+				#print("LEN", len(count_vectors_train))
+				foutval = "vocabulary/output_words_50Articles_" + type + "_" + str(l) + "gram_lesswinnow.txt"
+				fout = open(foutval, 'w')
+			print(np.shape(count_vectors_train), np.shape(count_vectors_test))
+			net = SVM()
+			print("training")
+			if not do_ngrams:
+				net.Train(count_vectors[:trainLen], labels[:trainLen], count_vectors[:trainLen], labels[:trainLen]) #no validation occurs here, so last 2 params do nothing
 
-		#if the accuracy is high enough, print the metrics, and print top words to a file
-		if acc >= 0.60:
-			print(classification_report(labels[trainLen:], predictions, target_names=target_names)) #was list_labels
+			else:
+				net.Train(count_vectors_train,train_labels+validation_labels, count_vectors_train, train_labels+validation_labels)
+			weights = net.Get_Weights()
+			if not do_ngrams:
+				predictions = net.Predict(count_vectors[trainLen:]) #pred on test counts
+				acc = accuracy_score(labels[trainLen:], predictions)  # get accuracy
+				class_rep = classification_report(labels[trainLen:], predictions,
+												  target_names=target_names)  # was list_labels
+			else:
+				predictions = net.Predict(count_vectors_test)
+				acc = accuracy_score(test_labels, predictions)
+				class_rep = classification_report(test_labels, predictions)
+
+
+			target_names = ['Female', 'Male']
+			print("accuracy is: " + str(acc))
+
+
+			print(class_rep)
 
 			weights = weights[0]
 
 			resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-25:]
 			resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
-			model_name_amp = model_name + "_" + str(acc) + "_.sav"
-			pickle.dump(net, open(model_name_amp, 'wb'))
-			fout = open('output_words_4_all_adj.txt', 'w')
+			if not do_ngrams:
+				model_name_amp = model_name + "_" + str(acc) + "_.sav"
+				pickle.dump(net, open(model_name_amp, 'wb'))
+			fout.write(class_rep)
+			fout.write("\n")
 			fout.write("Male Top Words: \n")
 			for index in resTop:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
 			fout.write("Female Top Words: \n")
 			for index in resBottom:
 				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+			'''
+			if multiple:
+				if do_ngrams == True:
+					multiple = False
+					if not pos:
+						count_vectors_train = np.load("./store/word" + "_" + str(l) + "gram_CorpusCountstrain.npy")
+						count_vectors_test = np.load("./store/pos" + "_" + str(l) + "gram_CorpusCountstest.npy")
+						word_model = "./store/" + type + "_" + str(l) + "gram_vocab.npy"
+						print(os.path.exists(word_model))
+						cumulative_word_vec = np.load(word_model)
+						fout = open('vocabulary/output_words_50Articles_wordgram' + str(l) +'.txt', 'w')
+
+						model_name = str(l) + "wordgram"
+					else:
+						count_vectors_train = np.load("./store/pos" + "_" + str(l) + "gram_CorpusCountstrain.npy")
+						count_vectors_test = np.load("./store/pos" + "_" + str(l) + "gram_CorpusCountstest.npy")
+
+						fout = open('vocabulary/output_words_50Articles_posgram' + str(l) + '.txt', 'w')
+
+						model_name = str(l) + "wordgram"
+				net = SVM()
+				print("training")
+				net.Train(count_vectors_train, train_labels+validation_labels, count_vectors_train,
+						  train_labels+validation_labels)  # no validation occurs here, so last 2 params do nothing
+				weights = net.Get_Weights()
+				predictions = net.Predict(count_vectors_test)
+				acc = accuracy_score(test_labels, predictions)
+				class_rep = classification_report(test_labels, predictions)
+				target_names = ['Female', 'Male']
+				print("accuracy is: " + str(acc))
+
+				# if the accuracy is high enough, print the metrics, and print top words to a file
+				# if acc >= 0.60:
+
+				print(class_rep)
+
+				weights = weights[0]
+
+				resTop = sorted(range(len(weights)), key=lambda sub: weights[sub])[-25:]
+				resBottom = sorted(range(len(weights)), key=lambda sub: weights[sub])[:25]
+				model_name_amp = model_name + "_" + str(acc) + ".sav"
+				if not do_ngrams:
+					pickle.dump(net, open(model_name_amp, 'wb'))
+			if do_ngrams == False:
+				if not_pos and balanced:
+					fout = open('vocabulary/output_words_50Articles_allwords.txt', 'w')
+				if not not_pos and balanced:
+					fout = open('vocabulary/output_words_50Articles_adj.txt', 'w')
+				if not_pos and not balanced:
+					fout = open('vocabulary/output_words_allArticles_allwords.txt', 'w')
+				if not not_pos and not balanced:
+					fout = open('vocabulary/output_words_allArticles_adj.txt', 'w')
+
+			fout.write(class_rep)
+			fout.write("\n")
+			fout.write("Male Top Words: \n")
+			for index in resTop:
+				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+			fout.write("Female Top Words: \n")
+			for index in resBottom:
+				fout.write(cumulative_word_vec[index] + ' ' + str(float(weights[index])) + '\n')
+			'''
 
